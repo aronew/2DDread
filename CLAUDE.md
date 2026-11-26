@@ -80,8 +80,17 @@ All of this is playable, and a bot plays the whole route without errors:
     Blunderbuss, Stormcaller (heat-based chain lightning).
   - Longshot (charge rail) as loot.
   - RMB Firebomb.
-- **Abilities:** Q Shock Nova, E Seeker Swarm, F Rend (melee; executes staggered enemies
-  for health).
+- **Abilities:** Q Shock Nova, E Seeker Swarm, F **Fury's Lash** (bullwhip, `lash.gd`):
+  - Tap: crack along the aim line (5 m reach). The last 1.5 m is a sweet spot that always
+    crits. The rope snaps enemy shots out of the air.
+  - Hold: the tip latches on. Light enemies are yanked to point-blank range and dazed.
+    Heavies (mass ≥ 3) pull the player to them instead, and a frontal yank wrenches the
+    Legionnaire's shield aside. Flaming Skulls can't be yanked (`EnemyData.yankable`).
+  - Cracking a staggered (or nearly dead) enemy drags it in for a point-blank execute
+    shot that bursts into health.
+  - F during or just after a dash spins the whip in a full circle.
+  - The rope is drawn live (`player/whip_visual.gd`, two Line2Ds), not a sprite sheet.
+    The coiled whip on the left hip is part of the legs render.
 - **Enemies** (internal ids stay `mite/spitter/brute/bloater`; names and art are themed):
   - **Hellhound** (`mite`): flanking swarmer, pounce.
   - **Hex Witch** (`spitter`): flying caster, shard fans.
@@ -125,10 +134,10 @@ All of this is playable, and a bot plays the whole route without errors:
 src/world.gd        Scene root: layers, environment, level build/rebuild, enemy factory, graphics presets, dev flags
 src/autoload/       InputSetup (all bindings) · Events (signal bus) · Game (refs, hit-stop, settings) · Audio · VFX
 src/core/           iso.gd (projection math) · sheet_db.gd (sprite sheets) · damage_info.gd
-src/player/         player.gd (controller, weapons, inventory) · player_visual.gd (legs+torso compositor)
+src/player/         player.gd (controller, weapons, inventory) · player_visual.gd (legs+torso compositor) · whip_visual.gd (live rope)
 src/combat/         weapon_data/weapon/weapon_db · projectile(_system) · combat.gd (hit/explode) · build.gd (stats + perk hooks) · perks/
 src/enemies/        enemy_data · enemy.gd (base FSM, armour, stagger, status, death) · mite/spitter/brute/bloater · elite.gd
-src/abilities/      shock_nova · seeker_swarm · rend
+src/abilities/      shock_nova · seeker_swarm · lash (F whip: crack / yank / execute / whirl)
 src/loot/           item · loot (generation/drops) · pickup
 src/dungeon/        layout_test (ASCII + rooms/beats) · dungeon.gd (grid collision, DDA raycast, flow field, floor/walls/lights) · encounter_director · prop · doors/portal/shock floor
 src/ui/             hud.gd (procedural HUD + minimap) · inventory_ui.gd

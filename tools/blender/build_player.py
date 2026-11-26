@@ -24,6 +24,7 @@ def materials():
         "lining": C.mat("p_lining", (0.72, 0.05, 0.06), rough=0.6),
         "scarf": C.mat("p_scarf", (0.82, 0.07, 0.07), rough=0.65),
         "leather": C.mat("p_leather", (0.34, 0.16, 0.07), rough=0.55),
+        "whip": C.mat("p_whip", (0.3, 0.12, 0.06), rough=0.5),
         "cloth": C.mat("p_cloth", (0.09, 0.08, 0.11), rough=0.85),
         "gold": C.mat("p_gold", (0.95, 0.66, 0.22), metal=1.0, rough=0.25),
         "steel": C.mat("p_steel", (0.5, 0.52, 0.56), metal=0.9, rough=0.3),
@@ -47,6 +48,7 @@ def build_legs(M):
     C.box((0.27, 0.4, 0.08), (0, 0, 0.12), M["leather"], pelvis, bevel=0.025)  # belt
     C.box((0.04, 0.12, 0.09), (0.14, 0, 0.12), M["gold"], pelvis, bevel=0.015)  # buckle
     C.box((0.16, 0.08, 0.2), (0.04, -0.21, -0.06), M["leather"], pelvis, bevel=0.03)  # holster
+    _whip_coil(M, pelvis)
     # long coat tails: back pair + side flaps, hinged at the belt so they swing
     tails = []
     for (x, y, rz, w) in ((-0.12, 0.1, 0.2, 0.22), (-0.12, -0.1, -0.2, 0.22)):
@@ -70,6 +72,21 @@ def build_legs(M):
         C.box((0.12, 0.15, 0.05), (-0.06, 0, -0.08), M["dark"], ankle, bevel=0.015)  # heel
         legs[side] = (hip, knee, ankle)
     return root, pelvis, legs, tails
+
+
+def _whip_coil(M, pelvis):
+    """Fury's Lash, coiled on the left hip opposite the holster (the rope itself is drawn live in-game)."""
+    y = 0.235
+    for i, (r, dy, tilt) in enumerate(((0.125, -0.02, 0.0), (0.115, -0.003, 0.22), (0.12, 0.014, -0.18),
+                                       (0.11, 0.03, 0.4))):
+        C.torus(r, 0.021, (0.02 + i * 0.01, y + dy, -0.12 - i * 0.014), M["whip"], pelvis,
+                rot=(math.pi / 2, tilt, 0), seg=24, mseg=8)
+    # handle tucked behind the belt, gold-capped
+    C.tube_between((0.05, y + 0.02, -0.03), (0.1, y + 0.02, 0.13), 0.022, M["wood"], pelvis, verts=10)
+    C.cyl(0.026, 0.02, (0.055, y + 0.02, -0.02), M["gold"], pelvis, rot=(0, -0.3, 0), verts=10)
+    C.sphere(0.028, (0.102, y + 0.02, 0.14), M["gold"], pelvis, segs=10)
+    # loose tail hanging from the coil
+    C.tube_between((-0.05, y + 0.02, -0.21), (-0.1, y + 0.03, -0.38), 0.013, M["whip"], pelvis, verts=8, r2=0.006)
 
 
 def pose_legs(pelvis, legs, phase, idle=False, tails=()):

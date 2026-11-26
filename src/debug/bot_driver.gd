@@ -28,6 +28,7 @@ var _route_i := 0
 var _strafe := 1.0
 var _strafe_t := 0.0
 var _dash_t := 0.0
+var _hold_t := 0.0   # keeps the whip key down to yank
 var _fire_toggle := false
 var _bfs_cache := {}
 var _stuck_t := 0.0
@@ -94,6 +95,7 @@ func _process(dt: float) -> void:
 	if quit_after > 0.0 and _elapsed() >= quit_after:
 		_log()
 		print("[bot] FINAL ", stats)
+		print("[bot] whip ", Game.player.lash.stats)
 		get_tree().quit()
 
 
@@ -145,11 +147,13 @@ func state(p) -> Dictionary:
 		return s
 	var dt := get_process_delta_time()
 	_dash_t -= dt
+	_hold_t -= dt
 	var target = _pick_target(p)
 	if target != null:
 		_fight(p, target, s, dt)
 	else:
 		_navigate(p, s, dt)
+	s["melee_held"] = _hold_t > 0.0
 	return s
 
 
@@ -246,8 +250,8 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 			s["dash"] = true
 			s["move"] = (p.gpos - e.gpos).normalized().orthogonal() * _strafe
 			_dash_t = 0.6
-		if e.state == Enemy.S.STAGGER and d < Iso.m(2.6):
-			s["melee"] = true
+		if e.state == Enemy.S.STAGGER and e.data.yankable and d < Iso.m(Lash.REACH_M - 0.3) and Game.dungeon.has_los(p.gpos, e.gpos):
+			s["melee"] = true   # whip execute: drag it in and finish it
 			s["mouse"] = Iso.lift(e.gpos, e.hit_height)
 	for q in Game.projectiles.list:
 		if not no_dodge and q.team == 1 and q.pos.distance_to(p.gpos) < Iso.m(2.0) and _dash_t <= 0.0 and p.dash_charges > 0:
@@ -258,8 +262,14 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 		s["ability_1"] = true
 	if cluster >= 4:
 		s["ability_2"] = true
-	if dist < Iso.m(2.2):
-		s["melee"] = true
+	if t is Enemy and p.lash.is_ready():
+		var sweet := dist > Iso.m(Lash.REACH_M - Lash.SWEET_M + 0.1) and dist < Iso.m(Lash.REACH_M - 0.1)
+		var yank: bool = t.data.yankable and t.data.mass < Lash.HEAVY_MASS and p.cur == 1 and dist > Iso.m(3.0) and dist < Iso.m(Lash.REACH_M)
+		var wrench: bool = t.armor_hp > 0.0 and t.facing.dot(-dir) > 0.45 and dist < Iso.m(Lash.REACH_M)
+		if dist < Iso.m(2.2) or sweet or yank or wrench:
+			s["melee"] = true
+			if yank or wrench:
+				_hold_t = 0.3
 	if cluster >= 3 and dist > Iso.m(5.0) and p.launcher.mag > 0:
 		s["alt_pressed"] = true
 	if not no_dodge and p.hp < p.max_hp * 0.35 and close >= 2 and p.dash_charges > 0 and _dash_t <= 0.0:

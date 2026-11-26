@@ -94,6 +94,10 @@ that matches Godot's `Light2D.height` model:
 Wall and floor index order is listed in each JSON's `kinds` array. The ASCII
 legend in `src/dungeon/layout_test.gd` maps characters to those indices.
 
+The coiled whip on the left hip is part of the legs sheet. The whip's rope is
+not a sprite: `src/player/whip_visual.gd` draws it live (an ink outline plus a
+leather gradient with an ember tip), so its reach can change on every crack.
+
 The legs and torso split exists so the legs follow movement while the torso
 follows aim. Both layers share the same feet origin. If you author a single
 full-body character instead, put it all in the torso sheets and give the legs
