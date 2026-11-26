@@ -6,3 +6,6 @@ export_presets.cfg
 # Python
 __pycache__/
 *.pyc
+
+# Godot import metadata for docs images (docs/ is ignored by Godot via .gdignore)
+docs/**/*.import
