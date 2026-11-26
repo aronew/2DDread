@@ -56,3 +56,34 @@ tools/     Blender asset pipeline · audio synthesis
 * Encounters mix roles: swarmers pressure, spitters zone, brutes anchor, bloaters punish clumping.
 * Camera shake is trauma-based and budgeted; hit-stop only on heavy hits, crits and kills.
 * Modifiers change *behaviour* (pierce, ricochet, split, chain, explode, sustain), not only numbers.
+
+## 6. Status (end of first slice pass)
+
+All nine phases have a playable first pass. The automated bot plays the full route,
+including the elite finale and descending to depth 2, with no script errors.
+
+**Playtest data** (bot, 120 s of game time):
+
+| Bot profile | Damage taken | Deaths |
+|---|---|---|
+| Perfect aim + dodging | ~45–100 | 0 |
+| Human-like aim, no dodging | ~240–270 | 0 |
+
+An unleveled bot entering the Reactor directly with starter gear can die there.
+
+**Tuning levers:** everything lives in `data/weapons/*.tres`, `data/enemies/*.tres`,
+and the beat lists in `src/dungeon/layout_test.gd`.
+
+### Known gaps / next steps (priority order)
+
+1. **Human playtesting on real hardware.** Tune time-to-kill, enemy density and
+   the healing loops by feel; check GPU frame time with many lights.
+2. **Art.** Replace the Blender placeholders with final art (see ASSETS.md).
+   Add hit-reaction and death frames once characters are hand-made.
+3. **Enemy roster.** The architecture already supports flying (`EnemyData.flying`)
+   and summoner behaviours. A boss with phases is the next big content beat.
+4. **Skill tree.** Attributes and perk-bearing gear exist; a node-based passive
+   tree can reuse `Build.stat()` / perk hooks.
+5. **Procedural dungeons.** Rooms are already data (rects + beats) over an ASCII
+   grid; stitching authored room chunks is the planned route.
+6. Options menu (rebinding, volume, screen shake strength), save/load of character.

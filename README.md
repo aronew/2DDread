@@ -129,3 +129,8 @@ godot --path . -- --start=reactor --depth=2
 ```
 
 Rooms you can pass to `--start`: `landing`, `conduit`, `vault`, `hatchery`, `spine`, `reactor`.
+
+## Exporting
+
+Sprite-sheet metadata (`assets/sprites/**/*.json`) is read at runtime with `FileAccess`. In the
+export preset, add `*.json` under **Resources → Filters to export non-resource files**.
