@@ -247,7 +247,10 @@ godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to 
   (`layout_temple.gd`); add `--start=temple` with `--bot`. `--zoom=N` multiplies the
   camera zoom (1.4 ≈ the mockup's framing).
 - **Chasms:** void cells enclosed by walkable floor on all four sides become soul-fire
-  pits automatically (`pit_fire.gd`: painted flame strips plus tier-1 green lights).
+  pits automatically (`pit_fire.gd`). Their far walls are drawn as stone dropping into a
+  green glow (under the floor, so the near rim hides them), with painted flame strips
+  standing along the walls (`assets/sprites/env/pit_flames.png`, four strips;
+  `pit_flames.gdshader` sways and flickers them by TIME) and tier-1 green lights.
   Gaps between rooms are enclosed by walls, so they stay plain abyss. `:` in a layout is
   plain flagstone floor (no random variants).
 - **Other dev flags:** `--shots=DIR --shot-every=S` (screenshots), `--inv-shot`

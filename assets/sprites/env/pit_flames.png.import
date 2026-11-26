@@ -2,20 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3sku3juskn3a"
-path="res://.godot/imported/pit_flames.png-1474014151ca68d30a7ffc2b4cd6d36f.ctex"
+uid="uid://dp2bf1b1jkj1e"
+path.s3tc="res://.godot/imported/pit_flames.png-1474014151ca68d30a7ffc2b4cd6d36f.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/sprites/env/pit_flames.png"
-dest_files=["res://.godot/imported/pit_flames.png-1474014151ca68d30a7ffc2b4cd6d36f.ctex"]
+dest_files=["res://.godot/imported/pit_flames.png-1474014151ca68d30a7ffc2b4cd6d36f.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
