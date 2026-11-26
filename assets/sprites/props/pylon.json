@@ -1,0 +1,16 @@
+{
+ "name": "pylon",
+ "frame_w": 96,
+ "frame_h": 224,
+ "origin": [
+  48,
+  190
+ ],
+ "rows": 1,
+ "cols": 1,
+ "files": {
+  "color": "pylon_c.png",
+  "normal": "pylon_n.png",
+  "emit": "pylon_e.png"
+ }
+}

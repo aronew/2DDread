@@ -1,0 +1,314 @@
+class_name BotDriver
+extends Node
+## Automated playtester. Launch with:
+##   godot -- --bot --shots=/tmp/shots --quit-after=90
+## Plays through the dungeon route (kiting, weapon swaps by range, dodging
+## telegraphs, abilities, executes), saves periodic screenshots and prints a
+## combat log so balance and stability can be checked without a human.
+
+var enabled := false
+var no_dodge := false
+var human := false
+var _aim := Vector2.ZERO
+var _jitter := Vector2.ZERO
+var _jitter_t := 0.0
+var _last_target = null
+var _switch_t := 0.0
+var shots_dir := ""
+var shot_every := 4.0
+var quit_after := 0.0
+var _start_ms := 0
+var _shot_t := 2.0
+var _shot_n := 0
+var _log_t := 5.0
+var _route := ["landing", "conduit", "hatchery", "spine", "reactor", "exit"]
+var _route_i := 0
+var _strafe := 1.0
+var _strafe_t := 0.0
+var _dash_t := 0.0
+var _fire_toggle := false
+var _bfs_cache := {}
+var _stuck_t := 0.0
+var _last_g := Vector2.ZERO
+var stats := {"kills": 0, "deaths": 0, "dmg_taken": 0.0, "shots": 0, "items": 0, "levels": 0, "elite_kills": 0}
+
+
+func configure(opts: Dictionary) -> void:
+	enabled = opts.has("bot")
+	no_dodge = opts.has("bot-nododge")
+	human = opts.has("bot-human")
+	shots_dir = opts.get("shots", "")
+	shot_every = float(opts.get("shot-every", "4"))
+	quit_after = float(opts.get("quit-after", "0"))
+
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_start_ms = Time.get_ticks_msec()
+	if shots_dir != "":
+		DirAccess.make_dir_recursive_absolute(shots_dir)
+	if enabled:
+		Game.bot_mode = true
+		Game.player.input_override = self
+	Events.enemy_killed.connect(func(e, _i):
+		stats["kills"] += 1
+		if e.is_elite: stats["elite_kills"] += 1)
+	Events.player_died.connect(func(): stats["deaths"] += 1)
+	Events.player_damaged.connect(func(_i, a): stats["dmg_taken"] += a)
+	Events.shot_fired.connect(func(_w): stats["shots"] += 1)
+	Events.item_picked.connect(func(_i): stats["items"] += 1)
+	Events.level_up.connect(func(_l): stats["levels"] += 1)
+	Events.room_cleared.connect(func(r): print("[bot] cleared ", r.id, " at ", _elapsed(), "s"))
+	Events.depth_changed.connect(func(d): print("[bot] descended to depth ", d); _route_i = 0)
+
+
+var _game_t := 0.0
+
+
+## Unscaled game time (works with --fixed-fps for deterministic captures).
+func _elapsed() -> float:
+	return _game_t
+
+
+func _process(dt: float) -> void:
+	var real_dt := dt / maxf(Engine.time_scale, 0.01)
+	_game_t += real_dt
+	if shots_dir != "":
+		_shot_t -= real_dt
+		if _shot_t <= 0.0:
+			_shot_t = shot_every
+			_shot()
+	_log_t -= real_dt
+	if _log_t <= 0.0:
+		_log_t = 10.0
+		_log()
+	if quit_after > 0.0 and _elapsed() >= quit_after:
+		_log()
+		print("[bot] FINAL ", stats)
+		get_tree().quit()
+
+
+func _shot() -> void:
+	var img := get_viewport().get_texture().get_image()
+	var path := "%s/shot_%03d.png" % [shots_dir, _shot_n]
+	img.save_png(path)
+	_shot_n += 1
+
+
+func _log() -> void:
+	var pl = Game.player
+	var room = Game.world.director.active
+	print("[bot] t=%.0fs fps=%d hp=%d/%d lvl=%d enemies=%d proj=%d room=%s route=%s %s" % [
+		_elapsed(), Engine.get_frames_per_second(), pl.hp, pl.max_hp, pl.level, Game.living_enemies(),
+		Game.projectiles.list.size(), room.id if room else "-", _route[mini(_route_i, _route.size() - 1)], stats])
+
+
+# ------------------------------------------------------------------ brain
+
+func state(p) -> Dictionary:
+	var s := {"move": Vector2.ZERO, "stick": Vector2.ZERO, "mouse": p.position + Vector2(100, 0),
+		"fire": false, "fire_pressed": false, "fire_released": false, "alt": false, "alt_pressed": false}
+	for a in ["dash", "ability_1", "ability_2", "melee", "reload", "weapon_1", "weapon_2", "weapon_3", "weapon_next", "weapon_prev"]:
+		s[a] = false
+	if not p.alive:
+		return s
+	var dt := get_process_delta_time()
+	_dash_t -= dt
+	var target = _pick_target(p)
+	if target != null:
+		_fight(p, target, s, dt)
+	else:
+		_navigate(p, s, dt)
+	return s
+
+
+func _pick_target(p):
+	var best = null
+	var best_d := Iso.m(15.0)
+	for e in Game.enemies:
+		if not e.alive or e.state == Enemy.S.SPAWN:
+			continue
+		var d: float = e.gpos.distance_to(p.gpos)
+		if e.is_elite:
+			d *= 0.8
+		if e.data.id == &"bloater" and d < Iso.m(7.0):
+			d *= 0.5
+		if d < best_d and Game.dungeon.has_los(p.gpos, e.gpos):
+			best_d = d
+			best = e
+	if best == null:
+		for pr in Game.dungeon.props:
+			if pr.alive and pr.nest_active and pr.gpos.distance_to(p.gpos) < Iso.m(14.0):
+				return pr
+	return best
+
+
+func _fight(p, t, s: Dictionary, dt: float) -> void:
+	var tg: Vector2 = t.gpos
+	var hh: float = t.hit_height if "hit_height" in t else 0.5
+	s["mouse"] = Iso.lift(tg, hh)
+	if human:
+		# reaction delay on target switches, lagging + noisy tracking
+		if t != _last_target:
+			_last_target = t
+			_switch_t = 0.22
+		_switch_t -= dt
+		_jitter_t -= dt
+		if _jitter_t <= 0.0:
+			_jitter_t = 0.35
+			_jitter = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * Iso.m(0.9)
+		var want_aim: Vector2 = s["mouse"] + Iso.to_screen(_jitter)
+		if _aim == Vector2.ZERO:
+			_aim = want_aim
+		_aim = _aim.lerp(want_aim, 1.0 - exp(-6.0 * dt))
+		s["mouse"] = _aim
+		if _switch_t > 0.0:
+			s["fire"] = false
+	var to: Vector2 = tg - p.gpos
+	var dist := to.length()
+	var dir := to.normalized()
+	# weapon by range
+	var want := 0
+	if dist < Iso.m(4.0):
+		want = 1
+	elif dist < Iso.m(8.0) and p.weapons[2] and not p.weapons[2].overheated:
+		want = 2
+	if p.cur != want and p.weapons[want] != null:
+		s["weapon_%d" % (want + 1)] = true
+	var w = p.cur_weapon()
+	if w and w.data.fire_mode == "semi":
+		_fire_toggle = not _fire_toggle
+		s["fire_pressed"] = _fire_toggle
+		s["fire"] = true
+	elif w and w.data.fire_mode == "charge":
+		s["fire"] = w.charge < 0.95
+		s["fire_released"] = w.charge >= 0.95
+	else:
+		s["fire"] = true
+	if human and _switch_t > 0.0:
+		s["fire"] = false
+		s["fire_pressed"] = false
+	# movement: hold a preferred band, strafe, avoid walls
+	_strafe_t -= dt
+	if _strafe_t <= 0.0:
+		_strafe = -_strafe
+		_strafe_t = randf_range(1.2, 2.6)
+	var pref := Iso.m(5.0)
+	var radial := clampf((dist - pref) / Iso.m(2.0), -1.0, 1.0)
+	var mv := dir * radial + dir.orthogonal() * _strafe * 0.9
+	if Game.dungeon.raycast(p.gpos, p.gpos + mv.normalized() * Iso.m(1.5), "walk").hit:
+		_strafe = -_strafe
+		mv = dir * radial + dir.orthogonal() * _strafe
+	s["move"] = mv.normalized()
+	# threats: dodge active wind-ups and incoming acid
+	var close := 0
+	var cluster := 0
+	for e in Game.enemies:
+		if not e.alive:
+			continue
+		var d: float = e.gpos.distance_to(p.gpos)
+		if d < Iso.m(4.0):
+			close += 1
+		if d < Iso.m(12.0):
+			cluster += 1
+		if not no_dodge and e.state == Enemy.S.WINDUP and d < Iso.m(4.5) and _dash_t <= 0.0 and p.dash_charges > 0:
+			s["dash"] = true
+			s["move"] = (p.gpos - e.gpos).normalized().orthogonal() * _strafe
+			_dash_t = 0.6
+		if e.state == Enemy.S.STAGGER and d < Iso.m(2.6):
+			s["melee"] = true
+			s["mouse"] = Iso.lift(e.gpos, e.hit_height)
+	for q in Game.projectiles.list:
+		if not no_dodge and q.team == 1 and q.pos.distance_to(p.gpos) < Iso.m(2.0) and _dash_t <= 0.0 and p.dash_charges > 0:
+			s["dash"] = true
+			s["move"] = q.vel.normalized().orthogonal()
+			_dash_t = 0.5
+	if close >= 3:
+		s["ability_1"] = true
+	if cluster >= 4:
+		s["ability_2"] = true
+	if dist < Iso.m(2.2):
+		s["melee"] = true
+	if cluster >= 3 and dist > Iso.m(5.0) and p.launcher.mag > 0:
+		s["alt_pressed"] = true
+	if not no_dodge and p.hp < p.max_hp * 0.35 and close >= 2 and p.dash_charges > 0 and _dash_t <= 0.0:
+		s["dash"] = true
+		s["move"] = -dir
+		_dash_t = 0.8
+
+
+func _navigate(p, s: Dictionary, dt: float) -> void:
+	var dir_node = Game.world.director
+	var target_cell := Vector2i(-999, -999)
+	# loot first: walk over nearby items/orbs
+	for n in Game.world.entities.get_children():
+		if n is Pickup and n.kind == &"item" and n.gpos.distance_to(p.gpos) < Iso.m(8.0):
+			s["move"] = (n.gpos - p.gpos).normalized()
+			s["mouse"] = Iso.lift(n.gpos, 0.5)
+			return
+	while _route_i < _route.size():
+		var id: String = _route[_route_i]
+		if id == "exit":
+			if Game.world.portal and Game.world.portal.active:
+				target_cell = Game.dungeon.exit_cell
+			break
+		var room = null
+		for r in dir_node.rooms:
+			if r.id == id:
+				room = r
+		if room == null or room.state == "cleared":
+			_route_i += 1
+			continue
+		target_cell = Vector2i(room.rect.get_center())
+		break
+	if target_cell.x == -999:
+		return
+	var field := _bfs(target_cell)
+	var c := Iso.cell_of(p.gpos)
+	var best := c
+	var best_d: int = field.get(c, 99999)
+	for o in Dungeon.NEIGH8:
+		var n: Vector2i = c + o
+		if field.has(n) and field[n] < best_d:
+			if o.x != 0 and o.y != 0 and (not field.has(Vector2i(c.x + o.x, c.y)) or not field.has(Vector2i(c.x, c.y + o.y))):
+				continue
+			best_d = field[n]
+			best = n
+	var goal := Iso.cell_center(best) if best != c else Iso.cell_center(target_cell)
+	s["move"] = (goal - p.gpos).normalized()
+	s["mouse"] = Iso.lift(p.gpos + s["move"] * Iso.m(4.0), 1.2)
+	# unstick
+	if p.gpos.distance_to(_last_g) < 2.0:
+		_stuck_t += dt
+		if _stuck_t > 1.0:
+			s["move"] = s["move"].rotated(randf_range(-1.5, 1.5))
+			s["dash"] = true
+			_stuck_t = 0.0
+			_bfs_cache.clear()
+	else:
+		_stuck_t = 0.0
+	_last_g = p.gpos
+
+
+func _bfs(target: Vector2i) -> Dictionary:
+	if _bfs_cache.has(target):
+		return _bfs_cache[target]
+	var d: Dungeon = Game.dungeon
+	var field := {target: 0}
+	var q: Array[Vector2i] = [target]
+	var head := 0
+	while head < q.size():
+		var c: Vector2i = q[head]
+		head += 1
+		for o in Dungeon.NEIGH8:
+			var n: Vector2i = c + o
+			if field.has(n) or d.walk_blocked(n):
+				continue
+			if o.x != 0 and o.y != 0 and (d.walk_blocked(Vector2i(c.x + o.x, c.y)) or d.walk_blocked(Vector2i(c.x, c.y + o.y))):
+				continue
+			field[n] = field[c] + 1
+			q.append(n)
+	_bfs_cache[target] = field
+	if _bfs_cache.size() > 8:
+		_bfs_cache.clear()
+	return field

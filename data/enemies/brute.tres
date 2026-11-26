@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/enemies/enemy_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"brute"
+display_name = "Brute"
+max_hp = 520.0
+speed_m = 2.8
+accel_m = 12.0
+radius_m = 0.95
+hit_height_m = 1.3
+mass = 5.0
+stagger_threshold = 160.0
+stagger_time = 1.6
+front_armor = 0.7
+back_mult = 1.6
+turn_rate = 2.6
+damage = 34.0
+attack_range_m = 2.9
+attack_cooldown = 2.2
+telegraph_time = 0.8
+xp = 60
+loot_chance = 0.35
+sheet_move = "brute_walk"
+sheet_attack = "brute_attack"
+stride_m = 2.2
+blood_color = Color(1, 0.45, 0.1, 1)
+impact_style = "flesh"
+death_size = 2.2

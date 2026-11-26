@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/enemies/enemy_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"spitter"
+display_name = "Spitter"
+max_hp = 85.0
+speed_m = 3.4
+accel_m = 18.0
+radius_m = 0.5
+hit_height_m = 0.9
+mass = 1.4
+stagger_threshold = 40.0
+stagger_time = 0.9
+turn_rate = 7.0
+damage = 13.0
+attack_range_m = 13.0
+attack_cooldown = 2.2
+telegraph_time = 0.65
+xp = 14
+loot_chance = 0.07
+sheet_move = "spitter_walk"
+sheet_attack = "spitter_attack"
+stride_m = 1.6
+blood_color = Color(0.5, 1, 0.25, 1)
+death_size = 1.1

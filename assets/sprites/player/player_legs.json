@@ -1,0 +1,37 @@
+{
+ "name": "player_legs",
+ "frame_w": 160,
+ "frame_h": 160,
+ "origin": [
+  80,
+  112
+ ],
+ "rows": 16,
+ "cols": 9,
+ "files": {
+  "color": "player_legs_c.png",
+  "normal": "player_legs_n.png",
+  "emit": "player_legs_e.png"
+ },
+ "dirs": 16,
+ "anims": {
+  "run": [
+   0,
+   8
+  ],
+  "idle": [
+   8,
+   1
+  ]
+ },
+ "bob_m": [
+  0.035,
+  2.1431318985078684e-18,
+  -0.035,
+  -6.429395695523605e-18,
+  0.035,
+  1.0715659492539341e-17,
+  -0.035,
+  -1.5001923289555077e-17
+ ]
+}

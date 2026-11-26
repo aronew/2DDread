@@ -1,0 +1,16 @@
+{
+ "name": "barrel",
+ "frame_w": 96,
+ "frame_h": 144,
+ "origin": [
+  48,
+  110
+ ],
+ "rows": 1,
+ "cols": 1,
+ "files": {
+  "color": "barrel_c.png",
+  "normal": "barrel_n.png",
+  "emit": "barrel_e.png"
+ }
+}

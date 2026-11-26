@@ -1,0 +1,16 @@
+{
+ "name": "eggs",
+ "frame_w": 192,
+ "frame_h": 160,
+ "origin": [
+  96,
+  100
+ ],
+ "rows": 1,
+ "cols": 2,
+ "files": {
+  "color": "eggs_c.png",
+  "normal": "eggs_n.png",
+  "emit": "eggs_e.png"
+ }
+}

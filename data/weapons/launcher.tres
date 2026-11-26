@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/combat/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"launcher"
+display_name = "HAVOC Launcher"
+flavor = "Shoulder-mounted grenade launcher. Recharges over time."
+torso = "rifle"
+fire_mode = "semi"
+damage = 85.0
+damage_type = 4
+crit_chance = 0.0
+knockback_m = 11.0
+stagger = 90.0
+status = {&"burn": 0.6}
+fire_interval = 0.35
+proj_kind = "grenade"
+projectile_speed_m = 20.0
+range_m = 15.0
+explode_radius_m = 3.1
+proj_color = Color(1, 0.6, 0.25, 1)
+proj_width = 5.0
+ammo_type = "charges"
+mag_size = 3
+reload_time = 3.6
+recoil_kick = 7.0
+shake = 0.18
+muzzle_color = Color(1, 0.6, 0.3, 1)
+muzzle_scale = 1.1
+muzzle_light = 2.2
+sound_fire = "launcher_fire"
+impact_style = "metal"
+icon_color = Color(1, 0.6, 0.25, 1)

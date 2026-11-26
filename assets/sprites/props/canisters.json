@@ -1,0 +1,15 @@
+{
+ "name": "canisters",
+ "frame_w": 128,
+ "frame_h": 128,
+ "origin": [
+  64,
+  84
+ ],
+ "rows": 1,
+ "cols": 1,
+ "files": {
+  "color": "canisters_c.png",
+  "normal": "canisters_n.png"
+ }
+}

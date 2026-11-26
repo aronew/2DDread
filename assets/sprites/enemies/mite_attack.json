@@ -1,0 +1,19 @@
+{
+ "name": "mite_attack",
+ "frame_w": 128,
+ "frame_h": 128,
+ "origin": [
+  64,
+  84
+ ],
+ "rows": 16,
+ "cols": 6,
+ "files": {
+  "color": "mite_attack_c.png",
+  "normal": "mite_attack_n.png",
+  "emit": "mite_attack_e.png"
+ },
+ "dirs": 16,
+ "frames": 6,
+ "anim": "attack"
+}

@@ -1,0 +1,16 @@
+{
+ "name": "crystals",
+ "frame_w": 160,
+ "frame_h": 176,
+ "origin": [
+  80,
+  120
+ ],
+ "rows": 1,
+ "cols": 1,
+ "files": {
+  "color": "crystals_c.png",
+  "normal": "crystals_n.png",
+  "emit": "crystals_e.png"
+ }
+}

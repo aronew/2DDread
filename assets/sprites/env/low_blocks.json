@@ -1,0 +1,21 @@
+{
+ "name": "low_blocks",
+ "frame_w": 260,
+ "frame_h": 276,
+ "origin": [
+  130,
+  174
+ ],
+ "rows": 1,
+ "cols": 3,
+ "files": {
+  "color": "low_blocks_c.png",
+  "normal": "low_blocks_n.png",
+  "emit": "low_blocks_e.png"
+ },
+ "kinds": [
+  "console",
+  "crates",
+  "railing"
+ ]
+}

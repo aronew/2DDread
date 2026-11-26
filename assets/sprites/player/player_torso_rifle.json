@@ -1,0 +1,23 @@
+{
+ "name": "player_torso_rifle",
+ "frame_w": 224,
+ "frame_h": 200,
+ "origin": [
+  112,
+  176
+ ],
+ "rows": 4,
+ "cols": 8,
+ "files": {
+  "color": "player_torso_rifle_c.png",
+  "normal": "player_torso_rifle_n.png",
+  "emit": "player_torso_rifle_e.png"
+ },
+ "dirs": 32,
+ "layout": "grid",
+ "muzzle_m": [
+  1.0800000429153442,
+  -0.11999999731779099,
+  1.320000022649765
+ ]
+}

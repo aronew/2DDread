@@ -1,0 +1,25 @@
+{
+ "name": "wall_blocks",
+ "frame_w": 260,
+ "frame_h": 388,
+ "origin": [
+  130,
+  286
+ ],
+ "rows": 1,
+ "cols": 7,
+ "files": {
+  "color": "wall_blocks_c.png",
+  "normal": "wall_blocks_n.png",
+  "emit": "wall_blocks_e.png"
+ },
+ "kinds": [
+  "panel",
+  "pod",
+  "machine",
+  "window",
+  "pipes",
+  "rock",
+  "breach"
+ ]
+}

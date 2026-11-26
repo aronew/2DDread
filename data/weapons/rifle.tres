@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/combat/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"rifle"
+display_name = "VIGIL Pulse Rifle"
+flavor = "Reliable automatic pulse bolts. Accuracy blooms under sustained fire."
+torso = "rifle"
+fire_mode = "auto"
+damage = 12.0
+damage_type = 0
+crit_chance = 0.08
+crit_mult = 2.0
+knockback_m = 0.9
+stagger = 5.0
+fire_interval = 0.088
+spread_deg = 1.2
+bloom_per_shot_deg = 0.55
+bloom_max_deg = 5.5
+bloom_recovery = 14.0
+proj_kind = "bolt"
+projectile_speed_m = 48.0
+range_m = 19.0
+proj_color = Color(0.55, 0.85, 1, 1)
+proj_width = 3.5
+proj_length_m = 1.1
+ammo_type = "light"
+mag_size = 36
+reload_time = 1.3
+recoil_kick = 3.5
+shake = 0.05
+muzzle_color = Color(0.55, 0.85, 1, 1)
+muzzle_scale = 0.75
+muzzle_light = 1.4
+sound_fire = "rifle_fire"
+impact_style = "metal"
+icon_color = Color(0.55, 0.85, 1, 1)

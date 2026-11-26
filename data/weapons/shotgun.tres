@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/combat/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"shotgun"
+display_name = "BREACHER Scattergun"
+flavor = "Point-blank devastation. Huge knockback, falls off hard at range."
+torso = "shotgun"
+fire_mode = "semi"
+damage = 11.0
+damage_type = 0
+pellets = 10
+crit_chance = 0.05
+crit_mult = 1.8
+knockback_m = 2.4
+stagger = 9.0
+falloff_start_m = 4.0
+falloff_min = 0.35
+fire_interval = 0.6
+spread_deg = 13.0
+proj_kind = "pellet"
+projectile_speed_m = 40.0
+range_m = 10.0
+proj_color = Color(1, 0.62, 0.25, 1)
+proj_width = 3.0
+proj_length_m = 0.6
+ammo_type = "shells"
+mag_size = 8
+reload_time = 0.38
+reload_per_round = true
+recoil_kick = 11.0
+shake = 0.34
+hitstop = 0.0
+muzzle_color = Color(1, 0.62, 0.25, 1)
+muzzle_scale = 1.45
+muzzle_wide = true
+muzzle_light = 2.6
+sound_fire = "shotgun_fire"
+impact_style = "metal"
+icon_color = Color(1, 0.62, 0.25, 1)

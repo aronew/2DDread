@@ -1,0 +1,16 @@
+{
+ "name": "crate",
+ "frame_w": 144,
+ "frame_h": 160,
+ "origin": [
+  72,
+  104
+ ],
+ "rows": 1,
+ "cols": 1,
+ "files": {
+  "color": "crate_c.png",
+  "normal": "crate_n.png",
+  "emit": "crate_e.png"
+ }
+}

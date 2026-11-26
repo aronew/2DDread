@@ -1,0 +1,16 @@
+{
+ "name": "cryotube",
+ "frame_w": 144,
+ "frame_h": 256,
+ "origin": [
+  72,
+  196
+ ],
+ "rows": 1,
+ "cols": 1,
+ "files": {
+  "color": "cryotube_c.png",
+  "normal": "cryotube_n.png",
+  "emit": "cryotube_e.png"
+ }
+}

@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/combat/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"arc"
+display_name = "TESLA Arc Caster"
+flavor = "Short-range lightning that leaps between targets. Runs on heat, never ammo."
+torso = "arc"
+fire_mode = "auto"
+damage = 8.0
+damage_type = 2
+crit_chance = 0.05
+crit_mult = 1.8
+knockback_m = 0.3
+stagger = 4.0
+status = {&"shock": 0.22}
+fire_interval = 0.075
+spread_deg = 3.0
+proj_kind = "arc"
+hitscan = true
+range_m = 8.5
+chain_count = 2
+chain_range_m = 3.8
+proj_color = Color(0.6, 0.55, 1, 1)
+ammo_type = "heat"
+mag_size = 1
+heat_per_shot = 0.065
+heat_cool_rate = 0.55
+overheat_time = 1.5
+recoil_kick = 1.5
+shake = 0.02
+muzzle_color = Color(0.65, 0.55, 1, 1)
+muzzle_scale = 0.6
+muzzle_light = 1.8
+sound_fire = "arc_fire"
+impact_style = "energy"
+icon_color = Color(0.65, 0.55, 1, 1)
