@@ -8,6 +8,8 @@ enemies for health, and build around behaviour-changing legendaries.
 > The art is placeholder, pre-rendered from procedural 3D models in Blender with colour, normal and
 > emission passes. See [`docs/ASSETS.md`](docs/ASSETS.md) to drop in your own art.
 
+![Hatchery combat](docs/screenshots/hatchery_combat.png)
+
 ## Run it
 
 1. Open the folder in **Godot 4.7.x**. Godot imports the assets on first open.
