@@ -14,7 +14,7 @@ uniform sampler2D noise_tex : repeat_enable, filter_linear;
 void fragment() {
 	vec4 c = COLOR;
 	c.rgb = mix(c.rgb, c.rgb * tint.rgb * 1.7 + tint.rgb * 0.08, tint_amount);
-	c.rgb = mix(c.rgb, flash_color.rgb * 2.2, flash);
+	c.rgb = mix(c.rgb, flash_color.rgb * 1.6, flash);
 	if (dissolve > 0.0) {
 		float n = texture(noise_tex, UV * noise_scale).r;
 		float edge = n - dissolve;

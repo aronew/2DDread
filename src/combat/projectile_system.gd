@@ -204,6 +204,8 @@ func _split(p: Projectile, at: Vector2) -> void:
 
 func _acid_splat(at: Vector2) -> void:
 	VFX.impact(at, 0.1, Vector2.UP, "acid")
+	if randf() < 0.5:
+		return
 	var h := GroundHazard.new()
 	h.setup(at, Iso.m(0.9), 2.2, null, "acid")
 	if Game.world:
