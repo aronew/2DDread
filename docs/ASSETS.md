@@ -121,7 +121,30 @@ To regenerate the placeholder art:
 
 These scripts need the `bpy` module (`pip install bpy==5.3.0`) plus `pillow` and `numpy`.
 
-## 5. Audio
+## 5. Painted textures (environment)
+
+Floors and walls can be painted instead of modelled in flat colours. Paint a flat,
+straight-on texture (never isometric), save it in `tools/blender/textures/`, and the
+Blender kit wraps it onto the existing blocks. The game camera, shading bands, ink lines,
+normal maps and glow passes all still come from the renderer, so the result matches the
+rest of the art and the sheet contract above doesn't change.
+
+| Texture | Shape | Used for |
+|---|---|---|
+| `floor_flag.png` | square, tiles both ways, covers one 2 m cell | the main floor (`.`) and under floor details |
+| `floor_cracked.png`, `floor_moss.png` | same as above | `w` and `,` cells |
+| `floor_border_meander.png` | ~3:1 strip, tiles left–right | the gold Greek-key walkway (`h`) |
+| `floor_emblem_skull.png` | square, single image | the laurel emblem (`o`), as a raised plate |
+| `wall_ashlar.png` | 2:3, one wall face 2 × 3 m, tiles left–right | every built wall block; gold band 17–32% down |
+| `soulfire_flames.png` | 2:1, flames on black | glowing back of the `M` fire alcoves |
+
+Rules for new textures: albedo only (no baked light or shadows), seamless where the
+table says so, and the palette and readability rules from the prompt book. Which file
+each kind uses lives in `tools/blender/build_env.py → PAINTED`. After adding or
+replacing one, run `build_env.py -- floors walls` and then `godot --headless --path .
+--import`.
+
+## 6. Audio
 
 Every combat action calls `Audio.play("<name>", ground_pos)`. Files live in
 `assets/audio/<name>.wav`. The current set is synthesized by

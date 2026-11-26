@@ -45,7 +45,35 @@ def materials():
         "wax": C.mat("v_wax", (0.92, 0.88, 0.75), rough=0.5),
         "rock": C.mat("v_rock", (0.12, 0.14, 0.13), rough=0.9, noise=0.6, noise_scale=4, noise_color=(0.06, 0.07, 0.07)),
         "marble": C.mat("v_marble", (0.4, 0.42, 0.38), rough=0.5, noise=0.3, noise_scale=6),
+        **painted_materials(),
     }
+
+
+# Painted textures (tools/blender/textures, made with docs' prompt book). Each one is
+# optional: when its file is missing, the kit falls back to the modelled look.
+PAINTED = {
+    # key: (file, metres per repeat along object X, Y, Z, extra options)
+    # floors are painted ~25% darker than the mockup's lit stone, so lift them in the material
+    "t_floor": ("floor_flag.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_cracked": ("floor_cracked.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_moss": ("floor_moss.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_border": ("floor_border_meander.png", (CELL, CELL / 2.96, CELL), {"tex_proj": "FLAT"}),  # strip ~2.96:1
+    # turned 45 degrees so the skull stands upright on screen; edges clamp to plain stone
+    "t_emblem": ("floor_emblem_skull.png", (1.7, 1.7, 1.7),
+                 {"tex_proj": "FLAT", "tex_rot": -math.pi / 4, "tex_extension": "EXTEND"}),
+    "t_wall": ("wall_ashlar.png", (CELL, CELL, 3.0), {}),
+    "t_flames": ("soulfire_flames.png", (1.0, 3.24, 1.62),
+                 {"tex_emit": True, "emit": (1.0, 1.0, 1.0), "emit_strength": 6.0}),
+}
+
+
+def painted_materials():
+    out = {}
+    for key, (fn, size, opts) in PAINTED.items():
+        path = C.tex_path(fn)
+        if path:
+            out[key] = C.mat("p_" + key, (0.2, 0.22, 0.2), rough=0.85, tex=path, tex_size=size, **opts)
+    return out
 
 
 def flame(M, parent, pos, h, rng, strong=True):
@@ -120,15 +148,26 @@ def meander(M, parent, origin, along, up, normal, length, height, unit=0.24, off
               rot=(b - a).to_track_quat("Z", "Y").to_euler())
 
 
+def floor_top(M, r, rng, key="t_floor", rows=3):
+    """The walkable surface: the painted texture when it exists, else modelled flagstones.
+    The painted top is 1.2% larger than the cell, like the slab, so neighbouring tiles
+    overlap; the texture repeats every CELL, so the overlap shows matching stone."""
+    if key in M:
+        C.box((CELL * 1.012, CELL * 1.012, 0.04), (0, 0, -0.01), M[key], r, bevel=0.0)
+        return True
+    flagstones(M, r, rng, rows=rows)
+    return False
+
+
 def floor_variant(M, kind, rng):
     r = slab(M)
     up = Vector((0, 0, 1))
     if kind == "flag":
-        flagstones(M, r, rng, rows=3)
+        floor_top(M, r, rng, rows=3)
     elif kind == "flag2":
-        flagstones(M, r, rng, rows=2)
+        floor_top(M, r, rng, rows=2)
     elif kind == "grate":
-        flagstones(M, r, rng, rows=3)
+        floor_top(M, r, rng, rows=3)
         C.box((1.3, 1.3, 0.1), (0, 0, -0.02), M["grout"], r, bevel=0.0)
         C.box((1.2, 1.2, 0.04), (0, 0, -0.12), M["soul2"], r, bevel=0.0)
         for i in range(-5, 6):
@@ -137,30 +176,35 @@ def floor_variant(M, kind, rng):
             C.box((1.36, 0.07, 0.07), (0, s * 0.66, 0.0), M["iron"], r, bevel=0.01)
             C.box((0.07, 1.36, 0.07), (s * 0.66, 0, 0.0), M["iron"], r, bevel=0.01)
     elif kind == "meander":
-        flagstones(M, r, rng, rows=3)
-        C.box((CELL, 0.42, 0.05), (0, 0.45, 0.0), M["wall_dk"], r, bevel=0.01)
-        meander(M, r, (0, 0.45, 0.03), Vector((1, 0, 0)), Vector((0, 1, 0)), up, CELL * 0.95, 0.3, offset=0.0)
+        floor_top(M, r, rng, rows=3)
+        if "t_border" in M:  # painted gold Greek-key strip; repeats every CELL so runs join up
+            C.box((CELL * 1.012, CELL / 2.96, 0.04), (0, 0.45, 0.005), M["t_border"], r, bevel=0.0)
+        else:
+            C.box((CELL, 0.42, 0.05), (0, 0.45, 0.0), M["wall_dk"], r, bevel=0.01)
+            meander(M, r, (0, 0.45, 0.03), Vector((1, 0, 0)), Vector((0, 1, 0)), up, CELL * 0.95, 0.3, offset=0.0)
     elif kind == "sun":
-        flagstones(M, r, rng, rows=2)
+        floor_top(M, r, rng, rows=2)
         C.cyl(0.24, 0.05, (0, 0, 0.02), M["gold"], r, verts=24)
         for i in range(12):
             a = i * math.pi / 6
             C.box((0.4, 0.07, 0.03), (0.45 * math.cos(a), 0.45 * math.sin(a), 0.03), M["gold"], r, bevel=0.005, rot=(0, 0, a))
     elif kind == "drain":
-        flagstones(M, r, rng, rows=3)
+        floor_top(M, r, rng, rows=3)
         C.cyl(0.55, 0.06, (0, 0, -0.005), M["wall_dk"], r, verts=32, bevel=0.01)
         C.cyl(0.42, 0.04, (0, 0, -0.05), M["soul2"], r, verts=32, bevel=0.0)
         C.torus(0.48, 0.04, (0, 0, 0.02), M["bronze"], r, seg=32, mseg=6)
         for i in range(6):
             C.box((0.86, 0.05, 0.05), (0, 0, 0.0), M["iron"], r, bevel=0.005, rot=(0, 0, i * math.pi / 6))
     elif kind == "cracked":
-        flagstones(M, r, rng, rows=3)
+        if floor_top(M, r, rng, key="t_cracked", rows=3):
+            return r
         for i in range(5):
             x, y = rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8)
             C.box((0.22, 0.16, 0.08), (x, y, 0.02), stone(M, rng), r, bevel=0.03, rot=(rng.random(), rng.random() * 0.3, rng.random() * 3))
         C.box((1.4, 0.035, 0.08), (0.1, -0.1, 0.0), M["grout"], r, bevel=0.0, rot=(0, 0, 0.7))
     elif kind == "moss":
-        flagstones(M, r, rng, rows=3)
+        if floor_top(M, r, rng, key="t_moss", rows=3):
+            return r
         for i in range(6):
             x, y = rng.uniform(-0.7, 0.7), rng.uniform(-0.7, 0.7)
             C.sphere(rng.uniform(0.2, 0.36), (x, y, 0.0), M["moss"], r, scale=(1.3, 1.0, 0.15), subsurf=1, displace=0.03)
@@ -169,7 +213,10 @@ def floor_variant(M, kind, rng):
             C.cyl(0.03, 0.34, (x, y, 0.05), M["bone"], r, verts=8, rot=(math.pi / 2, 0, rng.random() * 3))
         C.sphere(0.1, (rng.uniform(-0.5, 0.5), rng.uniform(-0.5, 0.5), 0.08), M["bone"], r, scale=(1.1, 0.9, 1.0))
     elif kind == "emblem":
-        flagstones(M, r, rng, rows=2)
+        floor_top(M, r, rng, rows=2)
+        if "t_emblem" in M:  # inlaid plate, slightly raised so it gets an ink edge
+            C.box((1.7, 1.7, 0.03), (0, 0, 0.012), M["t_emblem"], r, bevel=0.01)
+            return r
         for s in (-1, 1):
             for i in range(7):  # laurel leaves
                 a = -0.3 + i * 0.36
@@ -179,7 +226,7 @@ def floor_variant(M, kind, rng):
         for s in (-1, 1):
             C.sphere(0.05, (0.07 * s, 0.1, 0.09), M["black"], r, scale=(1, 1, 0.4))
     elif kind == "runes":
-        flagstones(M, r, rng, rows=3)
+        floor_top(M, r, rng, rows=3)
         C.torus(0.6, 0.025, (0, 0, 0.02), M["rune"], r, seg=40, mseg=4)
         for i in range(6):
             a = i * math.pi / 3
@@ -229,13 +276,17 @@ def _rot_for_normal(n):
 
 def wall_base(M, rng, body="wall"):
     r = C.empty("wall")
-    C.box((CELL, CELL, H), (0, 0, H / 2), M[body], r, bevel=0.02)
+    painted = "t_wall" in M  # the painted ashlar has its own joints and gold frieze band
+    C.box((CELL, CELL, H), (0, 0, H / 2), M["t_wall"] if painted else M[body], r, bevel=0.02)
     C.box((CELL + 0.1, CELL + 0.1, 0.18), (0, 0, H - 0.09), M["wall_dk"], r, bevel=0.03)  # cornice
     C.box((CELL * 0.94, CELL * 0.94, 0.05), (0, 0, H + 0.01), M["cap"], r, bevel=0.01)
     C.box((CELL + 0.08, CELL + 0.08, 0.3), (0, 0, 0.15), M["wall_dk"], r, bevel=0.03)  # plinth
 
     def courses(o, a, n):
         rot = _rot_for_normal(n)
+        if painted:
+            C.box((0.05, CELL * 1.0, 0.05), o + n * 0.01 + UP * (H - 0.2), M["gold"], r, rot=rot, bevel=0.005)
+            return
         for z in (0.75, 1.25, 1.75):  # masonry courses
             C.box((0.03, CELL * 0.98, 0.025), o + n * 0.005 + UP * z, M["wall_dk"], r, rot=rot, bevel=0.0)
         for i, z in enumerate((0.5, 1.0, 1.5)):
@@ -275,10 +326,13 @@ def wall_variant(M, kind, rng):
             rot = _rot_for_normal(n)
             C.box((0.12, 1.06, 1.9), o + n * 0.02 + UP * 1.25, M["wall_dk"], r, rot=rot, bevel=0.04)
             C.cyl(0.53, 0.12, o + n * 0.02 + UP * 2.2, M["wall_dk"], r, verts=24, rot=(math.pi / 2, 0, rot[2] + math.pi / 2))
-            C.box((0.1, 0.84, 1.62), o + n * 0.05 + UP * 1.2, M["black"], r, rot=rot, bevel=0.0)
-            for i in range(4):  # soul flames rising in the niche
-                k = -0.27 + i * 0.18
-                flame(M, r, o + n * 0.14 + a * k + UP * 0.4, rng.uniform(0.7, 1.2), rng, i % 2 == 0)
+            if "t_flames" in M:  # painted soul-fire on the back of the niche
+                C.box((0.1, 0.84, 1.62), o + n * 0.05 + UP * 1.2, M["t_flames"], r, rot=rot, bevel=0.0)
+            else:
+                C.box((0.1, 0.84, 1.62), o + n * 0.05 + UP * 1.2, M["black"], r, rot=rot, bevel=0.0)
+                for i in range(4):  # soul flames rising in the niche
+                    k = -0.27 + i * 0.18
+                    flame(M, r, o + n * 0.14 + a * k + UP * 0.4, rng.uniform(0.7, 1.2), rng, i % 2 == 0)
             C.box((0.14, 1.12, 0.06), o + n * 0.06 + UP * 0.34, M["gold"], r, rot=rot, bevel=0.01)
             C.torus(0.52, 0.03, o + n * 0.09 + UP * 2.2, M["gold"], r, rot=(math.pi / 2, 0, rot[2] + math.pi / 2), seg=32, mseg=6)
         _face_items(face)

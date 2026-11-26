@@ -196,6 +196,24 @@ models are made from primitives in code, then rendered through a custom stylizer
   The result is downsampled to final size. Tune it with `common.STYLE`.
   `build_env.py` uses calmer `ENV_STYLE`/`FLOOR_STYLE` so floors stay readable under
   combat.
+- **Painted textures** (`tools/blender/textures/`): environment surfaces can use painted
+  images instead of flat colours. They are made with the environment prompt book
+  (https://claude.ai/artifact/9JXvw5rE37iezcSMhqP5Yv) and must be flat and straight-on,
+  never isometric.
+  - `C.mat(..., tex=C.tex_path("file.png"), tex_size=(x, y, z))` maps one onto a model
+    (metres per repeat along object X/Y/Z, centred on the object's origin). The image
+    feeds the albedo pass too, so shading, ink lines and normal maps still come from the
+    stylizer. Options: `tex_proj` (`"FLAT"` for floors, because Cycles' box projection
+    swaps axes on upward faces; `"BOX"` for walls), `tex_rot`, `tex_extension`
+    (`"EXTEND"` for single non-tiling images), `tex_gain`, and `tex_emit` for painted
+    light such as flames.
+  - `build_env.py → PAINTED` says which file each floor/wall kind uses. A missing file
+    falls back to the modelled look, so the kit still runs without textures.
+  - Current set: `floor_flag`, `floor_cracked`, `floor_moss` (lifted ×1.3 in the
+    material), `floor_border_meander`, `floor_emblem_skull`, `wall_ashlar` (made from
+    `wall_ashlar_v1` with the gold band moved lower; replace it with a regenerated one),
+    `soulfire_flames` (fire-alcove niches). `column_wrap_v1` is unused: painted flutes
+    don't read at game size, so the column keeps its modelled flutes.
 - **Output** goes to `assets/sprites/<category>/<name>_c.png` (colour), `_n.png`
   (normal), `_e.png` (emission) and `.json` (frame size, origin = feet/tile centre,
   rows = directions). See `docs/ASSETS.md`.

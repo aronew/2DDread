@@ -147,9 +147,33 @@ def setup_lights(key=3.2, fill=0.9, rim=2.2, key_color=(1.0, 0.95, 0.88), rim_co
 _MATS = {}
 
 
+TEX_DIR = os.path.join(ROOT, "tools", "blender", "textures")
+
+
+def tex_path(filename):
+    """Full path of a painted texture in tools/blender/textures, or None if it isn't there."""
+    p = os.path.join(TEX_DIR, filename)
+    return p if os.path.exists(p) else None
+
+
 def mat(name, color, metal=0.0, rough=0.5, emit=None, emit_strength=0.0, coat=0.0,
-        noise=0.0, noise_scale=8.0, noise_color=None, bump=0.0, spec=0.5, subsurface=0.0):
-    """Principled material + emission-only branch selectable via the PASS value node."""
+        noise=0.0, noise_scale=8.0, noise_color=None, bump=0.0, spec=0.5, subsurface=0.0,
+        tex=None, tex_size=(2.0, 2.0, 2.0), tex_rot=0.0, tex_emit=False, tex_proj="BOX",
+        tex_extension="REPEAT", tex_gain=1.0):
+    """Principled material + emission-only branch selectable via the PASS value node.
+
+    tex: path to a painted texture (see tex_path). It replaces `color` (and any noise)
+    as the base colour, and also feeds the flat albedo pass, so it reaches the final
+    sprite. It is projected in object space, centred on the object's origin, with
+    tex_size = metres per repeat along object X, Y, Z; tex_rot turns it about Z (radians).
+    tex_proj "BOX" suits blocks seen from the side (walls); "FLAT" maps X to the image's
+    width and Y to its height, which is what floor surfaces want (Cycles' box projection
+    swaps the axes on upward faces). tex_extension "EXTEND" stops a single, non-tiling
+    image (an emblem) from repeating past its edges. tex_gain brightens (>1) or darkens
+    the painted colour without editing the image file.
+    tex_emit: the texture is light on black (e.g. flames) and drives the emission too;
+    pass emit and emit_strength as for any glowing material.
+    With tex=None the material is built exactly as before."""
     if name in _MATS:
         return _MATS[name]
     m = bpy.data.materials.new(name)
@@ -171,14 +195,38 @@ def mat(name, color, metal=0.0, rough=0.5, emit=None, emit_strength=0.0, coat=0.
         bsdf.inputs["Subsurface Weight"].default_value = subsurface
         bsdf.inputs["Subsurface Radius"].default_value = (0.3, 0.1, 0.1)
         bsdf.inputs["Subsurface Scale"].default_value = 0.05
-    if noise > 0 or bump > 0:
+    img = None
+    if tex is not None:
+        ttc = nodes.new("ShaderNodeTexCoord")
+        tmap = nodes.new("ShaderNodeMapping")
+        tmap.inputs["Scale"].default_value = tuple(1.0 / v if abs(v) > 1e-6 else 1e6 for v in tex_size)
+        tmap.inputs["Rotation"].default_value = (0.0, 0.0, tex_rot)
+        tmap.inputs["Location"].default_value = (0.5, 0.5, 0.5)
+        img = nodes.new("ShaderNodeTexImage")
+        img.image = bpy.data.images.load(tex, check_existing=True)
+        img.image.colorspace_settings.name = "sRGB"
+        img.projection = tex_proj
+        img.projection_blend = 0.0
+        img.extension = tex_extension
+        links.new(ttc.outputs["Object"], tmap.inputs["Vector"])
+        links.new(tmap.outputs["Vector"], img.inputs["Vector"])
+        tex_out = img.outputs["Color"]
+        if abs(tex_gain - 1.0) > 1e-3:
+            gain = nodes.new("ShaderNodeVectorMath")
+            gain.operation = "MULTIPLY"
+            gain.inputs[1].default_value = (tex_gain, tex_gain, tex_gain)
+            links.new(tex_out, gain.inputs[0])
+            tex_out = gain.outputs["Vector"]
+        links.new(tex_out, bsdf.inputs["Base Color"])
+    use_noise = noise > 0 and tex is None
+    if use_noise or bump > 0:
         tc = nodes.new("ShaderNodeTexCoord")
         nz = nodes.new("ShaderNodeTexNoise")
         nz.inputs["Scale"].default_value = noise_scale
         nz.inputs["Detail"].default_value = 6.0
         nz.inputs["Roughness"].default_value = 0.6
         links.new(tc.outputs["Object"], nz.inputs["Vector"])
-        if noise > 0:
+        if use_noise:
             ramp = nodes.new("ShaderNodeValToRGB")
             ramp.color_ramp.elements[0].position = 0.35
             ramp.color_ramp.elements[1].position = 0.75
@@ -230,6 +278,11 @@ def mat(name, color, metal=0.0, rough=0.5, emit=None, emit_strength=0.0, coat=0.
         alb.inputs["Color"].default_value = (*emit, 1.0)
         if bc_link:
             links.remove(alb.inputs["Color"].links[0])
+    if img is not None and tex_emit:
+        # painted light: the texture is the glow colour in every pass
+        links.new(tex_out, em.inputs["Color"])
+        links.new(tex_out, bsdf.inputs["Emission Color"])
+        links.new(tex_out, alb.inputs["Color"])
     camd = nodes.new("ShaderNodeCameraData")
     dmath = nodes.new("ShaderNodeMapRange")
     dmath.inputs["From Min"].default_value = CAM_DIST - 7.0
