@@ -3,19 +3,20 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://qitx5oo2cgxk"
-path="res://.godot/imported/brute_attack_c.png-c1b73556ef2586dbd69d7ba0420a1d51.ctex"
+path.s3tc="res://.godot/imported/brute_attack_c.png-c1b73556ef2586dbd69d7ba0420a1d51.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/sprites/enemies/brute_attack_c.png"
-dest_files=["res://.godot/imported/brute_attack_c.png-c1b73556ef2586dbd69d7ba0420a1d51.ctex"]
+dest_files=["res://.godot/imported/brute_attack_c.png-c1b73556ef2586dbd69d7ba0420a1d51.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

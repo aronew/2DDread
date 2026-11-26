@@ -3,25 +3,26 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://r48l1pktcy5w"
-path="res://.godot/imported/mite_attack_n.png-09c6888d3445dc1d6b2ca7b16569520b.ctex"
+path.s3tc="res://.godot/imported/mite_attack_n.png-09c6888d3445dc1d6b2ca7b16569520b.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/sprites/enemies/mite_attack_n.png"
-dest_files=["res://.godot/imported/mite_attack_n.png-09c6888d3445dc1d6b2ca7b16569520b.ctex"]
+dest_files=["res://.godot/imported/mite_attack_n.png-09c6888d3445dc1d6b2ca7b16569520b.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1

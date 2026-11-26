@@ -2,6 +2,9 @@ class_name PostFX
 extends CanvasLayer
 ## Drives the post-process shader: flashes, aberration kicks, damage pulses.
 
+const FULL := preload("res://src/vfx/shaders/post.gdshader")
+const LITE := preload("res://src/vfx/shaders/post_lite.gdshader")
+
 var rect: ColorRect
 var mat: ShaderMaterial
 var _flash := Color(0, 0, 0, 0)
@@ -19,10 +22,15 @@ func _ready() -> void:
 	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mat = ShaderMaterial.new()
-	mat.shader = preload("res://src/vfx/shaders/post.gdshader")
+	mat.shader = FULL
 	rect.material = mat
 	add_child(rect)
 	VFX.post = self
+
+
+## Full = screen-reading shader (aberration, desaturation); lite = alpha overlay only.
+func set_full(full: bool) -> void:
+	mat.shader = FULL if full else LITE
 
 
 func flash(color: Color, dur: float) -> void:

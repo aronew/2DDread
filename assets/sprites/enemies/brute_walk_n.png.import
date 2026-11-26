@@ -3,25 +3,26 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://br6rqeoco3i6r"
-path="res://.godot/imported/brute_walk_n.png-bff21fe41505d75aabb8caef2adf44ef.ctex"
+path.s3tc="res://.godot/imported/brute_walk_n.png-bff21fe41505d75aabb8caef2adf44ef.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/sprites/enemies/brute_walk_n.png"
-dest_files=["res://.godot/imported/brute_walk_n.png-bff21fe41505d75aabb8caef2adf44ef.ctex"]
+dest_files=["res://.godot/imported/brute_walk_n.png-bff21fe41505d75aabb8caef2adf44ef.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1

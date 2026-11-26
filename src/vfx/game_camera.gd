@@ -10,7 +10,7 @@ var _noise := FastNoiseLite.new()
 var _t := 0.0
 var _zoom_punch := 0.0
 var target_node: Node2D
-var lookahead := 0.22
+var lookahead := 0.18
 
 
 func _ready() -> void:
@@ -49,7 +49,7 @@ func _process(dt: float) -> void:
 			want += la.limit_length(300.0)
 		elif pl and pl.alive:
 			want += Iso.to_screen(pl.aim_dir) * 120.0
-		global_position = global_position.lerp(want, 1.0 - exp(-10.0 * dt))
+		global_position = global_position.lerp(want, 1.0 - exp(-16.0 * dt))
 	trauma = maxf(0.0, trauma - dt * 1.6)
 	var s := trauma * trauma
 	var sh := Vector2(_noise.get_noise_2d(_t * 60.0, 0.0), _noise.get_noise_2d(0.0, _t * 60.0)) * 34.0 * s

@@ -2,7 +2,7 @@ shader_type canvas_item;
 // Screen-space finishing: vignette, chromatic aberration kicks, damage edge
 // pulse, low-health desaturation, full-screen flash and fine film grain.
 
-uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
 uniform float aberration = 0.0;
 uniform float damage = 0.0;
 uniform float low_health = 0.0;

@@ -31,7 +31,8 @@ enemies for health, and build around behaviour-changing legendaries.
 | Switch weapon | 1 2 3 / mouse wheel | D-pad |
 | Inventory, attributes | Tab / I | Back |
 | Pause | Esc | Start |
-| Debug overlay | F3 | — |
+| Debug / performance overlay | F3 | — |
+| Cycle graphics preset (Low / Medium / High) | F4 | — |
 
 ## What's in the slice
 
@@ -131,6 +132,24 @@ godot --path . -- --start=reactor --depth=2
 ```
 
 Rooms you can pass to `--start`: `landing`, `conduit`, `vault`, `hatchery`, `spine`, `reactor`.
+
+## Performance & graphics presets
+
+F4 cycles **Low / Medium / High** (saved to `user://settings.cfg`). On first launch the game picks
+Low for integrated GPUs and Medium otherwise, and steps down automatically (up to twice) if the frame
+rate stays under ~45 FPS. F3 shows FPS, frame/script time, draw calls, video memory and the GPU name.
+
+| | Low | Medium | High |
+|---|---|---|---|
+| Bloom | off | wide levels only | full |
+| HDR 2D | off | on | on |
+| Background fog | flat colour | 2 texture layers | 3 layers + shafts + motes |
+| Static lights | key lights | + accents | + overhead fill pools |
+| Post-process | overlay only (no screen copy) | full | full |
+| Render cap on >1080p screens | 1080p | 1080p | native |
+| Particles | 50% | 80% | 100% |
+
+Sprites import as VRAM-compressed (DXT/BC) textures: ~122 MB of video memory instead of ~544 MB.
 
 ## Exporting
 

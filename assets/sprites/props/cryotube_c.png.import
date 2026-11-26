@@ -3,19 +3,20 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d14bhosfu328q"
-path="res://.godot/imported/cryotube_c.png-358ae7eedf52996e8a7448999c4d60fb.ctex"
+path.s3tc="res://.godot/imported/cryotube_c.png-358ae7eedf52996e8a7448999c4d60fb.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/sprites/props/cryotube_c.png"
-dest_files=["res://.godot/imported/cryotube_c.png-358ae7eedf52996e8a7448999c4d60fb.ctex"]
+dest_files=["res://.godot/imported/cryotube_c.png-358ae7eedf52996e8a7448999c4d60fb.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

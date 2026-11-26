@@ -39,6 +39,8 @@ var decals: Node2D
 var _flow_target := Vector2i(1 << 20, 1 << 20)
 var _faded := {}
 var _ao: Node2D
+var lights_by_tier: Array = [[], [], []]   # 0 key, 1 accent, 2 fill — graphics presets toggle tiers
+var _last_visit_cell := Vector2i(1 << 20, 0)
 var _floor_root: Node2D
 var _light_tex: Texture2D
 var _add_mat: CanvasItemMaterial
@@ -396,7 +398,7 @@ func add_prop(c: Vector2i, kind: String) -> Prop:
 		props_by_cell[c] = []
 	props_by_cell[c].append(p)
 	if p.light_color.a > 0.0:
-		add_light(Iso.to_screen(p.gpos) - Vector2(0, Iso.h(p.light_height_m)), p.light_color, p.light_energy, p.light_range_m)
+		add_light(Iso.to_screen(p.gpos) - Vector2(0, Iso.h(p.light_height_m)), p.light_color, p.light_energy, p.light_range_m, 90.0, 0)
 	return p
 
 
@@ -558,7 +560,7 @@ func _build_lights() -> void:
 				var n: Vector2i = c + o
 				if is_floor(n):
 					var gw := Iso.tile_to_ground(Vector2(c.x + 0.5, c.y + 0.5) + Vector2(o) * 0.75)
-					add_light(Iso.to_screen(gw), Color(0.55, 0.75, 1.0) if k != 5 else Color(0.4, 0.9, 0.75), 0.55, 3.4, 40.0)
+					add_light(Iso.to_screen(gw), Color(0.55, 0.75, 1.0) if k != 5 else Color(0.4, 0.9, 0.75), 0.55, 3.4, 40.0, 1)
 					break
 		match k:
 			3: col = Color(0.3, 0.85, 1.0); energy = 0.9
@@ -575,22 +577,22 @@ func _build_lights() -> void:
 			if not is_floor(n):
 				continue
 			var g := Iso.tile_to_ground(Vector2(c.x + 0.5, c.y + 0.5) + Vector2(o) * 0.85)
-			add_light(Iso.to_screen(g) - Vector2(0, Iso.h(1.6)), col, energy, 4.2)
+			add_light(Iso.to_screen(g) - Vector2(0, Iso.h(1.6)), col, energy, 4.2, 90.0, 0 if k in [3, 6] else 1)
 	for c in floor_kind:
 		if block.has(c):
 			continue
 		match floor_kind[c]:
 			4:
-				add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 20), Color(0.3, 0.9, 1.0), 0.5, 3.2)
+				add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 20), Color(0.3, 0.9, 1.0), 0.5, 3.2, 90.0, 1)
 			_:
 				# soft overhead fill on a loose grid: pools of light, not flat ambience
 				if c.x % 4 == 1 and c.y % 4 == 1:
 					var cool: bool = (c.x / 4 + c.y / 4) % 2 == 0
 					add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 160), Color(0.72, 0.84, 1.0) if cool else Color(0.45, 0.95, 0.85),
-						0.42, 6.0, 260.0)
+						0.42, 6.0, 260.0, 2)
 
 
-func add_light(screen_pos: Vector2, color: Color, energy: float, range_m: float, height := 90.0) -> PointLight2D:
+func add_light(screen_pos: Vector2, color: Color, energy: float, range_m: float, height := 90.0, tier := 0) -> PointLight2D:
 	var l := PointLight2D.new()
 	l.texture = _light_tex
 	l.position = screen_pos
@@ -600,8 +602,27 @@ func add_light(screen_pos: Vector2, color: Color, energy: float, range_m: float,
 	l.texture_scale = Iso.m(range_m) * 2.0 / 256.0
 	l.scale = Vector2(1.0, Iso.K)
 	l.shadow_enabled = false
+	l.visible = tier <= int(Game.gfx.get("lights", 2))
 	add_child(l)
+	lights_by_tier[clampi(tier, 0, 2)].append(l)
 	return l
+
+
+## Graphics preset hook: show light tiers up to `level`.
+func apply_light_level(level: int) -> void:
+	for t in 3:
+		for l in lights_by_tier[t]:
+			if is_instance_valid(l):
+				l.visible = t <= level
+
+
+func light_count() -> int:
+	var n := 0
+	for t in 3:
+		for l in lights_by_tier[t]:
+			if is_instance_valid(l) and l.visible:
+				n += 1
+	return n
 
 
 static func make_light_texture() -> Texture2D:
@@ -626,9 +647,11 @@ func _process(dt: float) -> void:
 		return
 	_fade_occluders(pl, dt)
 	var pc := Iso.cell_of(pl.gpos)
-	for ox in range(-5, 6):
-		for oy in range(-5, 6):
-			visited[pc + Vector2i(ox, oy)] = true
+	if pc != _last_visit_cell:
+		_last_visit_cell = pc
+		for ox in range(-5, 6):
+			for oy in range(-5, 6):
+				visited[pc + Vector2i(ox, oy)] = true
 
 
 func _fade_occluders(pl, dt: float) -> void:

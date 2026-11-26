@@ -31,6 +31,7 @@ var _num_settings: LabelSettings
 var _crit_settings: LabelSettings
 var _popup_settings: LabelSettings
 var _ready_done := false
+var particle_scale := 1.0   # graphics preset multiplier
 
 
 func _ready() -> void:
@@ -214,7 +215,7 @@ func emit(type: String, screen_pos: Vector2, angle: float, color: Color, ratio :
 	p.global_position = screen_pos
 	p.rotation = angle
 	p.modulate = color
-	p.amount_ratio = clampf(ratio, 0.05, 1.0)
+	p.amount_ratio = clampf(ratio * particle_scale, 0.05, 1.0)
 	p.restart()
 
 

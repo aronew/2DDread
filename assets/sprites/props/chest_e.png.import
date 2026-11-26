@@ -3,19 +3,20 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bg8ygaxel0opv"
-path="res://.godot/imported/chest_e.png-3aadf0ea63ef2db65dff2702c87ba39c.ctex"
+path.s3tc="res://.godot/imported/chest_e.png-3aadf0ea63ef2db65dff2702c87ba39c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/sprites/props/chest_e.png"
-dest_files=["res://.godot/imported/chest_e.png-3aadf0ea63ef2db65dff2702c87ba39c.ctex"]
+dest_files=["res://.godot/imported/chest_e.png-3aadf0ea63ef2db65dff2702c87ba39c.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

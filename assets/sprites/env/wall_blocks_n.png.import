@@ -3,25 +3,26 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://covdpqm7k2i0k"
-path="res://.godot/imported/wall_blocks_n.png-e9b8e4ac52773172c59a256acc46e1b7.ctex"
+path.s3tc="res://.godot/imported/wall_blocks_n.png-e9b8e4ac52773172c59a256acc46e1b7.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/sprites/env/wall_blocks_n.png"
-dest_files=["res://.godot/imported/wall_blocks_n.png-e9b8e4ac52773172c59a256acc46e1b7.ctex"]
+dest_files=["res://.godot/imported/wall_blocks_n.png-e9b8e4ac52773172c59a256acc46e1b7.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1

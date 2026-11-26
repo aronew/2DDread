@@ -46,6 +46,7 @@ func _enter_tree() -> void:
 	_joy("weapon_next", [JOY_BUTTON_DPAD_RIGHT])
 	_joy("weapon_prev", [JOY_BUTTON_DPAD_LEFT])
 	_key("debug_toggle", [KEY_F3])
+	_key("graphics_cycle", [KEY_F4])
 
 
 func _ensure(action: String) -> void:

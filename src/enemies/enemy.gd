@@ -254,6 +254,15 @@ func on_wall_impact(_k: Vector2) -> void:
 
 # ------------------------------------------------------------------ visuals
 
+var _params := {}
+
+
+func _set_param(n: String, v) -> void:
+	if _params.get(n) != v:
+		_params[n] = v
+		mat.set_shader_parameter(n, v)
+
+
 func _update_visual(dt: float) -> void:
 	var d := Iso.dir_index(facing, 16)
 	if _attack_frame >= 0.0:
@@ -271,7 +280,7 @@ func _update_visual(dt: float) -> void:
 	var fl := _flash
 	if state == S.STAGGER:
 		fl = maxf(fl, 0.25 + 0.2 * sin(state_t * 30.0))
-	mat.set_shader_parameter("flash", fl)
+	_set_param("flash", snappedf(fl, 0.02))
 	var tint_a := 0.0
 	var tint_c := Color.WHITE
 	if status.has(&"shock"):
@@ -283,10 +292,13 @@ func _update_visual(dt: float) -> void:
 	if state == S.WINDUP:
 		tint_a = maxf(tint_a, 0.35 + 0.3 * sin(state_t * 40.0))
 		tint_c = Color(1.0, 0.25, 0.2)
-	mat.set_shader_parameter("tint_amount", tint_a)
-	mat.set_shader_parameter("tint", tint_c)
+	_set_param("tint_amount", snappedf(tint_a, 0.02))
+	_set_param("tint", tint_c)
 	_show_bar_t -= dt
-	overlay.queue_redraw()
+	var show_ov := is_elite or _show_bar_t > 0.0
+	if show_ov or overlay.visible:
+		overlay.visible = show_ov
+		overlay.queue_redraw()
 
 
 ## Animate the attack sheet: k in [0,1], or -1 to return to locomotion.

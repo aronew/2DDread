@@ -20,7 +20,16 @@ var post: PostFX
 var portal: ExitPortal
 var bot: BotDriver
 var _bg_mat: ShaderMaterial
+var _bg_rect: ColorRect
+var _env: Environment
+var _cm: CanvasModulate
 var _enemy_data := {}
+var _auto_t := 0.0
+var _auto_frames := 0
+var _auto_steps := 0
+var _bench_until := 0.0
+var _bench_start_frames := 0
+var _bench_start_ms := 0
 var _t := 0.0
 
 
@@ -28,9 +37,9 @@ func _ready() -> void:
 	Game.world = self
 	_setup_environment()
 	_setup_background()
-	var cm := CanvasModulate.new()
-	cm.color = AMBIENT
-	add_child(cm)
+	_cm = CanvasModulate.new()
+	_cm.color = AMBIENT
+	add_child(_cm)
 	camera = GameCamera.new()
 	add_child(camera)
 	player = Player.new()
@@ -53,12 +62,16 @@ func _ready() -> void:
 	add_child(hud)
 	Events.player_died.connect(_on_player_died)
 	Audio.start_music()
+	Game.graphics_changed.connect(apply_graphics)
+	get_window().size_changed.connect(_apply_render_cap)
 	_parse_args()
+	apply_graphics()
 	Events.message.emit("DEPTH %d" % Game.depth, Color(0.85, 0.9, 1.0))
 
 
 func _setup_environment() -> void:
 	var env := Environment.new()
+	_env = env
 	env.background_mode = Environment.BG_CANVAS
 	env.glow_enabled = true
 	env.glow_intensity = 0.7
@@ -82,10 +95,13 @@ func _setup_background() -> void:
 	var rect := ColorRect.new()
 	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.color = Color(0.012, 0.035, 0.045)
 	_bg_mat = ShaderMaterial.new()
 	_bg_mat.shader = preload("res://src/vfx/shaders/void_bg.gdshader")
+	_bg_mat.set_shader_parameter("noise_tex", preload("res://src/vfx/fog_noise.tres"))
 	rect.material = _bg_mat
 	layer.add_child(rect)
+	_bg_rect = rect
 
 
 func build_level() -> void:
@@ -106,6 +122,7 @@ func build_level() -> void:
 	var fx := _layer("FX", 31)
 	var overlay := _layer("Overlay", 60)
 	VFX.setup(fx, lit, decals, overlay)
+	_warm_up()
 	Game.dungeon = dungeon
 	Game.enemies.clear()
 	dungeon.build(LayoutTest.MAP, entities, decals)
@@ -143,7 +160,16 @@ func _layer(n: String, z: int) -> Node2D:
 
 func _process(dt: float) -> void:
 	_t += dt
-	if _bg_mat and camera:
+	if _bench_until > 0.0 and Time.get_ticks_msec() / 1000.0 >= _bench_until:
+		var secs := (Time.get_ticks_msec() - _bench_start_ms) / 1000.0
+		var frames := Engine.get_frames_drawn() - _bench_start_frames
+		print("[bench] preset=%s avg_fps=%.2f frames=%d secs=%.1f lights=%d draw_calls=%d vram_tex_mb=%.0f" % [
+			Game.preset, frames / secs, frames, secs, dungeon.light_count(),
+			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+			Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0])
+		get_tree().quit()
+	_auto_quality(dt)
+	if _bg_mat and camera and _bg_rect.material != null:
 		_bg_mat.set_shader_parameter("cam", camera.global_position)
 		_bg_mat.set_shader_parameter("zoom", camera.zoom.x)
 		_bg_mat.set_shader_parameter("time_s", _t)
@@ -152,6 +178,81 @@ func _process(dt: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("debug_toggle"):
 		Game.debug = not Game.debug
+	elif event.is_action_pressed("graphics_cycle"):
+		var p := Game.cycle_preset()
+		Events.message.emit("GRAPHICS: " + p.to_upper(), Color(0.7, 0.9, 1.0))
+
+
+# ------------------------------------------------------------------ graphics
+
+## If the frame rate stays low early on, step the preset down (at most twice)
+## so a first launch on modest hardware becomes playable by itself.
+func _auto_quality(dt: float) -> void:
+	if Game.user_chose_preset or bot != null or _auto_steps >= 2 or Game.preset == "low" or get_tree().paused:
+		return
+	_auto_t += dt / maxf(Engine.time_scale, 0.01)
+	_auto_frames += 1
+	if _auto_t < 5.0:
+		return
+	var fps := _auto_frames / _auto_t
+	_auto_t = 0.0
+	_auto_frames = 0
+	if fps < 45.0:
+		_auto_steps += 1
+		var i: int = maxi(0, Game.PRESET_ORDER.find(Game.preset) - 1)
+		Game.set_preset(Game.PRESET_ORDER[i], false)
+		Events.message.emit("LOW FPS (%d): GRAPHICS -> %s   [F4 to change]" % [fps, Game.preset.to_upper()], Color(1.0, 0.8, 0.4))
+
+
+## Load every enemy sheet and fire each particle pool once off-screen, so the
+## first spawn / explosion of a fight doesn't stall on texture upload or
+## pipeline compilation.
+func _warm_up() -> void:
+	for id in ENEMY_IDS:
+		var d: EnemyData = load("res://data/enemies/%s.tres" % id)
+		_enemy_data[id] = d
+		for sname in [d.sheet_move, d.sheet_attack]:
+			var sh = SheetDB.get_sheet(Enemy.SHEET_DIR + sname)
+			if sh:
+				GlowMat.get_mat(sh, Color(1.0, 0.22, 0.18, 0.6))
+	for k in ["sparks", "embers", "electric", "smoke", "blood", "gibs", "debris"]:
+		VFX.emit(k, Vector2(-100000, -100000), 0.0, Color(1, 1, 1, 0), 0.05)
+
+## Applies Game.gfx (preset) to every renderer-facing system.
+func apply_graphics() -> void:
+	var g: Dictionary = Game.gfx
+	var hdr: bool = g["hdr"]
+	get_viewport().use_hdr_2d = hdr
+	_env.glow_enabled = g["glow"]
+	_env.glow_hdr_threshold = 1.1 if hdr else 0.8
+	# glow level 1 is the half-resolution blur and costs the most fill-rate;
+	# medium skips it and leans on the cheaper wide levels
+	var full: bool = g.get("glow_full", true)
+	for i in 7:
+		_env.set_glow_level(i, (i >= 1 if full else i >= 2) and i <= 5)
+	_env.glow_intensity = 0.7 if full else 0.85
+	_env.glow_bloom = 0.02 if full else 0.0
+	var bg: int = g["bg"]
+	_bg_rect.material = _bg_mat if bg > 0 else null
+	_bg_mat.set_shader_parameter("quality", bg)
+	if post:
+		post.set_full(g["post"])
+	var lv: int = g["lights"]
+	if dungeon:
+		dungeon.apply_light_level(lv)
+	# fewer static lights -> lift ambient so rooms stay readable
+	_cm.color = [Color(0.66, 0.69, 0.78), Color(0.7, 0.73, 0.82), AMBIENT][lv]
+	VFX.particle_scale = g["particles"]
+	_apply_render_cap()
+
+
+## On screens larger than 1080p, render the game at 1080p and upscale (big
+## fill-rate saving on 1440p/4K) unless the High preset asks for native.
+func _apply_render_cap() -> void:
+	var win := get_window()
+	var big := win.size.x > 1920 or win.size.y > 1080
+	var cap: bool = Game.gfx["cap1080"] and big
+	win.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT if cap else Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 
 
 # ------------------------------------------------------------------ spawning
@@ -234,6 +335,17 @@ func _parse_args() -> void:
 					c = Vector2i(r.rect.get_center())
 				player.spawn_at(Iso.cell_center(c))
 				camera.snap()
+	if opts.has("gfx"):
+		Game.set_preset(opts["gfx"], false)
+	for k in Game.gfx.keys():
+		# per-setting overrides for profiling, e.g. --g-lights=0 --g-glow=false
+		if opts.has("g-" + k):
+			var v: String = opts["g-" + k]
+			Game.gfx[k] = (v == "true") if v in ["true", "false"] else (float(v) if "." in v else int(v))
+	if opts.has("bench"):
+		_bench_until = Time.get_ticks_msec() / 1000.0 + float(opts["bench"])
+		_bench_start_ms = Time.get_ticks_msec()
+		_bench_start_frames = Engine.get_frames_drawn()
 	if opts.has("dmg-mult"):
 		Game.damage_taken_mult = float(opts["dmg-mult"])
 	if opts.has("bot") or opts.has("shots") or opts.has("quit-after") or opts.has("inv-shot"):

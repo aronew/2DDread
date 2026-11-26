@@ -3,19 +3,20 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ds47lfkbp110g"
-path="res://.godot/imported/low_blocks_e.png-df2cfe7787e8897a0917ed38afba8643.ctex"
+path.s3tc="res://.godot/imported/low_blocks_e.png-df2cfe7787e8897a0917ed38afba8643.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/sprites/env/low_blocks_e.png"
-dest_files=["res://.godot/imported/low_blocks_e.png-df2cfe7787e8897a0917ed38afba8643.ctex"]
+dest_files=["res://.godot/imported/low_blocks_e.png-df2cfe7787e8897a0917ed38afba8643.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

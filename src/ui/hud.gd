@@ -12,6 +12,7 @@ func _ready() -> void:
 	layer = 10
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	Game.hud = self
+	add_child(MinimapDraw.new())
 	draw_root = HudDraw.new()
 	draw_root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	draw_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -33,7 +34,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("pause"):
 		paused_menu = not paused_menu
 		get_tree().paused = paused_menu
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if paused_menu else Input.MOUSE_MODE_HIDDEN
+		HUD.set_game_cursor(not paused_menu)
 		get_viewport().set_input_as_handled()
 	elif paused_menu and event is InputEventKey and event.pressed:
 		if event.physical_keycode == KEY_R:
@@ -46,13 +47,51 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_tree().quit()
 
 
+func _exit_tree() -> void:
+	# release the static cursor texture before the renderer shuts down
+	Input.set_custom_mouse_cursor(null)
+	_reticle = null
+
+
 func toggle_inventory() -> void:
 	inventory.visible = not inventory.visible
 	get_tree().paused = inventory.visible
 	if inventory.visible:
 		inventory.refresh()
 		Audio.play("ui_click")
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if inventory.visible else Input.MOUSE_MODE_HIDDEN
+	HUD.set_game_cursor(not inventory.visible)
+
+
+static var _reticle: ImageTexture
+
+
+## Gameplay uses a hardware (OS-drawn) reticle: it never lags behind the mouse,
+## whatever the frame rate. Menus get the normal arrow.
+static func set_game_cursor(game: bool) -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if not game:
+		Input.set_custom_mouse_cursor(null)
+		return
+	if _reticle == null:
+		var s := 32
+		var img := Image.create(s, s, false, Image.FORMAT_RGBA8)
+		var c := Vector2(15.5, 15.5)
+		for y in s:
+			for x in s:
+				var p := Vector2(x, y) - c
+				var r := p.length()
+				var a := 0.0
+				if absf(r - 3.0) < 1.1:
+					a = 1.0
+				var ax := absf(p.x) < 1.1 or absf(p.y) < 1.1
+				if ax and r > 7.0 and r < 13.0:
+					a = 1.0
+				if a > 0.0:
+					img.set_pixel(x, y, Color(1, 1, 1, a))
+				elif (absf(r - 3.0) < 2.2) or (ax and r > 6.0 and r < 14.0 and (absf(p.x) < 2.1 or absf(p.y) < 2.1)):
+					img.set_pixel(x, y, Color(0, 0, 0, 0.75))
+		_reticle = ImageTexture.create_from_image(img)
+	Input.set_custom_mouse_cursor(_reticle, Input.CURSOR_ARROW, Vector2(16, 16))
 
 
 class HudDraw extends Control:
@@ -70,7 +109,7 @@ class HudDraw extends Control:
 		bold = FontVariation.new()
 		bold.base_font = font
 		bold.variation_embolden = 0.9
-		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+		HUD.set_game_cursor(true)
 		Events.message.connect(func(t, c): messages.append({"t": 0.0, "text": t, "c": c}))
 		Events.item_picked.connect(_on_item)
 
@@ -115,7 +154,6 @@ class HudDraw extends Control:
 		_draw_abilities(pl, vs)
 		_draw_weapons(pl, vs)
 		_draw_xp(pl, vs)
-		_draw_minimap(pl, vs)
 		_draw_elite(pl, vs)
 		_draw_messages(vs)
 		_draw_feed(vs)
@@ -131,9 +169,15 @@ class HudDraw extends Control:
 		if get_parent().paused_menu:
 			draw_rect(Rect2(Vector2.ZERO, vs), Color(0, 0.02, 0.03, 0.7))
 			_text(Vector2(0, vs.y * 0.42), "PAUSED", 72, Color(0.85, 0.95, 1.0), bold, HORIZONTAL_ALIGNMENT_CENTER, vs.x, 10)
-			_text(Vector2(0, vs.y * 0.42 + 60), "ESC resume   ·   R restart run   ·   Q quit", 22, Color(0.7, 0.8, 0.85), null, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
+			_text(Vector2(0, vs.y * 0.42 + 60), "ESC resume   ·   R restart run   ·   Q quit   ·   F4 graphics: %s" % Game.preset.to_upper(), 22, Color(0.7, 0.8, 0.85), null, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
 		if Game.debug:
-			_text(Vector2(20, 30), "FPS %d  enemies %d  projectiles %d  depth %d" % [Engine.get_frames_per_second(), Game.living_enemies(), Game.projectiles.list.size() if Game.projectiles else 0, Game.depth], 18, Color(0.6, 1.0, 0.6))
+			_text(Vector2(20, 30), "FPS %d (%.1f ms)  script %.1f ms  draw calls %d  VRAM %d MB" % [Engine.get_frames_per_second(),
+				1000.0 / maxf(1.0, Engine.get_frames_per_second()), Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+				Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+				Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0], 18, Color(0.6, 1.0, 0.6))
+			_text(Vector2(20, 54), "graphics %s [F4]  lights %d  enemies %d  projectiles %d  GPU %s" % [Game.preset.to_upper(),
+				Game.dungeon.light_count() if Game.dungeon else 0, Game.living_enemies(),
+				Game.projectiles.list.size() if Game.projectiles else 0, RenderingServer.get_video_adapter_name()], 16, Color(0.6, 1.0, 0.6))
 		if not get_tree().paused:
 			_draw_crosshair(pl)
 
@@ -262,54 +306,6 @@ class HudDraw extends Control:
 
 	# -------------------------------------------------------------- minimap
 
-	func _draw_minimap(pl, vs: Vector2) -> void:
-		var c := Vector2(vs.x - 150, 150)
-		var R := 118.0
-		draw_circle(c, R + 6, Color(0.01, 0.03, 0.04, 0.85))
-		var d = Game.dungeon
-		if d == null:
-			return
-		var pt := Iso.ground_to_tile(pl.gpos)
-		var s := 11.0
-		var to_map := func(t: Vector2) -> Vector2:
-			var rel := t - pt
-			return c + Vector2((rel.x - rel.y) * s, (rel.x + rel.y) * s * 0.75)
-		var pc := Iso.cell_of(pl.gpos)
-		for ox in range(-13, 14):
-			for oy in range(-13, 14):
-				var cell := pc + Vector2i(ox, oy)
-				if not d.floor_kind.has(cell) or not d.visited.has(cell):
-					continue
-				var p0: Vector2 = to_map.call(Vector2(cell))
-				if p0.distance_to(c) > R - 6:
-					continue
-				var b: int = d.block.get(cell, 0)
-				var col := Color(0.08, 0.25, 0.27, 0.9)
-				if b == Dungeon.Block.WALL:
-					col = Color(0.55, 0.75, 0.8, 0.9)
-				elif b == Dungeon.Block.LOW:
-					col = Color(0.2, 0.4, 0.45, 0.9)
-				elif b == Dungeon.Block.DOOR:
-					col = Color(1.0, 0.25, 0.2, 0.95)
-				var pts := PackedVector2Array([to_map.call(Vector2(cell)), to_map.call(Vector2(cell) + Vector2(1, 0)),
-					to_map.call(Vector2(cell) + Vector2(1, 1)), to_map.call(Vector2(cell) + Vector2(0, 1))])
-				draw_colored_polygon(pts, col)
-		if d.exit_cell.x >= 0 and d.visited.has(d.exit_cell):
-			var ep: Vector2 = to_map.call(Vector2(d.exit_cell) + Vector2(0.5, 0.5))
-			if ep.distance_to(c) < R:
-				draw_circle(ep, 5, Color(0.4, 0.9, 1.0, 0.6 + 0.4 * sin(_t * 4.0)))
-		for e in Game.enemies:
-			if not e.alive:
-				continue
-			var ep: Vector2 = to_map.call(Iso.ground_to_tile(e.gpos))
-			if ep.distance_to(c) < R - 4:
-				draw_circle(ep, 4.5 if e.is_elite else 3.0, Color(1.0, 0.6, 0.2) if e.is_elite else Color(1.0, 0.25, 0.25))
-		var ad: Vector2 = pl.aim_dir
-		var mdir := Vector2(ad.x, ad.y * 0.75).normalized()
-		draw_colored_polygon(PackedVector2Array([c + mdir * 10, c + mdir.orthogonal() * 6 - mdir * 5, c - mdir.orthogonal() * 6 - mdir * 5]), Color(1, 1, 1))
-		draw_arc(c, R + 4, 0, TAU, 64, Color(0.25, 0.85, 0.8, 0.7), 2.5)
-		draw_arc(c, R + 9, -0.5, 0.5, 16, Color(0.25, 0.85, 0.8, 0.5), 2.0)
-
 	# -------------------------------------------------------------- elite bar / room
 
 	func _draw_elite(pl, vs: Vector2) -> void:
@@ -402,14 +398,85 @@ class HudDraw extends Control:
 		var spread := 10.0
 		if w:
 			spread = 8.0 + (w.s_spread + w.bloom) * 2.2
-		var col := Color(1, 1, 1, 0.9)
-		draw_arc(m, 3, 0, TAU, 12, col, 2.0)
-		for k in 4:
-			var d := Vector2.from_angle(k * PI * 0.5 + PI * 0.25)
-			draw_line(m + d * spread, m + d * (spread + 9), col, 2.5)
+		var col := Color(1, 1, 1, 0.55)
+		if spread > 14.0:
+			for k in 4:
+				var d := Vector2.from_angle(k * PI * 0.5 + PI * 0.25)
+				draw_line(m + d * spread, m + d * (spread + 7), col, 2.0)
 		if w and w.reloading:
 			draw_arc(m, spread + 16, -PI * 0.5, -PI * 0.5 + TAU * w.reload_progress(), 32, Color(1.0, 0.8, 0.3), 3.0)
 		if w and w.charging:
 			draw_arc(m, spread + 16, -PI * 0.5, -PI * 0.5 + TAU * w.charge, 32, Color(1.0, 0.4, 0.5) if w.charge < 1.0 else Color(1, 1, 1), 4.0)
 		if w and w.uses_heat() and w.heat > 0.05:
 			draw_arc(m, spread + 14, PI * 0.6, PI * 0.6 + PI * 0.8 * w.heat, 24, Color(0.7, 0.5, 1.0).lerp(Color(1, 0.3, 0.2), w.heat), 3.0)
+
+
+## Minimap on its own canvas item, re-recorded at 10 Hz instead of every frame
+## (hundreds of cell polygons are too much GDScript work per frame).
+class MinimapDraw extends Control:
+	var _t := 0.0
+	var _acc := 0.0
+
+	func _ready() -> void:
+		set_anchors_preset(Control.PRESET_FULL_RECT)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _process(dt: float) -> void:
+		_t += dt
+		_acc += dt
+		if _acc >= 0.1:
+			_acc = 0.0
+			queue_redraw()
+
+	func _draw() -> void:
+		var pl = Game.player
+		if pl == null:
+			return
+		var vs := get_viewport_rect().size
+		var c := Vector2(vs.x - 150, 150)
+		var R := 118.0
+		draw_circle(c, R + 6, Color(0.01, 0.03, 0.04, 0.85))
+		var d = Game.dungeon
+		if d == null:
+			return
+		var pt := Iso.ground_to_tile(pl.gpos)
+		var s := 11.0
+		var to_map := func(t: Vector2) -> Vector2:
+			var rel := t - pt
+			return c + Vector2((rel.x - rel.y) * s, (rel.x + rel.y) * s * 0.75)
+		var pc := Iso.cell_of(pl.gpos)
+		for ox in range(-13, 14):
+			for oy in range(-13, 14):
+				var cell := pc + Vector2i(ox, oy)
+				if not d.floor_kind.has(cell) or not d.visited.has(cell):
+					continue
+				var p0: Vector2 = to_map.call(Vector2(cell))
+				if p0.distance_to(c) > R - 6:
+					continue
+				var b: int = d.block.get(cell, 0)
+				var col := Color(0.08, 0.25, 0.27, 0.9)
+				if b == Dungeon.Block.WALL:
+					col = Color(0.55, 0.75, 0.8, 0.9)
+				elif b == Dungeon.Block.LOW:
+					col = Color(0.2, 0.4, 0.45, 0.9)
+				elif b == Dungeon.Block.DOOR:
+					col = Color(1.0, 0.25, 0.2, 0.95)
+				var pts := PackedVector2Array([to_map.call(Vector2(cell)), to_map.call(Vector2(cell) + Vector2(1, 0)),
+					to_map.call(Vector2(cell) + Vector2(1, 1)), to_map.call(Vector2(cell) + Vector2(0, 1))])
+				draw_colored_polygon(pts, col)
+		if d.exit_cell.x >= 0 and d.visited.has(d.exit_cell):
+			var ep: Vector2 = to_map.call(Vector2(d.exit_cell) + Vector2(0.5, 0.5))
+			if ep.distance_to(c) < R:
+				draw_circle(ep, 5, Color(0.4, 0.9, 1.0, 0.6 + 0.4 * sin(_t * 4.0)))
+		for e in Game.enemies:
+			if not e.alive:
+				continue
+			var ep: Vector2 = to_map.call(Iso.ground_to_tile(e.gpos))
+			if ep.distance_to(c) < R - 4:
+				draw_circle(ep, 4.5 if e.is_elite else 3.0, Color(1.0, 0.6, 0.2) if e.is_elite else Color(1.0, 0.25, 0.25))
+		var ad: Vector2 = pl.aim_dir
+		var mdir := Vector2(ad.x, ad.y * 0.75).normalized()
+		draw_colored_polygon(PackedVector2Array([c + mdir * 10, c + mdir.orthogonal() * 6 - mdir * 5, c - mdir.orthogonal() * 6 - mdir * 5]), Color(1, 1, 1))
+		draw_arc(c, R + 4, 0, TAU, 64, Color(0.25, 0.85, 0.8, 0.7), 2.5)
+		draw_arc(c, R + 9, -0.5, 0.5, 16, Color(0.25, 0.85, 0.8, 0.5), 2.0)
+
