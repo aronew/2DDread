@@ -7,7 +7,7 @@
   286
  ],
  "rows": 1,
- "cols": 7,
+ "cols": 9,
  "files": {
   "color": "wall_blocks_c.png",
   "normal": "wall_blocks_n.png",
@@ -20,6 +20,8 @@
   "relief",
   "banner",
   "rock",
-  "breach"
+  "breach",
+  "pillar",
+  "pillar_broken"
  ]
 }

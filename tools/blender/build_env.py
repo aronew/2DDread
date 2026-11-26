@@ -45,6 +45,8 @@ def materials():
         "wax": C.mat("v_wax", (0.92, 0.88, 0.75), rough=0.5),
         "rock": C.mat("v_rock", (0.12, 0.14, 0.13), rough=0.9, noise=0.6, noise_scale=4, noise_color=(0.06, 0.07, 0.07)),
         "marble": C.mat("v_marble", (0.4, 0.42, 0.38), rough=0.5, noise=0.3, noise_scale=6),
+        "pillar": C.mat("v_pillar", (0.24, 0.31, 0.27), rough=0.7, noise=0.35, noise_scale=6,
+                        noise_color=(0.13, 0.18, 0.15)),
         **painted_materials(),
     }
 
@@ -377,6 +379,9 @@ def wall_variant(M, kind, rng):
         for i in range(3):
             p = Vector((rng.uniform(0.7, 1.05), rng.uniform(-1.05, -0.7), rng.uniform(0.2, 1.4)))
             C.cyl(0.08, 0.5, p, M["soul2"], r, r2=0.0, verts=6, rot=(rng.uniform(-0.6, 0.6), rng.uniform(0.3, 0.9), 0))
+    elif kind in ("pillar", "pillar_broken"):
+        r = C.empty("wall")
+        pillar(M, r, rng, broken=kind == "pillar_broken")
     elif kind == "breach":
         r = wall_base(M, rng)
 
@@ -396,7 +401,34 @@ def wall_variant(M, kind, rng):
     return r
 
 
-WALL_KINDS = ["frieze", "column", "firealcove", "relief", "banner", "rock", "breach"]
+def pillar(M, r, rng, broken=False):
+    """Freestanding fluted temple pillar on a plinth (the mockup's columns); broken = snapped stump."""
+    C.box((1.5, 1.5, 0.35), (0, 0, 0.175), M["wall_dk"], r, bevel=0.04)
+    C.box((1.56, 1.56, 0.045), (0, 0, 0.31), M["gold"], r, bevel=0.01)   # gold rim just under the plinth top
+    C.cyl(0.66, 0.2, (0, 0, 0.45), M["pillar"], r, verts=32, bevel=0.04)
+    C.torus(0.6, 0.035, (0, 0, 0.62), M["gold"], r, seg=32, mseg=6)
+    top = 1.85 if broken else 3.5
+    shaft = top - 0.6
+    C.cyl(0.5, shaft, (0, 0, 0.6 + shaft / 2), M["pillar"], r, verts=32, bevel=0.0)
+    for i in range(14):  # flutes
+        a = i * 2 * math.pi / 14
+        C.box((0.06, 0.07, shaft - 0.12), (0.49 * math.cos(a), 0.49 * math.sin(a), 0.6 + shaft / 2), M["wall_dk"], r,
+              bevel=0.0, rot=(0, 0, a))
+    if not broken:
+        C.torus(0.52, 0.04, (0, 0, top - 0.06), M["gold"], r, seg=32, mseg=6)
+        C.cyl(0.54, 0.2, (0, 0, top + 0.08), M["pillar"], r, verts=32, bevel=0.04, r2=0.66)  # flared capital
+        C.box((1.18, 1.18, 0.16), (0, 0, top + 0.26), M["wall_dk"], r, bevel=0.03)     # abacus
+        C.box((1.22, 1.22, 0.04), (0, 0, top + 0.22), M["gold"], r, bevel=0.005)
+        return
+    for i in range(6):  # jagged break
+        a = i * 2 * math.pi / 6 + rng.uniform(-0.3, 0.3)
+        C.box((0.32, 0.3, rng.uniform(0.12, 0.42)), (0.26 * math.cos(a), 0.26 * math.sin(a), top + 0.05), M["pillar"], r,
+              rot=(rng.uniform(-0.35, 0.35), rng.uniform(-0.35, 0.35), a), bevel=0.03)
+    C.cyl(0.34, 0.42, (0.42, -0.42, 0.62), M["pillar"], r, verts=20, bevel=0.03, rot=(math.pi / 2, 0, 0.7))  # fallen drum
+    C.box((0.3, 0.24, 0.2), (-0.5, 0.45, 0.48), M["pillar"], r, rot=(0.3, 0.2, 1.1), bevel=0.03)
+
+
+WALL_KINDS = ["frieze", "column", "firealcove", "relief", "banner", "rock", "breach", "pillar", "pillar_broken"]
 
 
 def render_walls():

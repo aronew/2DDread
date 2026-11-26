@@ -54,6 +54,8 @@ func _ready() -> void:
 	var start: String = Game.world.get_meta("start_room", "") if Game.world.has_meta("start_room") else ""
 	if start != "" and _route.has(start):
 		_route_i = _route.find(start)
+	elif start != "":
+		_route = [start, "exit"]   # another level (e.g. --level=temple): fight there
 	if enabled:
 		Game.bot_mode = true
 		Game.player.input_override = self

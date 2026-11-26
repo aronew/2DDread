@@ -125,7 +125,14 @@ func build_level() -> void:
 	_warm_up()
 	Game.dungeon = dungeon
 	Game.enemies.clear()
-	dungeon.build(LayoutTest.MAP, entities, decals)
+	var layout := _layout()
+	dungeon.build(layout["map"], entities, decals)
+	var pits := PitFire.find_pits(dungeon)
+	if not pits.is_empty():
+		var pf := PitFire.new()
+		pf.name = "PitFire"
+		hazards.add_child(pf)
+		pf.setup(pits, dungeon)
 	for c in dungeon.door_cells:
 		var df := DoorField.new()
 		df.setup(c, dungeon)
@@ -145,9 +152,17 @@ func build_level() -> void:
 	director = EncounterDirector.new()
 	director.name = "Director"
 	level_root.add_child(director)
-	director.setup(LayoutTest.ROOMS, dungeon, self)
+	director.setup(layout["rooms"], dungeon, self)
 	if camera:
 		camera.snap()
+
+
+## Which hand-authored level to build. --level=temple opens the mockup look-test room.
+func _layout() -> Dictionary:
+	for a in OS.get_cmdline_user_args():
+		if a == "--level=temple":
+			return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS}
+	return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
 
 
 func _layer(n: String, z: int) -> Node2D:
@@ -335,6 +350,9 @@ func _parse_args() -> void:
 					c = Vector2i(r.rect.get_center())
 				player.spawn_at(Iso.cell_center(c))
 				camera.snap()
+	if opts.has("zoom"):
+		# dev: camera zoom multiplier, e.g. --zoom=1.4 for the closer mockup framing
+		camera.zoom_mult = float(opts["zoom"])
 	if opts.has("gfx"):
 		Game.set_preset(opts["gfx"], false)
 	for k in Game.gfx.keys():

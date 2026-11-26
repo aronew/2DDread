@@ -11,8 +11,8 @@ const LOW_SHEET := "res://assets/sprites/env/low_blocks"
 
 enum Block { NONE, WALL, LOW, DOOR }
 
-const FLOOR_CHAR := {"g": 2, "h": 3, "l": 4, "v": 5, "w": 6, ",": 7, "o": 8, "c": 9, "r": 10, "z": 2}
-const WALL_CHAR := {"P": 0, "W": 3, "M": 2, "I": 4, "R": 5, "K": 6}
+const FLOOR_CHAR := {"g": 2, "h": 3, "l": 4, "v": 5, "w": 6, ",": 7, "o": 8, "c": 9, "r": 10, "z": 2, ":": 0}
+const WALL_CHAR := {"P": 0, "W": 3, "M": 2, "I": 4, "R": 5, "K": 6, "O": 7, "Q": 8}
 const LOW_CHAR := {"=": 0, "x": 1, "|": 2}
 const PROP_CHAR := {"b": "barrel", "k": "crate", "n": "canisters", "C": "chest", "e": "eggs",
 	"*": "crystals", "p": "pylon", "t": "cryotube"}

@@ -139,7 +139,7 @@ src/combat/         weapon_data/weapon/weapon_db · projectile(_system) · comba
 src/enemies/        enemy_data · enemy.gd (base FSM, armour, stagger, status, death) · mite/spitter/brute/bloater · elite.gd
 src/abilities/      shock_nova · seeker_swarm · lash (F whip: crack / yank / execute / whirl)
 src/loot/           item · loot (generation/drops) · pickup
-src/dungeon/        layout_test (ASCII + rooms/beats) · dungeon.gd (grid collision, DDA raycast, flow field, floor/walls/lights) · encounter_director · prop · doors/portal/shock floor
+src/dungeon/        layout_test (ASCII + rooms/beats) · layout_temple (mockup look-test room) · dungeon.gd (grid collision, DDA raycast, flow field, floor/walls/lights) · pit_fire (soul-fire in enclosed chasms) · encounter_director · prop · doors/portal/shock floor
 src/ui/             hud.gd (procedural HUD + minimap) · inventory_ui.gd
 src/vfx/            shaders/ (entity, glow_rim, post, post_lite, void_bg) · camera · post_fx · telegraph · tex_gen · glow_mat
 src/debug/          bot_driver.gd (automated playtester)
@@ -224,7 +224,8 @@ models are made from primitives in code, then rendered through a custom stylizer
   - `build_player.py`: gunslinger legs, 4 torsos, HUD portrait (`-- portrait`); ~10 min.
   - `build_enemies.py`: hound/witch/legion/skull, one sheet per animation; ~20 min per
     pair. Run two processes in parallel.
-  - `build_env.py`: 11 floor kinds, 7 wall kinds, 3 low blocks, 8 props; ~1.5 min.
+  - `build_env.py`: 11 floor kinds, 9 wall kinds (incl. freestanding `pillar` and
+    `pillar_broken`, legend `O`/`Q`), 3 low blocks, 8 props; ~1.5 min.
     Index order is fixed because the layout legend maps to it.
 - **Before full renders:** preview a few frames first (render a contact sheet with
   `render_stylized()` and look at it). That's how every model so far was iterated.
@@ -242,6 +243,13 @@ godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to 
 ```
 
 - **Rooms for `--start`:** `landing conduit vault hatchery spine reactor`.
+- **Look test:** `--level=temple` builds a single room composed like the temple mockup
+  (`layout_temple.gd`); add `--start=temple` with `--bot`. `--zoom=N` multiplies the
+  camera zoom (1.4 ≈ the mockup's framing).
+- **Chasms:** void cells enclosed by walkable floor on all four sides become soul-fire
+  pits automatically (`pit_fire.gd`: painted flame strips plus tier-1 green lights).
+  Gaps between rooms are enclosed by walls, so they stay plain abyss. `:` in a layout is
+  plain flagstone floor (no random variants).
 - **Other dev flags:** `--shots=DIR --shot-every=S` (screenshots), `--inv-shot`
   (inventory test), `--dmg-mult=N` (forced deaths), `--bench=S` (avg FPS),
   `--g-<setting>=v` (per-setting overrides).
