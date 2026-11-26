@@ -59,9 +59,9 @@ func _fire(p) -> void:
 	var lead: Vector2 = p.gpos + p.vel * 0.3
 	var dir := (lead - gpos).normalized()
 	var mouth := gpos + dir * Iso.m(0.7)
-	var n := 3 if not is_elite else 5
+	var n := 4 if not is_elite else 6
 	for i in n:
-		var a := (i - (n - 1) * 0.5) * 0.2
+		var a := (i - (n - 1) * 0.5) * 0.15
 		var q := Projectile.new()
 		q.team = 1
 		q.pos = mouth

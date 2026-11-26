@@ -8,6 +8,8 @@ extends Node
 
 var enabled := false
 var no_dodge := false
+var inv_shot := false
+var _inv_done := false
 var human := false
 var _aim := Vector2.ZERO
 var _jitter := Vector2.ZERO
@@ -36,6 +38,7 @@ var stats := {"kills": 0, "deaths": 0, "dmg_taken": 0.0, "shots": 0, "items": 0,
 func configure(opts: Dictionary) -> void:
 	enabled = opts.has("bot")
 	no_dodge = opts.has("bot-nododge")
+	inv_shot = opts.has("inv-shot")
 	human = opts.has("bot-human")
 	shots_dir = opts.get("shots", "")
 	shot_every = float(opts.get("shot-every", "4"))
@@ -47,6 +50,9 @@ func _ready() -> void:
 	_start_ms = Time.get_ticks_msec()
 	if shots_dir != "":
 		DirAccess.make_dir_recursive_absolute(shots_dir)
+	var start: String = Game.world.get_meta("start_room", "") if Game.world.has_meta("start_room") else ""
+	if start != "" and _route.has(start):
+		_route_i = _route.find(start)
 	if enabled:
 		Game.bot_mode = true
 		Game.player.input_override = self
@@ -82,10 +88,35 @@ func _process(dt: float) -> void:
 	if _log_t <= 0.0:
 		_log_t = 10.0
 		_log()
+	if inv_shot and not _inv_done and _elapsed() > 2.0:
+		_inv_done = true
+		_inventory_test()
 	if quit_after > 0.0 and _elapsed() >= quit_after:
 		_log()
 		print("[bot] FINAL ", stats)
 		get_tree().quit()
+
+
+## Fills the backpack with rolled loot of every rarity, opens the inventory,
+## equips + salvages through the real code paths, and screenshots it.
+func _inventory_test() -> void:
+	var pl = Game.player
+	for r in 6:
+		pl.inventory_add(Loot.make_weapon(WeaponDB.LOOTABLE[r % 4], r, 3))
+		pl.inventory_add(Loot.make_gear([&"armor", &"core", &"relic"][r % 3], r, 3))
+	pl.build.attr_points = 3
+	Game.hud.toggle_inventory()
+	await get_tree().process_frame
+	pl.equip(pl.backpack[pl.backpack.size() - 2])
+	pl.build.spend_point("might")
+	Game.hud.inventory.refresh()
+	Game.hud.inventory._show(pl.backpack[0] if not pl.backpack.is_empty() else null)
+	for i in 4:
+		await get_tree().process_frame
+	if shots_dir != "":
+		get_viewport().get_texture().get_image().save_png(shots_dir + "/inventory.png")
+	print("[bot] inventory test ok: backpack=", pl.backpack.size(), " weapon=", pl.cur_weapon().display_name())
+	Game.hud.toggle_inventory()
 
 
 func _shot() -> void:

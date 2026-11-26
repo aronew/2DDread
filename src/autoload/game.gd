@@ -13,6 +13,7 @@ var rng := RandomNumberGenerator.new()
 var depth := 1
 var debug := false
 var bot_mode := false  # automated playtest driver active
+var damage_taken_mult := 1.0  # debug: --dmg-mult=N
 
 var _hitstop_until := 0
 var _hitstop_cooldown_until := 0

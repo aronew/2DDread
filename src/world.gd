@@ -61,10 +61,10 @@ func _setup_environment() -> void:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_CANVAS
 	env.glow_enabled = true
-	env.glow_intensity = 0.85
+	env.glow_intensity = 0.7
 	env.glow_strength = 1.0
 	env.glow_bloom = 0.02
-	env.glow_hdr_threshold = 0.95
+	env.glow_hdr_threshold = 1.1
 	env.glow_hdr_scale = 2.0
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
 	for i in 7:
@@ -224,7 +224,19 @@ func _parse_args() -> void:
 			opts[kv[0]] = kv[1] if kv.size() > 1 else "1"
 	if opts.has("depth"):
 		Game.depth = int(opts["depth"])
-	if opts.has("bot") or opts.has("shots") or opts.has("quit-after"):
+	if opts.has("start"):
+		# dev: jump straight to a room's entrance side (e.g. --start=hatchery)
+		set_meta("start_room", opts["start"])
+		for r in director.rooms:
+			if r.id == opts["start"]:
+				var c := Vector2i(r.rect.position.x + 1, r.rect.get_center().y)
+				if not dungeon.is_floor(c):
+					c = Vector2i(r.rect.get_center())
+				player.spawn_at(Iso.cell_center(c))
+				camera.snap()
+	if opts.has("dmg-mult"):
+		Game.damage_taken_mult = float(opts["dmg-mult"])
+	if opts.has("bot") or opts.has("shots") or opts.has("quit-after") or opts.has("inv-shot"):
 		bot = BotDriver.new()
 		bot.configure(opts)
 		add_child(bot)

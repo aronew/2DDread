@@ -26,6 +26,8 @@ func _draw() -> void:
 	var frac: float = clampf(e.hp / e.max_hp, 0.0, 1.0)
 	var col := Color(0.95, 0.2, 0.2) if not e.is_elite else Color(1.0, 0.6, 0.15)
 	draw_rect(Rect2(x, top, w * frac, hgt), col)
+	if e.data.front_armor > 0.0 and e.armor_hp > 0.0:
+		draw_rect(Rect2(x, top + hgt + 2, w * e.armor_hp / (e.max_hp * 0.45), 3), Color(0.85, 0.8, 0.7))
 	if e.shield_max > 0.0 and e.shield > 0.0:
 		draw_rect(Rect2(x, top - 5, w * e.shield / e.shield_max, 4), Color(0.4, 0.75, 1.0))
 	if e.state == Enemy.S.STAGGER:

@@ -18,7 +18,7 @@ const PROP_CHAR := {"b": "barrel", "k": "crate", "n": "canisters", "C": "chest",
 	"*": "crystals", "p": "pylon", "t": "cryotube"}
 const NEIGH8 := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
 	Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)]
-const CHUNK := 6
+const CHUNK := 4  # small chunks keep per-item 2D light counts under the renderer limit
 
 var floor_kind := {}      # Vector2i -> floor tile index
 var block := {}           # Vector2i -> Block
@@ -488,7 +488,7 @@ func _block_sprite(c: Vector2i, sheet, idx: int) -> Node2D:
 		e.region_rect = s.region_rect
 		e.offset = s.offset
 		e.material = _add_mat
-		e.modulate = Color(1.4, 1.4, 1.4)
+		e.modulate = Color(1.15, 1.15, 1.15) if sheet.name == "wall_blocks" else Color(0.75, 0.75, 0.75)
 		n.add_child(e)
 	entities.add_child(n)
 	return n

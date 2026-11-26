@@ -22,10 +22,28 @@ func _ready() -> void:
 	add_child(inventory)
 
 
+var paused_menu := false
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("inventory") or (inventory.visible and event.is_action_pressed("pause")):
-		toggle_inventory()
+		if not paused_menu:
+			toggle_inventory()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("pause"):
+		paused_menu = not paused_menu
+		get_tree().paused = paused_menu
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if paused_menu else Input.MOUSE_MODE_HIDDEN
+		get_viewport().set_input_as_handled()
+	elif paused_menu and event is InputEventKey and event.pressed:
+		if event.physical_keycode == KEY_R:
+			paused_menu = false
+			get_tree().paused = false
+			Game.depth = 1
+			Game.enemies.clear()
+			get_tree().reload_current_scene()
+		elif event.physical_keycode == KEY_Q:
+			get_tree().quit()
 
 
 func toggle_inventory() -> void:
@@ -109,6 +127,11 @@ class HudDraw extends Control:
 		if not pl.alive:
 			draw_rect(Rect2(Vector2.ZERO, vs), Color(0.2, 0.0, 0.0, 0.35))
 			_text(Vector2(0, vs.y * 0.45), "YOU DIED", 84, Color(1.0, 0.2, 0.2), bold, HORIZONTAL_ALIGNMENT_CENTER, vs.x, 10)
+		_draw_offscreen(pl, vs)
+		if get_parent().paused_menu:
+			draw_rect(Rect2(Vector2.ZERO, vs), Color(0, 0.02, 0.03, 0.7))
+			_text(Vector2(0, vs.y * 0.42), "PAUSED", 72, Color(0.85, 0.95, 1.0), bold, HORIZONTAL_ALIGNMENT_CENTER, vs.x, 10)
+			_text(Vector2(0, vs.y * 0.42 + 60), "ESC resume   ·   R restart run   ·   Q quit", 22, Color(0.7, 0.8, 0.85), null, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
 		if Game.debug:
 			_text(Vector2(20, 30), "FPS %d  enemies %d  projectiles %d  depth %d" % [Engine.get_frames_per_second(), Game.living_enemies(), Game.projectiles.list.size() if Game.projectiles else 0, Game.depth], 18, Color(0.6, 1.0, 0.6))
 		if not get_tree().paused:
@@ -341,6 +364,33 @@ class HudDraw extends Control:
 			draw_rect(Rect2(vs.x - 420, y - 20, 4, 28), c)
 			_text(Vector2(vs.x - 408, y), f["text"], 17, c, null, HORIZONTAL_ALIGNMENT_LEFT, 380)
 			y += 32
+
+	## Arrows at the screen edge toward the last few hostiles of an encounter.
+	func _draw_offscreen(pl, vs: Vector2) -> void:
+		var dir = Game.world.director if Game.world else null
+		if dir == null or dir.active == null:
+			return
+		var left: Array = []
+		for e in dir.active.enemies:
+			if is_instance_valid(e) and e.alive:
+				left.append(e)
+		for p in dir.active.nests:
+			if is_instance_valid(p) and p.alive and p.nest_active:
+				left.append(p)
+		if left.is_empty() or left.size() > 4:
+			return
+		var xf := get_viewport().get_canvas_transform()
+		var rect := Rect2(Vector2(60, 60), vs - Vector2(120, 120))
+		var center := vs * 0.5
+		for e in left:
+			var sp: Vector2 = xf * Iso.lift(e.gpos, 0.5)
+			if rect.has_point(sp):
+				continue
+			var d := (sp - center).normalized()
+			var k := minf(absf((rect.size.x * 0.5) / maxf(absf(d.x), 0.001)), absf((rect.size.y * 0.5) / maxf(absf(d.y), 0.001)))
+			var p := center + d * k
+			var col := Color(1.0, 0.35, 0.3, 0.75 + 0.25 * sin(_t * 6.0))
+			draw_colored_polygon(PackedVector2Array([p + d * 18, p + d.orthogonal() * 11 - d * 6, p - d.orthogonal() * 11 - d * 6]), col)
 
 	# -------------------------------------------------------------- crosshair
 

@@ -374,7 +374,7 @@ func take_damage(info: DamageInfo) -> void:
 		return
 	if _hurt_iframes > 0.0 and not info.is_dot:
 		return
-	var amt := info.amount * 100.0 / (100.0 + build.stat("armor"))
+	var amt := info.amount * 100.0 / (100.0 + build.stat("armor")) * Game.damage_taken_mult
 	hp -= amt
 	_hurt_flash = 1.0
 	_regen_delay = 4.0
@@ -474,8 +474,6 @@ func inventory_add(it: Item) -> bool:
 		return false
 	backpack.append(it)
 	_announce(it, false)
-	Events.item_picked.emit(it)
-	Events.inventory_changed.emit()
 	return true
 
 

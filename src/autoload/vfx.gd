@@ -252,6 +252,13 @@ func _process(dt: float) -> void:
 func light_flash(screen_pos: Vector2, color: Color, energy: float, range_m: float, dur: float, height := 70.0) -> void:
 	if _lights.is_empty():
 		return
+	# merge with a fresh nearby flash instead of stacking (keeps bursts from whiting out)
+	for e in _lights:
+		if e["t"] > e["dur"] * 0.4 and e["l"].position.distance_to(screen_pos) < 140.0:
+			e["e"] = minf(maxf(e["e"], energy) * 1.15, 3.0)
+			e["t"] = maxf(e["t"], dur)
+			e["dur"] = maxf(e["dur"], dur)
+			return
 	var e: Dictionary = _lights[_light_i]
 	_light_i = (_light_i + 1) % _lights.size()
 	var l: PointLight2D = e["l"]
@@ -382,10 +389,11 @@ func explosion(g: Vector2, radius: float, color := Color(1.0, 0.55, 0.2), big :=
 	var sp := Iso.to_screen(g)
 	var rm := radius / Iso.PX_PER_M
 	var up := Vector2(0, -Iso.h(0.6))
-	light_flash(sp + up, color, 4.0 if big else 2.4, rm * 2.6, 0.45 if big else 0.3, 90.0)
+	light_flash(sp + up, color, 2.4 if big else 1.5, rm * 2.4, 0.4 if big else 0.28, 90.0)
 	var fs := radius / 64.0
-	burst_sprite(T.glow, sp + up, color * 2.0, Vector2(fs, fs * 0.85) * 0.25, Vector2(fs, fs * 0.8) * 0.85, 0.32)
-	burst_sprite(T.core, sp + up, Color(2.6, 2.2, 1.8), Vector2(fs, fs) * 0.3, Vector2(fs, fs) * 0.7, 0.11)
+	var gk := 1.0 if big else 0.6
+	burst_sprite(T.glow, sp + up, color * 1.3 * gk, Vector2(fs, fs * 0.85) * 0.25, Vector2(fs, fs * 0.8) * 0.8, 0.3)
+	burst_sprite(T.core, sp + up, Color(1.8, 1.5, 1.2), Vector2(fs, fs) * 0.25, Vector2(fs, fs) * 0.55, 0.1)
 	ring(g, radius * 1.15, color, 0.4)
 	emit("sparks", sp + up, -PI / 2, color * 3.0, 1.0)
 	_pool_spread("sparks", 180.0)

@@ -19,6 +19,7 @@ var hit_height := 0.5
 var alive := true
 var is_enemy := true
 var no_loot := false
+var armor_hp := 0.0          # destructible frontal plating (0 = none / broken)
 var hp := 10.0
 var max_hp := 10.0
 var dmg_mult := 1.0
@@ -72,6 +73,8 @@ func setup(d: EnemyData, g: Vector2, opts := {}) -> void:
 	if opts.has("elite"):
 		Elite.apply(self, opts["elite"])
 	hp = max_hp
+	if d.front_armor > 0.0:
+		armor_hp = max_hp * 0.45
 	if opts.get("from_nest", false):
 		_spawn_dur = 0.3
 	position = Iso.to_screen(g)
@@ -129,9 +132,10 @@ func rim_color() -> Color:
 func _spawn_fx() -> void:
 	state = S.SPAWN
 	state_t = 0.0
-	VFX.ring(gpos, radius * 2.4, Color(1.0, 0.25, 0.3) if not is_elite else Color(1.0, 0.7, 0.2), 0.5, 0.05)
-	VFX.light_flash(Iso.lift(gpos, 0.5), Color(1.0, 0.3, 0.3), 1.4, 2.5, 0.4)
-	VFX.emit("embers", Iso.lift(gpos, 0.2), -PI / 2, blood_color * 2.0, 0.3)
+	# portal-violet so spawns never read as attack telegraphs (those are red)
+	var pc := Color(0.65, 0.35, 1.0) if not is_elite else Color(1.0, 0.7, 0.2)
+	VFX.ring(gpos, radius * 1.6, pc * 0.7, 0.45, 0.2)
+	VFX.emit("embers", Iso.lift(gpos, 0.2), -PI / 2, pc * 1.6, 0.25)
 	Audio.play("spawn", gpos)
 
 
@@ -333,9 +337,12 @@ func take_damage(info: DamageInfo) -> float:
 	var deflect := false
 	if data.front_armor > 0.0 and not info.is_dot and not info.is_explosion and info.direction != Vector2.ZERO:
 		var face_dot := facing.dot(-info.direction)
-		if face_dot > 0.45 and state != S.STAGGER:
+		if face_dot > 0.45 and state != S.STAGGER and armor_hp > 0.0:
+			armor_hp -= amt * data.front_armor
 			amt *= 1.0 - data.front_armor
 			deflect = true
+			if armor_hp <= 0.0:
+				_armor_shattered()
 		elif face_dot < -0.3:
 			amt *= data.back_mult
 			weak = true
@@ -379,6 +386,18 @@ func take_damage(info: DamageInfo) -> float:
 	if hp <= 0.0:
 		die(info)
 	return amt
+
+
+func _armor_shattered() -> void:
+	armor_hp = 0.0
+	VFX.popup(gpos, hit_height + 1.4, "ARMOR SHATTERED", Color(1.0, 0.8, 0.4), 30)
+	VFX.debris(gpos + facing * radius, 2.0, 24)
+	VFX.emit("sparks", Iso.lift(gpos + facing * radius, hit_height), Iso.to_screen(facing).angle(), Color(3.0, 2.4, 1.6), 1.0)
+	Audio.play("wall_break", gpos, -4.0, 1.3)
+	VFX.shake(0.35)
+	Game.hit_stop(0.06, 0.08, true)
+	mat.set_shader_parameter("dissolve_color", Color(1.0, 0.5, 0.2))
+	_stagger()
 
 
 func _stagger() -> void:

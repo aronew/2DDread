@@ -35,6 +35,11 @@ func setup_line(a: Vector2, b: Vector2, width: float, dur: float, color: Color) 
 	z_index = 2
 
 
+func set_line(a: Vector2, b: Vector2) -> void:
+	_g = a
+	_b = b
+
+
 func move_to(g: Vector2) -> void:
 	var d := g - _g
 	_g = g
@@ -58,13 +63,14 @@ func _draw() -> void:
 	var pulse := 0.75 + 0.25 * sin(_t * 26.0)
 	var fade := 1.0 if _t < _dur else clampf(1.0 - (_t - _dur) / 0.12, 0, 1)
 	var edge := _color * Color(2.2, 2.2, 2.2, 0.9 * pulse * fade)
-	var fill := _color * Color(1.4, 1.4, 1.4, (0.18 + 0.3 * p) * fade)
+	var fill := _color * Color(1.2, 1.2, 1.2, (0.05 + 0.16 * p) * fade)
 	if _kind == 0:
 		var c := Iso.to_screen(_g)
 		draw_polyline(_ellipse(c, _r, 40), edge, 3.0, true)
 		if p > 0.02:
 			draw_colored_polygon(_ellipse(c, _r * p, 32), fill)
-		draw_colored_polygon(_ellipse(c, _r, 32), _color * Color(1, 1, 1, 0.08 * fade))
+		draw_colored_polygon(_ellipse(c, _r, 32), _color * Color(1, 1, 1, 0.04 * fade))
+		draw_polyline(_ellipse(c, _r * p, 40), edge * Color(1, 1, 1, 0.6), 2.0, true)
 	else:
 		var d := (_b - _g)
 		var n := d.orthogonal().normalized() * _w * 0.5

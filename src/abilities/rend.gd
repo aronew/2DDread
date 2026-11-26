@@ -46,8 +46,7 @@ func _swing(p, dir: Vector2) -> void:
 	var g: Vector2 = p.gpos + dir * Iso.m(0.4)
 	var r := Iso.m(RANGE_M)
 	var sp := Iso.lift(p.gpos, 1.0)
-	var s := VFX.burst_sprite(VFX.T.slash, sp, Color(4.0, 1.4, 1.2), Vector2(0.7, 0.7 * Iso.K), Vector2(1.6, 1.6 * Iso.K), 0.16, true, Iso.to_screen(dir).angle())
-	s.scale = Vector2(1.2, 1.2 * Iso.K)
+	VFX.burst_sprite(VFX.T.slash, sp, Color(2.0, 0.75, 0.65), Vector2(0.8, 0.8 * Iso.K), Vector2(1.35, 1.35 * Iso.K), 0.14, true, Iso.to_screen(dir).angle())
 	Audio.play("melee_swing", p.gpos)
 	VFX.light_flash(sp, Color(1.0, 0.35, 0.3), 1.6, 3.0, 0.12)
 	var hit_any := false

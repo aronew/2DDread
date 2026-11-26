@@ -28,10 +28,15 @@ func think(dt: float) -> void:
 			if dist < Iso.m(data.attack_range_m) and attack_cd <= 0.0 and Game.dungeon.has_los(gpos, p.gpos):
 				_lunge_dir = to.normalized()
 				enter(S.WINDUP)
-				telegraph = VFX.telegraph_line(gpos, gpos + _lunge_dir * Iso.m(3.1), radius * 1.6, data.telegraph_time)
+				telegraph = VFX.telegraph_line(gpos, gpos + _lunge_dir * Iso.m(3.6), radius * 1.6, data.telegraph_time)
 				Audio.play("mite_attack", gpos)
 		S.WINDUP:
 			desire(Vector2.ZERO, dt)
+			# tracks the player for the first half of the telegraph, then commits
+			if state_t < data.telegraph_time * 0.5 and dist > 1.0:
+				_lunge_dir = _lunge_dir.slerp(to.normalized(), minf(1.0, dt * 10.0)).normalized()
+				if telegraph and is_instance_valid(telegraph):
+					telegraph.set_line(gpos, gpos + _lunge_dir * Iso.m(3.6))
 			turn_toward(_lunge_dir, dt, 25.0)
 			set_attack_frame(0.45 * state_t / data.telegraph_time)
 			if state_t >= data.telegraph_time:
@@ -40,7 +45,7 @@ func think(dt: float) -> void:
 				enter(S.ATTACK)
 		S.ATTACK:
 			set_attack_frame(0.45 + 0.25 * state_t / LUNGE_TIME)
-			vel = _lunge_dir * Iso.m(12.5) * (1.0 - 0.5 * state_t / LUNGE_TIME)
+			vel = _lunge_dir * Iso.m(14.5) * (1.0 - 0.5 * state_t / LUNGE_TIME)
 			if not _lunge_hit and dist < radius + p.radius + Iso.m(0.3):
 				_lunge_hit = true
 				hurt_player(data.damage, _lunge_dir, 5.0)

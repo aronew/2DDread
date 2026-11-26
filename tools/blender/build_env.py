@@ -43,7 +43,7 @@ def materials():
                        emit_strength=2.2, noise=0.7, noise_scale=14, noise_color=(0.02, 0.12, 0.14)),
         "bio": C.mat("v_bio", (0.3, 0.04, 0.08), rough=0.25, subsurface=0.2, noise=0.7, noise_scale=6,
                      noise_color=(0.1, 0.01, 0.04), bump=0.8, coat=0.5),
-        "bio_glow": C.mat("v_biog", (0.2, 0.7, 0.3), emit=(0.35, 1.0, 0.4), emit_strength=6),
+        "bio_glow": C.mat("v_biog", (0.15, 0.45, 0.2), emit=(0.2, 0.6, 0.25), emit_strength=0.6),
         "rock": C.mat("v_rock", (0.06, 0.075, 0.075), metal=0.0, rough=0.85, noise=0.8, noise_scale=4,
                       noise_color=(0.02, 0.03, 0.03), bump=1.0),
         "crystal": C.mat("v_crystal", (0.1, 0.5, 0.6), rough=0.1, emit=(0.2, 0.9, 1.0), emit_strength=4),

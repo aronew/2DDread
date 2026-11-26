@@ -55,7 +55,7 @@ func _process(dt: float) -> void:
 	_light.energy = (0.7 + 0.3 * sin(_t * 17.0) * sin(_t * 7.0)) * minf(1.0, life * 3.0)
 	_emit_t -= dt
 	if _emit_t <= 0.0:
-		_emit_t = 0.12
+		_emit_t = 0.07
 		var off := Vector2.from_angle(randf() * TAU) * radius * randf() * 0.8
 		var kind := "embers" if type == DamageInfo.Type.FIRE else "blood"
 		VFX.emit(kind, Iso.to_screen(gpos + off), -PI / 2, color * 2.5, 0.18)
@@ -84,6 +84,6 @@ func _apply() -> void:
 
 func _draw() -> void:
 	var life := clampf(1.0 - _t / duration, 0, 1)
-	var a := minf(1.0, life * 3.0) * (0.22 + 0.06 * sin(_t * 9.0))
-	draw_colored_polygon(Telegraph._ellipse(Vector2.ZERO, radius, 28), color * Color(1.6, 1.6, 1.6, a))
-	draw_colored_polygon(Telegraph._ellipse(Vector2.ZERO, radius * 0.6, 20), color * Color(2.2, 2.2, 2.2, a * 0.8))
+	var a := minf(1.0, life * 3.0) * (0.1 + 0.04 * sin(_t * 9.0))
+	draw_colored_polygon(Telegraph._ellipse(Vector2.ZERO, radius, 28), color * Color(1.0, 1.0, 1.0, a))
+	draw_polyline(Telegraph._ellipse(Vector2.ZERO, radius, 28), color * Color(1.6, 1.6, 1.6, a * 2.5), 2.0, true)
