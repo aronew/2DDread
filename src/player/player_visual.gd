@@ -5,7 +5,7 @@ extends Node2D
 
 const SHEET_DIR := "res://assets/sprites/player/"
 const STRIDE_M := 2.3
-const RIM := Color(0.45, 0.85, 1.0, 0.55)
+const RIM := Color(1.0, 0.82, 0.55, 0.38)
 
 var legs_sheet
 var torso_sheets := {}
@@ -21,6 +21,7 @@ var torso_offset := Vector2.ZERO
 var recoil := 0.0
 var _recoil_dir := Vector2.ZERO
 var _cur_torso := ""
+var muzzle_alt := false   # twin revolvers alternate barrels
 var _bob: Array = []
 
 
@@ -75,7 +76,8 @@ func set_torso(name: String) -> void:
 
 
 func muzzle_m() -> Vector3:
-	var m: Array = torso_sheets[_cur_torso].meta.get("muzzle_m", [1.0, -0.12, 1.3])
+	var meta: Dictionary = torso_sheets[_cur_torso].meta
+	var m: Array = meta.get("muzzle2_m", meta.get("muzzle_m")) if muzzle_alt and meta.has("muzzle2_m") else meta.get("muzzle_m", [1.0, -0.12, 1.3])
 	return Vector3(m[0], m[1], m[2])
 
 

@@ -1,10 +1,10 @@
 {
  "name": "eggs",
  "frame_w": 192,
- "frame_h": 160,
+ "frame_h": 176,
  "origin": [
   96,
-  100
+  112
  ],
  "rows": 1,
  "cols": 2,

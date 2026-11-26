@@ -320,7 +320,7 @@ func ring(g: Vector2, radius: float, color: Color, dur := 0.35, width_start := 0
 	var sp := Iso.to_screen(g)
 	var k := 2.0 / 256.0 * 1.0
 	var s1 := Vector2(radius * 2.0 / 256.0 * 1.08, radius * 2.0 * Iso.K / 256.0 * 1.08)
-	burst_sprite(T.ring, sp, color * 2.5, s1 * width_start, s1, dur)
+	burst_sprite(T.ring, sp, color * 1.25, s1 * width_start, s1, dur)
 
 
 func decal(g: Vector2, tex: Texture2D, color: Color, size: float) -> void:
@@ -378,11 +378,14 @@ func impact(g: Vector2, h_m: float, normal_g: Vector2, style := "metal", color :
 		"energy":
 			emit("electric", sp, ang, Color(1.2, 1.8, 4.0), 0.6)
 			burst_sprite(T.glow, sp, Color(1.2, 1.8, 4.0), Vector2(0.15, 0.15), Vector2(0.6, 0.6), 0.1)
+		"shard":
+			emit("sparks", sp, ang, Color(2.6, 0.6, 1.6), 0.4)
+			burst_sprite(T.glow, sp, Color(2.2, 0.5, 1.3), Vector2(0.2, 0.2), Vector2(0.8, 0.8), 0.12)
 		"acid":
 			emit("blood", sp, -PI / 2, Color(0.5, 1.0, 0.25), 0.5)
 			burst_sprite(T.glow, sp, Color(1.0, 2.6, 0.6), Vector2(0.2, 0.2), Vector2(0.9, 0.9), 0.15)
 		_:
-			emit("sparks", sp, ang, color * Color(3.0, 2.4, 1.6), 0.45)
+			emit("sparks", sp, ang, color * Color(3.0, 2.2, 1.2), 0.45)
 			burst_sprite(T.core, sp, Color(3, 2.5, 1.8), Vector2(0.2, 0.2), Vector2(0.7, 0.7), 0.07)
 
 
@@ -390,12 +393,12 @@ func explosion(g: Vector2, radius: float, color := Color(1.0, 0.55, 0.2), big :=
 	var sp := Iso.to_screen(g)
 	var rm := radius / Iso.PX_PER_M
 	var up := Vector2(0, -Iso.h(0.6))
-	light_flash(sp + up, color, 2.4 if big else 1.5, rm * 2.4, 0.4 if big else 0.28, 90.0)
+	light_flash(sp + up, color, 1.8 if big else 1.2, rm * 2.0, 0.3 if big else 0.22, 90.0)
 	var fs := radius / 64.0
 	var gk := 1.0 if big else 0.6
-	burst_sprite(T.glow, sp + up, color * 1.3 * gk, Vector2(fs, fs * 0.85) * 0.25, Vector2(fs, fs * 0.8) * 0.8, 0.3)
+	burst_sprite(T.glow, sp + up, color * 0.9 * gk, Vector2(fs, fs * 0.85) * 0.2, Vector2(fs, fs * 0.8) * 0.5, 0.24)
 	burst_sprite(T.core, sp + up, Color(1.8, 1.5, 1.2), Vector2(fs, fs) * 0.25, Vector2(fs, fs) * 0.55, 0.1)
-	ring(g, radius * 1.15, color, 0.4)
+	ring(g, radius * 1.05, color * 0.8, 0.32)
 	emit("sparks", sp + up, -PI / 2, color * 3.0, 1.0)
 	_pool_spread("sparks", 180.0)
 	emit("embers", sp + up, -PI / 2, color * 3.5, 0.6 if big else 0.35)

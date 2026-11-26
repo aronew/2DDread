@@ -1,6 +1,8 @@
-"""Modular environment kit: floor slabs, wall blocks, low blocks, props.
+"""Underworld environment kit (ink/cel-shaded): floor slabs, wall blocks, low
+blocks, props. Kind indices are stable: the ASCII legend in
+src/dungeon/layout_test.gd maps characters to them.
 
-Grid: 1 cell = 2 m x 2 m.  Godot isometric TileMap cell = 256 x 192 px diamond.
+Grid: 1 cell = 2 m x 2 m.  Godot isometric cell = 256 x 192 px diamond.
 """
 import math
 import random
@@ -11,171 +13,186 @@ CELL = 2.0
 FLOOR_FRAME = (264, 240, (132, 100))
 WALL_FRAME = (260, 388, (130, 286))
 LOW_FRAME = (260, 276, (130, 174))
+ENV_STYLE = {"outline_px": 3, "normal_edge": 0.5, "color_edge": 0.24, "color_line": 0.45, "grain": 0.09}
+# floors: soft, textured stone — few crease lines so the ground stays calm under combat
+FLOOR_STYLE = {"outline_px": 0, "inner_px": 0, "normal_edge": 0.75, "depth_edge": 0.05, "color_edge": 0.3,
+               "color_line": 0.32, "grain": 0.14}
 
 
 def materials():
     return {
-        "deck": C.mat("v_deck", (0.075, 0.09, 0.095), metal=0.4, rough=0.55, noise=0.6, noise_scale=6,
-                      noise_color=(0.035, 0.045, 0.05), bump=0.25),
-        "deck2": C.mat("v_deck2", (0.09, 0.105, 0.11), metal=0.4, rough=0.5, noise=0.5, noise_scale=9,
-                       noise_color=(0.045, 0.055, 0.06), bump=0.2),
-        "deck_dark": C.mat("v_deckd", (0.02, 0.025, 0.028), metal=0.6, rough=0.6),
-        "rust": C.mat("v_rust", (0.12, 0.07, 0.05), metal=0.5, rough=0.6, noise=0.8, noise_scale=5,
-                      noise_color=(0.03, 0.035, 0.04), bump=0.6),
-        "trim": C.mat("v_trim", (0.3, 0.32, 0.34), metal=0.9, rough=0.3),
-        "yellow": C.mat("v_yellow", (0.75, 0.5, 0.03), metal=0.2, rough=0.45, noise=0.4, noise_scale=12,
-                        noise_color=(0.2, 0.14, 0.02)),
-        "black": C.mat("v_black", (0.015, 0.015, 0.017), metal=0.3, rough=0.5),
-        "void": C.mat("v_void", (0.012, 0.014, 0.016), metal=0.0, rough=0.95, spec=0.05),
-        "cyan": C.mat("v_cyan", (0.05, 0.4, 0.45), emit=(0.15, 0.85, 1.0), emit_strength=6),
-        "side_light": C.mat("v_sidel", (0.1, 0.55, 0.6), metal=0.2, rough=0.3),
-        "maroon_dim": C.mat("v_maroond", (0.3, 0.05, 0.05), metal=0.4, rough=0.3, coat=0.4),
-        "teal": C.mat("v_teal", (0.03, 0.3, 0.25), emit=(0.1, 0.9, 0.65), emit_strength=4),
-        "red_glow": C.mat("v_redg", (0.5, 0.03, 0.03), emit=(1.0, 0.12, 0.08), emit_strength=6),
-        "purple": C.mat("v_purple", (0.3, 0.06, 0.45), emit=(0.7, 0.2, 1.0), emit_strength=6),
-        "amber": C.mat("v_amber", (0.6, 0.3, 0.02), emit=(1.0, 0.55, 0.12), emit_strength=6),
-        "ivory": C.mat("v_ivory", (0.62, 0.6, 0.56), metal=0.1, rough=0.35, coat=0.35, noise=0.25,
-                       noise_scale=8, noise_color=(0.42, 0.4, 0.37)),
-        "maroon": C.mat("v_maroon", (0.22, 0.03, 0.035), metal=0.3, rough=0.35, coat=0.3),
-        "copper": C.mat("v_copper", (0.35, 0.14, 0.07), metal=0.95, rough=0.32, noise=0.5, noise_scale=10,
-                        noise_color=(0.12, 0.07, 0.05)),
-        "glass": C.mat("v_glass", (0.05, 0.25, 0.3), metal=0.0, rough=0.05, emit=(0.2, 0.75, 0.9),
-                       emit_strength=2.2, noise=0.7, noise_scale=14, noise_color=(0.02, 0.12, 0.14)),
-        "bio": C.mat("v_bio", (0.3, 0.04, 0.08), rough=0.25, subsurface=0.2, noise=0.7, noise_scale=6,
-                     noise_color=(0.1, 0.01, 0.04), bump=0.8, coat=0.5),
-        "bio_glow": C.mat("v_biog", (0.15, 0.45, 0.2), emit=(0.2, 0.6, 0.25), emit_strength=0.6),
-        "rock": C.mat("v_rock", (0.06, 0.075, 0.075), metal=0.0, rough=0.85, noise=0.8, noise_scale=4,
-                      noise_color=(0.02, 0.03, 0.03), bump=1.0),
-        "crystal": C.mat("v_crystal", (0.1, 0.5, 0.6), rough=0.1, emit=(0.2, 0.9, 1.0), emit_strength=4),
-        "rubber": C.mat("v_rubber", (0.03, 0.03, 0.035), rough=0.8),
-        "redpaint": C.mat("v_redpaint", (0.45, 0.04, 0.03), metal=0.4, rough=0.4, noise=0.5, noise_scale=7,
-                          noise_color=(0.15, 0.05, 0.03)),
-        "olive": C.mat("v_olive", (0.14, 0.15, 0.09), metal=0.5, rough=0.5, noise=0.5, noise_scale=8,
-                       noise_color=(0.06, 0.06, 0.04)),
-        "egg": C.mat("v_egg", (0.25, 0.55, 0.3), rough=0.15, subsurface=0.3, emit=(0.4, 1.0, 0.55),
-                     emit_strength=2.5, noise=0.7, noise_scale=5, noise_color=(0.05, 0.2, 0.1), bump=0.5),
+        "stone": [C.mat("v_st%d" % i, c, rough=0.85, noise=0.55, noise_scale=5 + i, noise_color=tuple(x * 0.62 for x in c))
+                  for i, c in enumerate([(0.2, 0.24, 0.21), (0.17, 0.21, 0.2), (0.23, 0.24, 0.21), (0.16, 0.2, 0.2),
+                                         (0.21, 0.21, 0.23)])],
+        "grout": C.mat("v_grout", (0.05, 0.06, 0.06), rough=0.95),
+        "wall": C.mat("v_wall", (0.16, 0.2, 0.18), rough=0.85),
+        "wall2": C.mat("v_wall2", (0.12, 0.16, 0.15), rough=0.85),
+        "wall_dk": C.mat("v_wall_dk", (0.06, 0.08, 0.08), rough=0.9),
+        "cap": C.mat("v_cap", (0.04, 0.05, 0.05), rough=0.95),
+        "gold": C.mat("v_gold", (0.9, 0.62, 0.2), metal=1.0, rough=0.3),
+        "bronze": C.mat("v_bronze", (0.36, 0.25, 0.12), metal=0.6, rough=0.45),
+        "iron": C.mat("v_iron", (0.12, 0.12, 0.13), metal=0.7, rough=0.5),
+        "soul": C.mat("v_soul", (0.3, 1.0, 0.55), emit=(0.35, 1.0, 0.55), emit_strength=7),
+        "soul2": C.mat("v_soul2", (0.15, 0.75, 0.4), emit=(0.2, 0.9, 0.45), emit_strength=4),
+        "fire": C.mat("v_fire", (1.0, 0.6, 0.15), emit=(1.0, 0.6, 0.18), emit_strength=8),
+        "ember": C.mat("v_ember", (0.9, 0.25, 0.08), emit=(1.0, 0.3, 0.08), emit_strength=5),
+        "rune": C.mat("v_rune", (0.55, 0.06, 0.08), emit=(0.8, 0.08, 0.1), emit_strength=1.2),
+        "moss": C.mat("v_moss", (0.15, 0.32, 0.14), rough=0.9),
+        "bone": C.mat("v_bone", (0.82, 0.76, 0.62), rough=0.5),
+        "terracotta": C.mat("v_terra", (0.6, 0.27, 0.12), rough=0.6),
+        "black": C.mat("v_black", (0.05, 0.04, 0.04), rough=0.7),
+        "banner": C.mat("v_banner", (0.62, 0.07, 0.07), rough=0.8),
+        "wax": C.mat("v_wax", (0.92, 0.88, 0.75), rough=0.5),
+        "rock": C.mat("v_rock", (0.12, 0.14, 0.13), rough=0.9, noise=0.6, noise_scale=4, noise_color=(0.06, 0.07, 0.07)),
+        "marble": C.mat("v_marble", (0.4, 0.42, 0.38), rough=0.5, noise=0.3, noise_scale=6),
     }
+
+
+def flame(M, parent, pos, h, rng, strong=True):
+    """Teardrop flame tongues (reads as fire in the ink style, glows via emission)."""
+    base = Vector(pos)
+    for k in range(3):
+        o = Vector((rng.uniform(-0.04, 0.04), rng.uniform(-0.04, 0.04), 0))
+        hh = h * (1.0 - k * 0.28)
+        C.sphere(0.5, base + o + Vector((0, 0, hh * 0.42)), M["soul"] if (strong and k == 0) else M["soul2"], parent,
+                 scale=(0.13 * (1 - k * 0.2), 0.13 * (1 - k * 0.2), hh * 0.55), segs=12,
+                 rot=(rng.uniform(-0.25, 0.25), rng.uniform(-0.25, 0.25), 0))
+
+
+def stone(M, rng):
+    return M["stone"][rng.randrange(len(M["stone"]))]
 
 
 # ======================================================================= floors
 
-def slab(M, top_mat, side_mat=None, size=CELL * 1.012):
+def slab(M, size=CELL * 1.012):
     root = C.empty("slab")
-    C.box((size, size, 0.5), (0, 0, -0.25), side_mat or M["deck_dark"], root, bevel=0.01)
-    C.box((size, size, 0.04), (0, 0, -0.01), top_mat, root, bevel=0.006)
-    # side detailing (only the two camera-facing sides are ever seen)
+    C.box((size, size, 0.5), (0, 0, -0.25), M["grout"], root, bevel=0.01)
+    # ledge blocks + gold lip on the two camera-facing sides (only seen at platform edges)
     for (dx, dy, rz) in ((size / 2, 0, 0), (0, -size / 2, math.pi / 2)):
-        C.box((0.03, size * 0.9, 0.1), (dx, dy, -0.2), M["trim"], root, bevel=0.0, rot=(0, 0, rz))
-        for k in (-0.6, 0.0, 0.6):
+        for k in (-0.5, 0.5):
             off = Vector((0, k, 0)) if rz == 0 else Vector((k, 0, 0))
-            C.box((0.03, 0.12, 0.04), Vector((dx, dy, -0.36)) + off, M["side_light"], root, bevel=0.0, rot=(0, 0, rz))
+            C.box((0.04, size * 0.48, 0.42), Vector((dx, dy, -0.26)) + off, M["wall2"], root, bevel=0.02, rot=(0, 0, rz))
+        C.box((0.05, size, 0.06), (dx, dy, -0.05), M["gold"], root, bevel=0.01, rot=(0, 0, rz))
     return root
 
 
-def panel_grooves(M, root, n=2):
-    step = CELL / n
-    for i in range(1, n):
-        p = -CELL / 2 + i * step
-        C.box((CELL, 0.03, 0.03), (0, p, 0.0), M["black"], root, bevel=0.0)
-        C.box((0.03, CELL, 0.03), (p, 0, 0.0), M["black"], root, bevel=0.0)
+def flagstones(M, root, rng, top=0.0, rows=3):
+    """Irregular, staggered stone slabs filling the cell, with moss/dirt flecks."""
+    y = -CELL / 2
+    ws = [rng.uniform(0.7, 1.3) for _ in range(rows)]
+    tot = sum(ws)
+    for r in range(rows):
+        h = CELL * ws[r] / tot
+        x = -CELL / 2
+        while x < CELL / 2 - 0.05:
+            w = min(rng.uniform(0.35, 0.95), CELL / 2 - x)
+            if CELL / 2 - (x + w) < 0.2:
+                w = CELL / 2 - x
+            C.box((w - 0.03, h - 0.03, 0.06), (x + w / 2, y + h / 2, top - 0.02 + rng.uniform(-0.003, 0.003)),
+                  stone(M, rng), root, bevel=0.018, rot=(0, 0, rng.uniform(-0.01, 0.01)))
+            x += w
+        y += h
+    for i in range(rng.randint(1, 3)):
+        C.sphere(rng.uniform(0.06, 0.14), (rng.uniform(-0.85, 0.85), rng.uniform(-0.85, 0.85), top + 0.0), M["moss"], root,
+                 scale=(1.4, 1.0, 0.1), segs=10)
 
 
-def bolts(M, root, inset=0.12):
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            C.cyl(0.03, 0.025, (sx * (CELL / 2 - inset), sy * (CELL / 2 - inset), 0.005), M["trim"], root,
-                  verts=8, bevel=0.0)
+def meander(M, parent, origin, along, up, normal, length, height, unit=0.24, offset=0.012, thick=0.022):
+    """Greek-key band made of small gold bars on a surface."""
+    n_units = max(1, int(length / unit))
+    u0 = -n_units * unit / 2
+    s = unit / 10.0
+    path = [(0, 0), (0, 8), (8, 8), (8, 2), (4, 2), (4, 5), (6, 5)]
+    for i in range(n_units):
+        base = u0 + i * unit
+        pts = [Vector(origin) + along * (base + px * s) + up * (py * s * height / unit * 1.25 - height / 2) + normal * offset
+               for px, py in path]
+        for a, b in zip(pts[:-1], pts[1:]):
+            d = b - a
+            if d.length < 1e-4:
+                continue
+            C.box((thick, thick, d.length + thick), (a + b) / 2, M["gold"], parent, bevel=0.0,
+                  rot=d.to_track_quat("Z", "Y").to_euler())
+        a = Vector(origin) + along * base + up * (-height / 2) + normal * offset
+        b = Vector(origin) + along * (base + unit) + up * (-height / 2) + normal * offset
+        C.box((thick, thick, (b - a).length + thick), (a + b) / 2, M["gold"], parent, bevel=0.0,
+              rot=(b - a).to_track_quat("Z", "Y").to_euler())
 
 
 def floor_variant(M, kind, rng):
-    if kind == "plate":
-        r = slab(M, M["deck"])
-        C.box((1.6, 1.6, 0.03), (0, 0, 0.005), M["deck2"], r, bevel=0.03)
-        C.box((1.3, 0.06, 0.02), (0, 0, 0.02), M["black"], r, bevel=0.0)
-        bolts(M, r)
-    elif kind == "plate2":
-        r = slab(M, M["deck"])
-        panel_grooves(M, r, 2)
-        for (x, y) in ((-0.5, -0.5), (0.5, 0.5)):
-            C.box((0.7, 0.7, 0.025), (x, y, 0.006), M["deck2"], r, bevel=0.02)
-        for i in range(5):
-            C.box((0.05, 0.4, 0.02), (0.3 + i * 0.1, -0.5, 0.01), M["black"], r, bevel=0.0)
-        bolts(M, r, 0.08)
+    r = slab(M)
+    up = Vector((0, 0, 1))
+    if kind == "flag":
+        flagstones(M, r, rng, rows=3)
+    elif kind == "flag2":
+        flagstones(M, r, rng, rows=2)
     elif kind == "grate":
-        r = slab(M, M["deck_dark"])
-        C.box((1.9, 1.9, 0.05), (0, 0, -0.1), M["deck_dark"], r, bevel=0.0)
-        for y in (-0.45, 0.35):
-            C.cyl(0.07, 1.9, (0, y, -0.06), M["teal"], r, rot=(0, math.pi / 2, 0), verts=10, bevel=0.0)
-        C.cyl(0.05, 1.9, (0.4, 0, -0.07), M["copper"], r, rot=(math.pi / 2, 0, 0), verts=10, bevel=0.0)
-        for i in range(-8, 9):
-            C.box((1.86, 0.035, 0.05), (0, i * 0.11, 0.0), M["deck2"], r, bevel=0.0)
+        flagstones(M, r, rng, rows=3)
+        C.box((1.3, 1.3, 0.1), (0, 0, -0.02), M["grout"], r, bevel=0.0)
+        C.box((1.2, 1.2, 0.04), (0, 0, -0.12), M["soul2"], r, bevel=0.0)
+        for i in range(-5, 6):
+            C.box((1.26, 0.05, 0.07), (0, i * 0.11, 0.0), M["iron"], r, bevel=0.005)
         for s in (-1, 1):
-            C.box((CELL, 0.1, 0.06), (0, s * 0.96, 0.0), M["deck"], r, bevel=0.01)
-            C.box((0.1, CELL, 0.06), (s * 0.96, 0, 0.0), M["deck"], r, bevel=0.01)
-    elif kind == "hazard":
-        r = slab(M, M["deck"])
-        panel_grooves(M, r, 2)
-        for i in range(10):
-            C.box((0.12, 0.3, 0.02), (-0.9 + i * 0.2, 0.8, 0.01), M["yellow"] if i % 2 == 0 else M["black"], r,
-                  bevel=0.0, rot=(0, 0, 0.6))
-        C.box((CELL, 0.06, 0.03), (0, 0.6, 0.01), M["yellow"], r, bevel=0.0)
-        bolts(M, r)
-    elif kind == "light":
-        r = slab(M, M["deck"])
-        C.box((0.18, CELL, 0.03), (0, 0, 0.0), M["black"], r, bevel=0.0)
-        C.box((0.08, CELL * 0.98, 0.04), (0, 0, 0.005), M["cyan"], r, bevel=0.0)
-        for s in (-1, 1):
-            C.box((0.7, 1.7, 0.025), (s * 0.55, 0, 0.006), M["deck2"], r, bevel=0.02)
-    elif kind == "vent":
-        r = slab(M, M["deck"])
-        C.cyl(0.62, 0.04, (0, 0, 0.0), M["trim"], r, verts=40, bevel=0.01)
-        C.cyl(0.56, 0.05, (0, 0, 0.0), M["black"], r, verts=40, bevel=0.0)
-        for i in range(9):
-            a = i * 2 * math.pi / 9
-            C.box((0.48, 0.08, 0.015), (0.26 * math.cos(a), 0.26 * math.sin(a), 0.02), M["deck2"], r,
-                  bevel=0.0, rot=(0.4, 0, a))
-        C.cyl(0.1, 0.06, (0, 0, 0.03), M["red_glow"], r, verts=16, bevel=0.0)
-        bolts(M, r)
-    elif kind == "worn":
-        r = slab(M, M["rust"])
-        panel_grooves(M, r, 2)
-        bolts(M, r)
-        C.box((0.6, 0.5, 0.02), (0.45, -0.4, 0.01), M["deck2"], r, bevel=0.01, rot=(0, 0, 0.1))
-    elif kind == "infested":
-        r = slab(M, M["deck"])
-        panel_grooves(M, r, 2)
+            C.box((1.36, 0.07, 0.07), (0, s * 0.66, 0.0), M["iron"], r, bevel=0.01)
+            C.box((0.07, 1.36, 0.07), (s * 0.66, 0, 0.0), M["iron"], r, bevel=0.01)
+    elif kind == "meander":
+        flagstones(M, r, rng, rows=3)
+        C.box((CELL, 0.42, 0.05), (0, 0.45, 0.0), M["wall_dk"], r, bevel=0.01)
+        meander(M, r, (0, 0.45, 0.03), Vector((1, 0, 0)), Vector((0, 1, 0)), up, CELL * 0.95, 0.3, offset=0.0)
+    elif kind == "sun":
+        flagstones(M, r, rng, rows=2)
+        C.cyl(0.24, 0.05, (0, 0, 0.02), M["gold"], r, verts=24)
+        for i in range(12):
+            a = i * math.pi / 6
+            C.box((0.4, 0.07, 0.03), (0.45 * math.cos(a), 0.45 * math.sin(a), 0.03), M["gold"], r, bevel=0.005, rot=(0, 0, a))
+    elif kind == "drain":
+        flagstones(M, r, rng, rows=3)
+        C.cyl(0.55, 0.06, (0, 0, -0.005), M["wall_dk"], r, verts=32, bevel=0.01)
+        C.cyl(0.42, 0.04, (0, 0, -0.05), M["soul2"], r, verts=32, bevel=0.0)
+        C.torus(0.48, 0.04, (0, 0, 0.02), M["bronze"], r, seg=32, mseg=6)
+        for i in range(6):
+            C.box((0.86, 0.05, 0.05), (0, 0, 0.0), M["iron"], r, bevel=0.005, rot=(0, 0, i * math.pi / 6))
+    elif kind == "cracked":
+        flagstones(M, r, rng, rows=3)
+        for i in range(5):
+            x, y = rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8)
+            C.box((0.22, 0.16, 0.08), (x, y, 0.02), stone(M, rng), r, bevel=0.03, rot=(rng.random(), rng.random() * 0.3, rng.random() * 3))
+        C.box((1.4, 0.035, 0.08), (0.1, -0.1, 0.0), M["grout"], r, bevel=0.0, rot=(0, 0, 0.7))
+    elif kind == "moss":
+        flagstones(M, r, rng, rows=3)
         for i in range(6):
             x, y = rng.uniform(-0.7, 0.7), rng.uniform(-0.7, 0.7)
-            C.sphere(rng.uniform(0.25, 0.45), (x, y, -0.02), M["bio"], r, scale=(1.3, 1.0, 0.22), subsurf=1,
-                     displace=0.04, rot=(0, 0, rng.uniform(0, 3)))
-        for i in range(7):
-            x, y = rng.uniform(-0.75, 0.75), rng.uniform(-0.75, 0.75)
-            C.sphere(rng.uniform(0.04, 0.08), (x, y, 0.06), M["bio_glow"], r, segs=10)
-    elif kind == "circle":
-        r = slab(M, M["deck"])
-        C.torus(0.72, 0.045, (0, 0, 0.0), M["maroon"], r, seg=48, mseg=6)
-        C.torus(0.5, 0.025, (0, 0, 0.0), M["maroon_dim"], r, seg=48, mseg=6)
-        C.torus(0.22, 0.04, (0, 0, 0.0), M["maroon"], r, seg=32, mseg=6)
-    elif kind == "cables":
-        r = slab(M, M["deck"])
-        panel_grooves(M, r, 2)
-        for i in range(4):
-            y0 = -0.6 + i * 0.35
-            pts = [Vector((-1.0, y0 + rng.uniform(-0.1, 0.1), 0.04)), Vector((0.0, y0 + rng.uniform(-0.25, 0.25), 0.04)),
-                   Vector((1.0, y0 + rng.uniform(-0.1, 0.1), 0.04))]
-            for a, b in zip(pts[:-1], pts[1:]):
-                C.tube_between(a, b, 0.035 + i * 0.006, M["rubber"] if i != 2 else M["redpaint"], r)
-        bolts(M, r)
+            C.sphere(rng.uniform(0.2, 0.36), (x, y, 0.0), M["moss"], r, scale=(1.3, 1.0, 0.15), subsurf=1, displace=0.03)
+        for i in range(3):
+            x, y = rng.uniform(-0.6, 0.6), rng.uniform(-0.6, 0.6)
+            C.cyl(0.03, 0.34, (x, y, 0.05), M["bone"], r, verts=8, rot=(math.pi / 2, 0, rng.random() * 3))
+        C.sphere(0.1, (rng.uniform(-0.5, 0.5), rng.uniform(-0.5, 0.5), 0.08), M["bone"], r, scale=(1.1, 0.9, 1.0))
+    elif kind == "emblem":
+        flagstones(M, r, rng, rows=2)
+        for s in (-1, 1):
+            for i in range(7):  # laurel leaves
+                a = -0.3 + i * 0.36
+                px, py = 0.55 * math.cos(a) * s, 0.55 * math.sin(a) - 0.05
+                C.sphere(0.09, (px, py, 0.04), M["gold"], r, scale=(1.6, 0.6, 0.3), rot=(0, 0, a + (0.6 if s > 0 else -0.6)))
+        C.sphere(0.2, (0, 0.05, 0.04), M["bone"], r, scale=(1.0, 1.1, 0.3))
+        for s in (-1, 1):
+            C.sphere(0.05, (0.07 * s, 0.1, 0.09), M["black"], r, scale=(1, 1, 0.4))
+    elif kind == "runes":
+        flagstones(M, r, rng, rows=3)
+        C.torus(0.6, 0.025, (0, 0, 0.02), M["rune"], r, seg=40, mseg=4)
+        for i in range(6):
+            a = i * math.pi / 3
+            C.box((0.12, 0.03, 0.02), (0.6 * math.cos(a), 0.6 * math.sin(a), 0.03), M["rune"], r, bevel=0.0, rot=(0, 0, a))
     elif kind == "rockfloor":
-        r = slab(M, M["rock"], M["rock"])
+        C.box((CELL, CELL, 0.06), (0, 0, -0.02), M["rock"], r, bevel=0.02)
         for i in range(7):
             x, y = rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8)
-            C.sphere(rng.uniform(0.12, 0.3), (x, y, -0.03), M["rock"], r, scale=(1.2, 1.0, 0.3), subsurf=1,
-                     displace=0.05)
+            C.sphere(rng.uniform(0.12, 0.28), (x, y, -0.03), M["rock"], r, scale=(1.2, 1.0, 0.3), subsurf=1, displace=0.04)
     return r
 
 
-FLOOR_KINDS = ["plate", "plate2", "grate", "hazard", "light", "vent", "worn", "infested", "circle", "cables",
+FLOOR_KINDS = ["flag", "flag2", "grate", "meander", "sun", "drain", "cracked", "moss", "emblem", "runes",
                "rockfloor"]
 
 
@@ -190,13 +207,14 @@ def render_floors():
     for i, k in enumerate(FLOOR_KINDS):
         C.clear_scene_objects()
         floor_variant(M, k, rng)
-        sw.put(0, i, C.render_passes())
+        sw.put(0, i, C.render_stylized(FLOOR_STYLE))
     sw.save()
 
 
 # ======================================================================= walls
 
 H = 3.0
+UP = Vector((0, 0, 1))
 
 
 def _face_items(fn):
@@ -209,105 +227,122 @@ def _rot_for_normal(n):
     return (0, 0, math.atan2(n.y, n.x))
 
 
-def wall_base(M, mat_body, cap=True):
+def wall_base(M, rng, body="wall"):
     r = C.empty("wall")
-    C.box((CELL, CELL, H), (0, 0, H / 2), mat_body, r, bevel=0.02)
-    if cap:
-        C.box((CELL + 0.02, CELL + 0.02, 0.14), (0, 0, H - 0.07), M["trim"], r, bevel=0.02)
-        C.box((CELL * 0.94, CELL * 0.94, 0.04), (0, 0, H + 0.01), M["void"], r, bevel=0.01)
-    C.box((CELL + 0.04, CELL + 0.04, 0.22), (0, 0, 0.11), M["deck_dark"], r, bevel=0.02)  # skirting
+    C.box((CELL, CELL, H), (0, 0, H / 2), M[body], r, bevel=0.02)
+    C.box((CELL + 0.1, CELL + 0.1, 0.18), (0, 0, H - 0.09), M["wall_dk"], r, bevel=0.03)  # cornice
+    C.box((CELL * 0.94, CELL * 0.94, 0.05), (0, 0, H + 0.01), M["cap"], r, bevel=0.01)
+    C.box((CELL + 0.08, CELL + 0.08, 0.3), (0, 0, 0.15), M["wall_dk"], r, bevel=0.03)  # plinth
+
+    def courses(o, a, n):
+        rot = _rot_for_normal(n)
+        for z in (0.75, 1.25, 1.75):  # masonry courses
+            C.box((0.03, CELL * 0.98, 0.025), o + n * 0.005 + UP * z, M["wall_dk"], r, rot=rot, bevel=0.0)
+        for i, z in enumerate((0.5, 1.0, 1.5)):
+            k = (-0.5 if i % 2 else 0.0) + rng.uniform(-0.1, 0.1)
+            C.box((0.03, 0.025, 0.5), o + n * 0.005 + a * k + UP * z, M["wall_dk"], r, rot=rot, bevel=0.0)
+        C.box((0.05, CELL * 1.0, 0.05), o + n * 0.01 + UP * (H - 0.2), M["gold"], r, rot=rot, bevel=0.005)
+    _face_items(courses)
     return r
 
 
 def wall_variant(M, kind, rng):
-    if kind == "panel":
-        r = wall_base(M, M["ivory"])
+    if kind == "frieze":
+        r = wall_base(M, rng)
 
         def face(o, a, n):
             rot = _rot_for_normal(n)
-            C.box((0.06, CELL * 0.98, 0.32), o + n * 0.02 + Vector((0, 0, 1.35)), M["maroon"], r, rot=rot, bevel=0.01)
-            C.box((0.03, CELL * 0.9, 0.05), o + n * 0.05 + Vector((0, 0, 1.35)), M["red_glow"], r, rot=rot, bevel=0.0)
-            for z in (0.75, 2.2):
-                C.box((0.05, CELL * 0.8, 0.8), o + n * 0.01 + Vector((0, 0, z)), M["ivory"], r, rot=rot, bevel=0.06)
-            C.box((0.04, 0.03, H * 0.9), o + n * 0.02 + a * (CELL * 0.48), M["black"], r, rot=rot, bevel=0.0)
+            C.box((0.06, CELL * 1.0, 0.42), o + n * 0.02 + UP * 2.25, M["wall_dk"], r, rot=rot, bevel=0.01)
+            meander(M, r, o + n * 0.05 + UP * 2.25, a, UP, n, CELL * 0.96, 0.3)
+            C.box((0.07, CELL * 1.0, 0.035), o + n * 0.04 + UP * 2.48, M["gold"], r, rot=rot, bevel=0.005)
+            C.box((0.07, CELL * 1.0, 0.035), o + n * 0.04 + UP * 2.02, M["gold"], r, rot=rot, bevel=0.005)
         _face_items(face)
-    elif kind == "pod":
-        r = wall_base(M, M["deck2"])
+    elif kind == "column":
+        r = wall_base(M, rng, "wall2")
+        c = Vector((CELL / 2, -CELL / 2, 0))
+        C.cyl(0.34, 2.4, c + UP * 1.5, M["marble"], r, verts=20, bevel=0.0)
+        for i in range(10):  # flutes
+            a = i * 2 * math.pi / 10
+            C.box((0.04, 0.04, 2.3), c + Vector((0.34 * math.cos(a), 0.34 * math.sin(a), 1.5)), M["wall2"], r, bevel=0.0,
+                  rot=(0, 0, a))
+        for z in (0.3, 2.72):
+            C.cyl(0.44, 0.2, c + UP * z, M["marble"], r, verts=20, bevel=0.03)
+            C.torus(0.38, 0.03, c + UP * (z + 0.12 if z > 1 else z + 0.12), M["gold"], r, seg=24, mseg=6)
+    elif kind == "firealcove":
+        r = wall_base(M, rng)
 
         def face(o, a, n):
             rot = _rot_for_normal(n)
-            C.sphere(1.0, o + n * 0.05 + Vector((0, 0, 1.45)), M["ivory"], r, scale=(0.22, 0.88, 1.35),
-                     rot=rot, segs=32)
-            ring_rot = (0, math.pi / 2, math.atan2(n.y, n.x))
-            C.torus(0.48, 0.055, o + n * 0.25 + Vector((0, 0, 1.6)), M["maroon"], r, rot=ring_rot)
-            C.torus(0.3, 0.03, o + n * 0.26 + Vector((0, 0, 1.6)), M["maroon"], r, rot=ring_rot)
-            C.box((0.06, 0.5, 0.12), o + n * 0.22 + Vector((0, 0, 0.5)), M["cyan"], r, rot=rot, bevel=0.01)
+            C.box((0.12, 1.06, 1.9), o + n * 0.02 + UP * 1.25, M["wall_dk"], r, rot=rot, bevel=0.04)
+            C.cyl(0.53, 0.12, o + n * 0.02 + UP * 2.2, M["wall_dk"], r, verts=24, rot=(math.pi / 2, 0, rot[2] + math.pi / 2))
+            C.box((0.1, 0.84, 1.62), o + n * 0.05 + UP * 1.2, M["black"], r, rot=rot, bevel=0.0)
+            for i in range(4):  # soul flames rising in the niche
+                k = -0.27 + i * 0.18
+                flame(M, r, o + n * 0.14 + a * k + UP * 0.4, rng.uniform(0.7, 1.2), rng, i % 2 == 0)
+            C.box((0.14, 1.12, 0.06), o + n * 0.06 + UP * 0.34, M["gold"], r, rot=rot, bevel=0.01)
+            C.torus(0.52, 0.03, o + n * 0.09 + UP * 2.2, M["gold"], r, rot=(math.pi / 2, 0, rot[2] + math.pi / 2), seg=32, mseg=6)
         _face_items(face)
-    elif kind == "machine":
-        r = wall_base(M, M["deck"])
+    elif kind == "relief":
+        r = wall_base(M, rng, "wall2")
 
         def face(o, a, n):
             rot = _rot_for_normal(n)
-            for k in (-0.5, 0.0, 0.5):
-                p = o + a * k + n * 0.12
-                C.cyl(0.2, H * 0.78, p + Vector((0, 0, 1.4)), M["copper"], r, verts=18, bevel=0.01)
-                for z in (0.6, 1.1, 1.6, 2.1):
-                    C.cyl(0.23, 0.08, p + Vector((0, 0, z)), M["deck_dark"], r, verts=18, bevel=0.0)
-                C.box((0.05, 0.05, 1.8), p + n * 0.2 + Vector((0, 0, 1.4)), M["purple"], r, rot=rot, bevel=0.0)
+            C.box((0.08, 1.3, 1.5), o + n * 0.02 + UP * 1.55, M["wall"], r, rot=rot, bevel=0.06)
+            C.box((0.09, 1.36, 0.05), o + n * 0.05 + UP * 2.32, M["gold"], r, rot=rot, bevel=0.01)
+            C.box((0.09, 1.36, 0.05), o + n * 0.05 + UP * 0.78, M["gold"], r, rot=rot, bevel=0.01)
+            for s in (-1, 1):
+                for i in range(6):  # laurel branch
+                    ang = -1.1 + i * 0.4
+                    p = o + n * 0.08 + a * (s * (0.32 + 0.18 * math.cos(ang))) + UP * (1.55 + 0.42 * math.sin(ang))
+                    C.sphere(0.07, p, M["gold"], r, scale=(0.4, 1.4, 0.5), rot=(s * (ang + 1.2), 0, rot[2]))
+            C.sphere(0.2, o + n * 0.08 + UP * 1.6, M["marble"], r, scale=(0.4, 0.8, 1.0))
         _face_items(face)
-    elif kind == "window":
-        r = wall_base(M, M["deck2"])
+    elif kind == "banner":
+        r = wall_base(M, rng, "wall_dk")
 
         def face(o, a, n):
             rot = _rot_for_normal(n)
-            C.box((0.08, CELL * 0.82, 1.9), o + n * 0.02 + Vector((0, 0, 1.45)), M["deck_dark"], r, rot=rot, bevel=0.06)
-            C.box((0.06, CELL * 0.68, 1.6), o + n * 0.05 + Vector((0, 0, 1.45)), M["glass"], r, rot=rot, bevel=0.03)
-            for k in (-0.38, 0.38):
-                C.box((0.05, 0.05, 1.7), o + n * 0.09 + a * k + Vector((0, 0, 1.45)), M["cyan"], r, rot=rot, bevel=0.0)
-            C.box((0.1, CELL * 0.9, 0.12), o + n * 0.06 + Vector((0, 0, 0.4)), M["ivory"], r, rot=rot, bevel=0.03)
-        _face_items(face)
-    elif kind == "pipes":
-        r = wall_base(M, M["deck"])
-
-        def face(o, a, n):
-            rot = _rot_for_normal(n)
-            for k, rad, m in ((-0.6, 0.12, M["olive"]), (-0.25, 0.08, M["copper"]), (0.55, 0.15, M["olive"])):
-                C.cyl(rad, H * 0.9, o + a * k + n * (rad + 0.02) + Vector((0, 0, 1.45)), m, r, verts=14, bevel=0.0)
-            for z in (0.9, 2.3):
-                C.cyl(0.07, CELL * 0.98, o + n * 0.32 + Vector((0, 0, z)), M["trim"], r,
-                      rot=(math.pi / 2, 0, math.atan2(a.y, a.x) + math.pi / 2), verts=12, bevel=0.0)
-            C.box((0.08, 0.3, 0.2), o + n * 0.06 + a * 0.15 + Vector((0, 0, 1.6)), M["amber"], r, rot=rot, bevel=0.02)
+            C.box((0.04, 0.7, 1.6), o + n * 0.05 + a * 0.35 + UP * 1.7, M["banner"], r, rot=rot, bevel=0.01)
+            C.box((0.05, 0.74, 0.05), o + n * 0.07 + a * 0.35 + UP * 2.52, M["gold"], r, rot=rot, bevel=0.005)
+            C.sphere(0.13, o + n * 0.09 + a * 0.35 + UP * 1.9, M["gold"], r, scale=(0.3, 1.0, 1.2))
+            for k in (0.04, 0.66):
+                C.box((0.04, 0.12, 0.25), o + n * 0.05 + a * k + UP * 0.82, M["banner"], r, rot=(0.3, 0, rot[2]), bevel=0.0)
+            # torch sconce
+            C.box((0.12, 0.1, 0.3), o + n * 0.1 + a * -0.55 + UP * 1.6, M["iron"], r, rot=rot, bevel=0.01)
+            C.cyl(0.08, 0.1, o + n * 0.2 + a * -0.55 + UP * 1.8, M["iron"], r, verts=10, r2=0.12)
+            C.cyl(0.1, 0.3, o + n * 0.2 + a * -0.55 + UP * 2.0, M["fire"], r, r2=0.0, verts=8)
+            for z in (0.6, 0.9, 1.2):  # chain
+                C.torus(0.05, 0.015, o + n * 0.08 + a * -0.85 + UP * (z + 0.9), M["iron"], r, rot=(0, (z * 7) % 2, 0), seg=10, mseg=4)
         _face_items(face)
     elif kind == "rock":
         r = C.empty("wall")
         C.box((CELL * 0.98, CELL * 0.98, H * 0.95), (0, 0, H * 0.47), M["rock"], r, bevel=0.2)
         for i in range(9):
             p = Vector((rng.uniform(-0.6, 1.0), rng.uniform(-1.0, 0.6), rng.uniform(0.3, 2.6)))
-            C.sphere(rng.uniform(0.35, 0.6), p, M["rock"], r, scale=(1.0, 1.0, 1.3), subsurf=1, displace=0.15,
-                     disp_scale=0.6)
+            C.sphere(rng.uniform(0.35, 0.6), p, M["rock"], r, scale=(1.0, 1.0, 1.3), subsurf=1, displace=0.15, disp_scale=0.6)
         for i in range(3):
             p = Vector((rng.uniform(0.7, 1.05), rng.uniform(-1.05, -0.7), rng.uniform(0.2, 1.4)))
-            C.cyl(0.08, 0.5, p, M["crystal"], r, r2=0.0, verts=6, rot=(rng.uniform(-0.6, 0.6), rng.uniform(0.3, 0.9), 0))
+            C.cyl(0.08, 0.5, p, M["soul2"], r, r2=0.0, verts=6, rot=(rng.uniform(-0.6, 0.6), rng.uniform(0.3, 0.9), 0))
     elif kind == "breach":
-        # damaged panel wall: cracked plates, exposed glowing seam -> reads as "breakable"
-        r = wall_base(M, M["ivory"])
+        r = wall_base(M, rng)
 
         def face(o, a, n):
             rot = _rot_for_normal(n)
-            for k, z, tilt in ((-0.45, 0.8, 0.12), (0.4, 0.75, -0.2), (-0.35, 2.1, -0.15), (0.45, 2.2, 0.25)):
-                C.box((0.07, 0.8, 0.95), o + n * 0.03 + a * k + Vector((0, 0, z)), M["ivory"], r,
-                      rot=(tilt, 0, rot[2]), bevel=0.04)
-            C.box((0.05, 0.08, 2.4), o + n * 0.01 + a * 0.02 + Vector((0, 0, 1.4)), M["amber"], r, rot=(0.1, 0, rot[2]),
-                  bevel=0.0)
-            C.box((0.05, 1.4, 0.07), o + n * 0.01 + Vector((0, 0, 1.45)), M["amber"], r, rot=(0, 0.2, rot[2]), bevel=0.0)
-            for i in range(5):
-                C.box((0.18, 0.18, 0.18), o + n * 0.15 + a * rng.uniform(-0.8, 0.8) + Vector((0, 0, 0.1)),
-                      M["deck2"], r, rot=(rng.uniform(0, 1), rng.uniform(0, 1), rng.uniform(0, 1)), bevel=0.02)
+            pts = [(0.0, 0.3), (0.12, 0.9), (-0.08, 1.4), (0.1, 2.0), (-0.05, 2.6)]
+            for (u0, z0), (u1, z1) in zip(pts[:-1], pts[1:]):
+                p0 = o + n * 0.03 + a * u0 + UP * z0
+                p1 = o + n * 0.03 + a * u1 + UP * z1
+                d = p1 - p0
+                C.box((0.05, 0.06, d.length + 0.06), (p0 + p1) / 2, M["soul"], r, bevel=0.0,
+                      rot=d.to_track_quat("Z", "Y").to_euler())
+            for i in range(6):
+                C.box((0.2, 0.2, 0.2), o + n * 0.12 + a * rng.uniform(-0.8, 0.8) + UP * 0.1, M["wall"], r,
+                      rot=(rng.random(), rng.random(), rng.random()), bevel=0.03)
         _face_items(face)
     return r
 
 
-WALL_KINDS = ["panel", "pod", "machine", "window", "pipes", "rock", "breach"]
+WALL_KINDS = ["frieze", "column", "firealcove", "relief", "banner", "rock", "breach"]
 
 
 def render_walls():
@@ -321,7 +356,7 @@ def render_walls():
     for i, k in enumerate(WALL_KINDS):
         C.clear_scene_objects()
         wall_variant(M, k, rng)
-        sw.put(0, i, C.render_passes())
+        sw.put(0, i, C.render_stylized(ENV_STYLE))
     sw.save()
 
 
@@ -329,46 +364,46 @@ def render_walls():
 
 def low_variant(M, kind, rng):
     r = C.empty("low")
-    if kind == "console":
-        C.box((CELL * 0.9, CELL * 0.9, 0.8), (0, 0, 0.4), M["deck2"], r, bevel=0.05)
-        C.box((CELL * 0.92, CELL * 0.92, 0.12), (0, 0, 0.86), M["deck_dark"], r, bevel=0.04)
-        C.box((CELL * 0.5, CELL * 0.12, 0.02), (0, 0, 0.93), M["teal"], r, bevel=0.0)
+    if kind == "altar":
+        C.box((CELL * 0.86, CELL * 0.86, 0.9), (0, 0, 0.45), M["wall2"], r, bevel=0.06)
+        C.box((CELL * 0.92, CELL * 0.92, 0.12), (0, 0, 0.96), M["wall_dk"], r, bevel=0.04)
+        C.box((CELL * 0.92, CELL * 0.92, 0.04), (0, 0, 0.88), M["gold"], r, bevel=0.01)
 
         def face(o, a, n):
             rot = _rot_for_normal(n)
-            C.box((0.3, CELL * 0.7, 0.35), o * 0.9 + n * 0.02 + Vector((0, 0, 1.05)), M["deck_dark"], r,
-                  rot=(0, 0, rot[2]), bevel=0.03)
-            C.box((0.04, CELL * 0.62, 0.26), o * 0.9 + n * 0.18 + Vector((0, 0, 1.06)), M["cyan"], r, rot=rot, bevel=0.0)
-            C.box((0.04, CELL * 0.6, 0.06), o * 0.9 + n * 0.02 + Vector((0, 0, 0.45)), M["amber"], r, rot=rot, bevel=0.0)
+            C.box((0.06, 0.8, 0.42), o * 0.86 + n * 0.02 + UP * 0.48, M["black"], r, rot=rot, bevel=0.0)
+            C.box((0.04, 0.7, 0.32), o * 0.86 + n * 0.0 + UP * 0.48, M["ember"], r, rot=rot, bevel=0.0)
+            for k in (-0.3, -0.15, 0.0, 0.15, 0.3):
+                C.box((0.05, 0.04, 0.44), o * 0.86 + n * 0.05 + a * k + UP * 0.48, M["iron"], r, rot=rot, bevel=0.0)
         _face_items(face)
-    elif kind == "crates":
-        for (x, y, z, s) in ((-0.42, 0.4, 0.4, 0.8), (0.42, 0.4, 0.4, 0.8), (-0.42, -0.42, 0.35, 0.7),
-                             (0.4, -0.38, 0.4, 0.8), (0.0, 0.2, 1.1, 0.65)):
-            C.box((s, s, s), (x, y, z), M["olive"], r, bevel=0.04, rot=(0, 0, rng.uniform(-0.15, 0.15)))
-            C.box((s * 1.02, s * 0.2, s * 1.02), (x, y, z), M["trim"], r, bevel=0.02)
-            C.box((s * 0.4, s * 1.03, s * 0.08), (x, y, z + s * 0.25), M["yellow"], r, bevel=0.0)
-    elif kind == "railing":
-        C.box((CELL * 0.95, CELL * 0.95, 0.25), (0, 0, 0.125), M["deck_dark"], r, bevel=0.04)
+    elif kind == "rubble":
+        for (x, y, rz) in ((-0.3, 0.25, 0.3), (0.35, -0.2, 1.1)):
+            C.cyl(0.34, 0.5, (x, y, 0.34), M["wall2"], r, verts=16, rot=(math.pi / 2, 0, rz), bevel=0.03)
+        C.cyl(0.36, 0.42, (0.3, 0.45, 0.21), M["wall2"], r, verts=16, bevel=0.03)
+        C.torus(0.36, 0.025, (0.3, 0.45, 0.41), M["gold"], r, seg=20, mseg=4)
+        for i in range(8):
+            C.box((rng.uniform(0.15, 0.35),) * 3, (rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8), 0.1), stone(M, rng), r,
+                  rot=(rng.random(), rng.random(), rng.random()), bevel=0.03)
+    elif kind == "balustrade":
+        C.box((CELL * 0.95, CELL * 0.95, 0.22), (0, 0, 0.11), M["wall2"], r, bevel=0.04)
 
         def face(o, a, n):
             rot = _rot_for_normal(n)
-            C.box((0.06, CELL * 0.86, 0.75), o * 0.88 + Vector((0, 0, 0.62)), M["glass"], r, rot=rot, bevel=0.01)
-            C.box((0.16, CELL * 0.92, 0.12), o * 0.88 + Vector((0, 0, 1.05)), M["ivory"], r, rot=rot, bevel=0.05)
-            for k in (-0.85, 0.0, 0.85):
-                C.box((0.2, 0.18, 1.05), o * 0.88 + a * k + Vector((0, 0, 0.55)), M["ivory"], r, rot=rot, bevel=0.06)
-                C.box((0.06, 0.06, 0.35), o * 0.88 + a * k + n * 0.1 + Vector((0, 0, 0.6)), M["red_glow"], r,
-                      rot=rot, bevel=0.0)
+            C.box((0.18, CELL * 0.94, 0.12), o * 0.88 + UP * 1.0, M["marble"], r, rot=rot, bevel=0.04)
+            C.box((0.19, CELL * 0.95, 0.03), o * 0.88 + UP * 0.94, M["gold"], r, rot=rot, bevel=0.005)
+            for k in range(-4, 5):
+                C.cyl(0.06, 0.7, o * 0.88 + a * (k * 0.2) + UP * 0.58, M["marble"], r, verts=10, r2=0.04, bevel=0.0)
         _face_items(face)
-        # back rails so the block reads as an enclosed planter / barrier
-        for (o, a, n) in ((Vector((-CELL / 2, 0, 0)), Vector((0, 1, 0)), Vector((-1, 0, 0))),
-                          (Vector((0, CELL / 2, 0)), Vector((1, 0, 0)), Vector((0, 1, 0)))):
-            C.box((0.16, CELL * 0.92, 0.12), o * 0.88 + Vector((0, 0, 1.05)), M["ivory"], r, rot=_rot_for_normal(n),
-                  bevel=0.05)
-        C.box((CELL * 0.8, CELL * 0.8, 0.1), (0, 0, 0.3), M["teal"], r, bevel=0.0)
+        for (o, n) in ((Vector((-CELL / 2, 0, 0)), Vector((-1, 0, 0))), (Vector((0, CELL / 2, 0)), Vector((0, 1, 0)))):
+            C.box((0.18, CELL * 0.94, 0.12), o * 0.88 + UP * 1.0, M["marble"], r, rot=_rot_for_normal(n), bevel=0.04)
+        C.box((CELL * 0.82, CELL * 0.82, 0.04), (0, 0, 0.24), M["black"], r, bevel=0.0)
+        prng = random.Random(4)
+        for i in range(5):
+            flame(M, r, (prng.uniform(-0.5, 0.5), prng.uniform(-0.5, 0.5), 0.24), prng.uniform(0.5, 0.85), prng, i % 2 == 0)
     return r
 
 
-LOW_KINDS = ["console", "crates", "railing"]
+LOW_KINDS = ["altar", "rubble", "balustrade"]
 
 
 def render_lows():
@@ -382,110 +417,129 @@ def render_lows():
     for i, k in enumerate(LOW_KINDS):
         C.clear_scene_objects()
         low_variant(M, k, rng)
-        sw.put(0, i, C.render_passes())
+        sw.put(0, i, C.render_stylized(ENV_STYLE))
     sw.save()
 
 
 # ======================================================================= props
 
-def prop_barrel(M, frame):
-    r = C.empty("barrel")
-    C.cyl(0.32, 1.0, (0, 0, 0.5), M["redpaint"], r, verts=24, bevel=0.03)
-    for z in (0.12, 0.88):
-        C.cyl(0.335, 0.07, (0, 0, z), M["trim"], r, verts=24, bevel=0.01)
-    C.cyl(0.333, 0.16, (0, 0, 0.55), M["yellow"], r, verts=24, bevel=0.0)
-    C.box((0.08, 0.3, 0.5), (0.3, 0, 0.5), M["amber"], r, bevel=0.02, rot=(0, 0, -0.785))
-    C.cyl(0.09, 0.08, (0.12, 0.05, 1.02), M["trim"], r, verts=12)
+def _vase(M, r, x, y, h, body):
+    C.cyl(0.13 * h, 0.08 * h, (x, y, 0.04 * h), M["black"], r, verts=16, r2=0.16 * h)
+    C.sphere(0.24 * h, (x, y, 0.36 * h), body, r, scale=(1.0, 1.0, 1.25))
+    C.cyl(0.1 * h, 0.3 * h, (x, y, 0.75 * h), body, r, verts=16, r2=0.12 * h)
+    C.cyl(0.13 * h, 0.05 * h, (x, y, 0.9 * h), M["black"], r, verts=16)
+    C.cyl(0.245 * h, 0.08 * h, (x, y, 0.42 * h), M["black"], r, verts=20)
+    for s in (-1, 1):
+        C.torus(0.08 * h, 0.018 * h, (x, y + s * 0.15 * h, 0.7 * h), body, r, rot=(math.pi / 2, 0, 0), seg=12, mseg=4)
+
+
+def prop_barrel(M, frame):  # explosive fire urn
+    r = C.empty("urn")
+    _vase(M, r, 0, 0, 1.1, M["banner"])
+    C.cyl(0.11, 0.26, (0, 0, 1.12), M["fire"], r, r2=0.0, verts=8)
+    C.box((0.05, 0.2, 0.2), (0.27, 0, 0.42), M["ember"], r, bevel=0.0, rot=(0, 0, 0.0))
     return r
 
 
-def prop_crate(M, frame):
-    r = C.empty("crate")
-    C.box((0.95, 0.95, 0.85), (0, 0, 0.425), M["olive"], r, bevel=0.05)
-    C.box((0.97, 0.3, 0.87), (0, 0, 0.425), M["trim"], r, bevel=0.03)
-    C.box((0.3, 0.97, 0.12), (0, 0, 0.6), M["yellow"], r, bevel=0.0)
-    C.box((0.06, 0.25, 0.08), (0.5, 0, 0.3), M["cyan"], r, bevel=0.0)
+def prop_crate(M, frame):  # amphora pair — breaks into supplies
+    r = C.empty("amphorae")
+    _vase(M, r, -0.12, 0.15, 1.0, M["terracotta"])
+    _vase(M, r, 0.24, -0.18, 0.75, M["terracotta"])
     return r
 
 
 def prop_chest(M, frame):
     r = C.empty("chest")
-    C.box((0.9, 1.4, 0.55), (0, 0, 0.275), M["deck2"], r, bevel=0.06)
-    C.box((0.92, 1.42, 0.08), (0, 0, 0.05), M["trim"], r, bevel=0.02)
+    C.box((0.9, 1.4, 0.55), (0, 0, 0.275), M["bronze"], r, bevel=0.06)
+    for y in (-0.5, 0.0, 0.5):
+        C.box((0.92, 0.08, 0.57), (0, y, 0.28), M["gold"], r, bevel=0.01)
     lid = C.empty("lid", (-0.45, 0, 0.55), r)
-    C.box((0.9, 1.4, 0.25), (0.45, 0, 0.12), M["maroon"], lid, bevel=0.08)
-    C.box((0.1, 1.0, 0.05), (0.88, 0, 0.12), M["amber"], lid, bevel=0.0)
-    C.box((0.05, 0.6, 0.04), (0.46, 0, 0.32), M["amber"], r, bevel=0.0)
+    C.cyl(0.45, 1.4, (0.45, 0, 0.0), M["bronze"], lid, rot=(math.pi / 2, 0, 0), verts=20, bevel=0.03)
+    C.box((0.1, 0.25, 0.16), (0.88, 0, 0.0), M["gold"], lid, bevel=0.02)
     if frame == 1:
         lid.rotation_euler = (0, -1.9, 0)
-        C.box((0.7, 1.2, 0.05), (0, 0, 0.5), M["amber"], r, bevel=0.0)
+        C.box((0.7, 1.2, 0.05), (0, 0, 0.5), M["fire"], r, bevel=0.0)
     return r
 
 
-def prop_eggs(M, frame):
-    r = C.empty("eggs")
-    C.sphere(0.6, (0, 0, 0.0), M["bio"], r, scale=(1.2, 1.1, 0.25), subsurf=1, displace=0.05)
+def prop_eggs(M, frame):  # soul nest: bone pile + green cocoon flames
+    r = C.empty("nest")
     rng = random.Random(11)
-    for (x, y, s) in ((0, 0, 0.32), (0.35, -0.25, 0.24), (-0.3, 0.3, 0.22), (0.3, 0.35, 0.2), (-0.35, -0.3, 0.18)):
-        sc = s * (1.0 + (0.12 if frame == 1 else 0.0))
-        C.sphere(sc, (x, y, sc * 1.1), M["egg"], r, scale=(0.85, 0.85, 1.25), subsurf=1, displace=0.02)
-    for i in range(6):
+    C.sphere(0.6, (0, 0, 0.0), M["rock"], r, scale=(1.2, 1.1, 0.22), subsurf=1, displace=0.05)
+    for i in range(9):
         a = rng.uniform(0, 6.28)
-        C.tube_between((0, 0, 0.05), (0.75 * math.cos(a), 0.75 * math.sin(a), 0.02), 0.04, M["bio"], r, r2=0.01)
+        C.cyl(0.035, 0.5, (0.45 * math.cos(a), 0.45 * math.sin(a), 0.1), M["bone"], r, verts=8,
+              rot=(math.pi / 2 + rng.uniform(-0.4, 0.4), 0, a + 1.4))
+    for (x, y) in ((0.3, -0.25), (-0.3, 0.3)):
+        C.sphere(0.1, (x, y, 0.12), M["bone"], r, scale=(1.1, 0.9, 1.0))
+    grow = 1.12 if frame == 1 else 1.0
+    for i in range(5):
+        a = i * 2 * math.pi / 5
+        flame(M, r, (0.16 * math.cos(a), 0.16 * math.sin(a), 0.05), rng.uniform(0.6, 0.95) * grow, rng, i % 2 == 0)
+    C.sphere(0.2 * grow, (0, 0, 0.22), M["soul"], r, scale=(1, 1, 1.2))
     return r
 
 
-def prop_crystals(M, frame):
-    r = C.empty("crystals")
-    rng = random.Random(4)
-    C.sphere(0.45, (0, 0, 0.0), M["rock"], r, scale=(1.2, 1.0, 0.4), subsurf=1, displace=0.06)
-    for i in range(7):
-        a = rng.uniform(0, 6.28)
-        h = rng.uniform(0.5, 1.2)
-        C.cyl(rng.uniform(0.07, 0.13), h, (0.2 * math.cos(a), 0.2 * math.sin(a), h * 0.45), M["crystal"], r, r2=0.0,
-              verts=6, rot=(rng.uniform(-0.5, 0.5), rng.uniform(-0.5, 0.5), 0), smooth=False)
+def prop_crystals(M, frame):  # soul brazier
+    r = C.empty("brazier")
+    for i in range(3):
+        a = i * 2 * math.pi / 3
+        C.tube_between((0.32 * math.cos(a), 0.32 * math.sin(a), 0.0), (0.12 * math.cos(a), 0.12 * math.sin(a), 0.75), 0.04,
+                       M["bronze"], r)
+    C.cyl(0.36, 0.2, (0, 0, 0.82), M["bronze"], r, verts=20, r2=0.42, bevel=0.02)
+    C.torus(0.42, 0.03, (0, 0, 0.92), M["gold"], r, seg=24, mseg=6)
+    rng = random.Random(2)
+    for i in range(4):
+        a = i * 2 * math.pi / 4
+        flame(M, r, (0.12 * math.cos(a), 0.12 * math.sin(a), 0.9), rng.uniform(0.5, 0.8), rng, i % 2 == 0)
     return r
 
 
-def prop_canisters(M, frame):
-    r = C.empty("canisters")
-    for (x, y, h) in ((0, 0, 0.55), (0.35, -0.15, 0.4), (-0.2, 0.32, 0.45)):
-        C.cyl(0.16, h, (x, y, h / 2), M["ivory"], r, verts=18, bevel=0.03)
-        C.cyl(0.165, 0.06, (x, y, h * 0.7), M["maroon"], r, verts=18, bevel=0.0)
-        C.cyl(0.1, 0.05, (x, y, h + 0.02), M["trim"], r, verts=12, bevel=0.0)
+def prop_canisters(M, frame):  # candle cluster
+    r = C.empty("candles")
+    rng = random.Random(9)
+    C.sphere(0.36, (0, 0, 0.0), M["wax"], r, scale=(1.2, 1.0, 0.12))
+    for (x, y, h) in ((0, 0, 0.5), (0.2, -0.12, 0.34), (-0.16, 0.18, 0.4), (0.18, 0.2, 0.24), (-0.22, -0.15, 0.28)):
+        C.cyl(0.055, h, (x, y, h / 2), M["wax"], r, verts=12, bevel=0.01)
+        C.sphere(0.04, (x, y, h + 0.06), M["fire"], r, scale=(0.7, 0.7, 1.5), segs=8)
     return r
 
 
-def prop_pylon(M, frame):
-    r = C.empty("pylon")
-    C.cyl(0.3, 0.2, (0, 0, 0.1), M["deck_dark"], r, verts=6, bevel=0.03)
-    C.box((0.14, 0.14, 2.0), (0, 0, 1.1), M["deck2"], r, bevel=0.03)
-    C.box((0.06, 0.18, 1.4), (0.06, 0, 1.2), M["cyan"], r, bevel=0.0)
-    C.box((0.3, 0.3, 0.12), (0, 0, 2.12), M["trim"], r, bevel=0.03)
-    C.sphere(0.12, (0, 0, 2.25), M["cyan"], r, segs=14)
+def prop_pylon(M, frame):  # candelabra
+    r = C.empty("candelabra")
+    C.cyl(0.26, 0.08, (0, 0, 0.04), M["iron"], r, verts=6, bevel=0.01)
+    C.cyl(0.04, 1.8, (0, 0, 0.95), M["iron"], r, verts=8)
+    for z, rad in ((1.5, 0.32), (1.9, 0.0)):
+        if rad > 0:
+            C.torus(rad, 0.02, (0, 0, z), M["iron"], r, seg=20, mseg=4)
+        for i in range(4 if rad > 0 else 1):
+            a = i * math.pi / 2
+            p = (rad * math.cos(a), rad * math.sin(a), z)
+            C.cyl(0.05, 0.16, (p[0], p[1], z + 0.08), M["wax"], r, verts=10)
+            C.sphere(0.045, (p[0], p[1], z + 0.22), M["fire"], r, scale=(0.7, 0.7, 1.6), segs=8)
     return r
 
 
-def prop_tube(M, frame):
-    r = C.empty("cryotube")
-    C.cyl(0.5, 0.3, (0, 0, 0.15), M["deck2"], r, verts=24, bevel=0.04)
-    C.cyl(0.42, 1.7, (0, 0, 1.15), M["glass"], r, verts=24, bevel=0.0)
-    C.cyl(0.5, 0.3, (0, 0, 2.1), M["deck2"], r, verts=24, bevel=0.04)
-    C.sphere(0.22, (0, 0, 1.2), M["bio"], r, scale=(0.9, 0.8, 1.6), subsurf=1, displace=0.05)
-    for a in range(3):
-        C.box((0.06, 0.06, 1.7), (0.47 * math.cos(a * 2.1), 0.47 * math.sin(a * 2.1), 1.15), M["trim"], r, bevel=0.0)
+def prop_tube(M, frame):  # broken hooded statue on a plinth
+    r = C.empty("statue")
+    C.box((0.9, 0.9, 0.4), (0, 0, 0.2), M["wall2"], r, bevel=0.04)
+    C.box((0.92, 0.92, 0.05), (0, 0, 0.4), M["gold"], r, bevel=0.01)
+    C.cyl(0.34, 1.2, (0, 0, 1.02), M["marble"], r, verts=16, r2=0.22, bevel=0.02)
+    C.sphere(0.24, (0.02, 0, 1.75), M["marble"], r, scale=(1.0, 0.95, 1.2))
+    C.sphere(0.2, (0.1, 0, 1.72), M["black"], r, scale=(0.6, 0.8, 0.9))
+    C.box((0.2, 0.5, 0.14), (0.24, 0, 1.15), M["marble"], r, bevel=0.03, rot=(0, -0.4, 0))
     return r
 
 
 PROPS = {
     # name: (builder, frames, (w, h, origin))
-    "barrel": (prop_barrel, 1, (96, 144, (48, 110))),
-    "crate": (prop_crate, 1, (144, 160, (72, 104))),
+    "barrel": (prop_barrel, 1, (112, 160, (56, 120))),
+    "crate": (prop_crate, 1, (144, 160, (72, 116))),
     "chest": (prop_chest, 2, (176, 160, (88, 108))),
-    "eggs": (prop_eggs, 2, (192, 160, (96, 100))),
-    "crystals": (prop_crystals, 1, (160, 176, (80, 120))),
-    "canisters": (prop_canisters, 1, (128, 128, (64, 84))),
-    "pylon": (prop_pylon, 1, (96, 224, (48, 190))),
+    "eggs": (prop_eggs, 2, (192, 176, (96, 112))),
+    "crystals": (prop_crystals, 1, (160, 200, (80, 140))),
+    "canisters": (prop_canisters, 1, (128, 112, (64, 72))),
+    "pylon": (prop_pylon, 1, (112, 240, (56, 200))),
     "cryotube": (prop_tube, 1, (144, 256, (72, 196))),
 }
 
@@ -499,9 +553,8 @@ def render_props():
         sw = C.SheetWriter("props", name, fw, fh, org, 1, frames)
         for f in range(frames):
             C.clear_scene_objects()
-            root = build(M, f)
-            root.rotation_euler = (0, 0, 0.0)
-            sw.put(0, f, C.render_passes())
+            build(M, f)
+            sw.put(0, f, C.render_stylized(ENV_STYLE))
         sw.save()
 
 

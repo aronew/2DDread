@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1")
 id = &"shotgun"
-display_name = "BREACHER Scattergun"
-flavor = "Point-blank devastation. Huge knockback, falls off hard at range."
+display_name = "Hellmouth Blunderbuss"
+flavor = "A flared brass mouth that spits a fistful of embers. Devastating up close."
 torso = "shotgun"
 fire_mode = "semi"
 damage = 11.0

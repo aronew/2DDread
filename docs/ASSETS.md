@@ -1,5 +1,11 @@
 # Art & Audio Asset Contract
 
+**Style target:** hand-inked, cel-shaded mythic underworld (Hades-like): thick ink
+silhouettes, 3-band toon shading with purple-tinted shadows, gold trim, green soul-fire and
+warm torchlight. The placeholder art gets this look from `common.render_stylized()`, which
+renders flat-albedo / lighting / depth+material / normal / emission passes and composites
+them into banded shading + ink lines (supersampled 2×). Tune it via `common.STYLE`.
+
 Everything visual in the game is loaded from sprite sheets described by a small
 JSON file. The current art is **placeholder** rendered by the Blender pipeline in
 `tools/blender/`. Replace it with your own environment, enemy and character art
@@ -77,8 +83,9 @@ that matches Godot's `Light2D.height` model:
 | Sheet | Layout | Notes |
 |---|---|---|
 | `player/player_legs` | 16 dirs × 9 cols (8 run frames + 1 idle) | meta `bob_m`: 8 pelvis offsets (m) so the torso bobs in sync |
-| `player/player_torso_<rifle\|shotgun\|arc\|rail>` | 32 dirs, grid 4 rows × 8 cols, row-major | meta `muzzle_m`: [forward, left, height] in metres |
-| `enemies/<id>_<anim>` | 16 dirs × N frames | names come from `EnemyData.sheet_move` / `sheet_attack` |
+| `player/player_torso_<rifle\|shotgun\|arc\|rail>` | 32 dirs, grid 4 rows × 8 cols, row-major | meta `muzzle_m`: [forward, left, height] in metres; optional `muzzle2_m` = second barrel (twin revolvers alternate) |
+| `ui/portrait.png` | single image | HUD portrait shown in the gold diamond |
+| `enemies/<name>_<anim>` | 16 dirs × N frames | names come from `EnemyData.sheet_move` / `sheet_attack` (hound, witch, legion, skull) |
 | `env/floor_tiles` | 1 row × N kinds | 264×240 frames, origin (132,100); slab sides hang below the diamond so platform edges form automatically |
 | `env/wall_blocks` | 1 row × N kinds | 260×388 frames, origin (130,286); 3 m tall full-cell blocks |
 | `env/low_blocks` | 1 row × N kinds | movement blockers that bullets pass over |

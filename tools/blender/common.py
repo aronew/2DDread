@@ -41,6 +41,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "assets", "sprites")
 
 QUALITY = {"samples": 40, "normal_samples": 6, "emit_samples": 6}
+SS = 2              # supersampling factor for the stylized (ink) renders
+CAM_DIST = 60.0     # camera distance from target (depth pass normalisation)
 
 
 # --------------------------------------------------------------------------
@@ -81,8 +83,11 @@ def reset_scene():
     return sc
 
 
-def setup_camera(width, height, origin_px):
-    """Ortho iso camera framing a width x height image with world origin at origin_px."""
+def setup_camera(width, height, origin_px, ss=None):
+    """Ortho iso camera framing a width x height image with world origin at origin_px.
+    Renders at ss x resolution; stylize() downsamples back to width x height."""
+    ss = SS if ss is None else ss
+    width, height, origin_px = width * ss, height * ss, (origin_px[0] * ss, origin_px[1] * ss)
     sc = bpy.context.scene
     sc.render.resolution_x = width
     sc.render.resolution_y = height
@@ -90,7 +95,7 @@ def setup_camera(width, height, origin_px):
     cam_data = bpy.data.cameras.get("IsoCam") or bpy.data.cameras.new("IsoCam")
     cam_data.type = "ORTHO"
     m = max(width, height)
-    cam_data.ortho_scale = m / PX_PER_M
+    cam_data.ortho_scale = m / (PX_PER_M * ss)
     cam_data.shift_x = (width / 2.0 - origin_px[0]) / m
     cam_data.shift_y = (origin_px[1] - height / 2.0) / m
     cam_data.clip_start = 0.1
@@ -101,7 +106,7 @@ def setup_camera(width, height, origin_px):
         sc.collection.objects.link(cam)
     cam.rotation_euler = Euler((math.pi / 2 - ELEV, 0.0, math.radians(45.0)))
     back = cam.rotation_euler.to_matrix() @ Vector((0, 0, 1))
-    cam.location = back * 60.0
+    cam.location = back * CAM_DIST
     sc.camera = cam
     return cam
 
@@ -214,8 +219,59 @@ def mat(name, color, metal=0.0, rough=0.5, emit=None, emit_strength=0.0, coat=0.
     links.new(val.outputs[0], mixs.inputs["Fac"])
     links.new(bsdf.outputs["BSDF"], mixs.inputs[1])
     links.new(em.outputs["Emission"], mixs.inputs[2])
-    links.new(mixs.outputs["Shader"], out.inputs["Surface"])
+    # --- stylized-pipeline branches: flat albedo and meta (metal, emissive, depth)
+    alb = nodes.new("ShaderNodeEmission")
+    bc_link = bsdf.inputs["Base Color"].links
+    if bc_link:
+        links.new(bc_link[0].from_socket, alb.inputs["Color"])
+    else:
+        alb.inputs["Color"].default_value = (*color, 1.0)
+    if emit is not None:
+        alb.inputs["Color"].default_value = (*emit, 1.0)
+        if bc_link:
+            links.remove(alb.inputs["Color"].links[0])
+    camd = nodes.new("ShaderNodeCameraData")
+    dmath = nodes.new("ShaderNodeMapRange")
+    dmath.inputs["From Min"].default_value = CAM_DIST - 7.0
+    dmath.inputs["From Max"].default_value = CAM_DIST + 7.0
+    links.new(camd.outputs["View Z Depth"], dmath.inputs["Value"])
+    comb = nodes.new("ShaderNodeCombineXYZ")
+    comb.inputs[0].default_value = min(1.0, metal * 1.2)
+    comb.inputs[1].default_value = 1.0 if emit is not None and emit_strength >= 1.5 else 0.0
+    links.new(dmath.outputs["Result"], comb.inputs[2])
+    meta = nodes.new("ShaderNodeEmission")
+    links.new(comb.outputs["Vector"], meta.inputs["Color"])
+    m_alb = nodes.new("ShaderNodeMixShader")
+    v_alb = nodes.new("ShaderNodeValue")
+    v_alb.name = "ALB"
+    links.new(v_alb.outputs[0], m_alb.inputs["Fac"])
+    links.new(mixs.outputs["Shader"], m_alb.inputs[1])
+    links.new(alb.outputs["Emission"], m_alb.inputs[2])
+    m_meta = nodes.new("ShaderNodeMixShader")
+    v_meta = nodes.new("ShaderNodeValue")
+    v_meta.name = "META"
+    links.new(v_meta.outputs[0], m_meta.inputs["Fac"])
+    links.new(m_alb.outputs["Shader"], m_meta.inputs[1])
+    links.new(meta.outputs["Emission"], m_meta.inputs[2])
+    links.new(m_meta.outputs["Shader"], out.inputs["Surface"])
     _MATS[name] = m
+    return m
+
+
+def light_override_material():
+    """Plain white diffuse: renders pure lighting (incl. self-shadowing) for toon banding."""
+    m = bpy.data.materials.get("__LIGHT__")
+    if m:
+        return m
+    m = bpy.data.materials.new("__LIGHT__")
+    m.use_nodes = True
+    nt = m.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    d = nt.nodes.new("ShaderNodeBsdfDiffuse")
+    d.inputs["Color"].default_value = (0.8, 0.8, 0.8, 1.0)
+    nt.links.new(d.outputs["BSDF"], out.inputs["Surface"])
     return m
 
 
@@ -252,34 +308,57 @@ def normal_override_material():
     return m
 
 
+def _branch(pas=0.0, alb=0.0, meta=0.0):
+    for m in _MATS.values():
+        n = m.node_tree.nodes
+        n["PASS"].outputs[0].default_value = pas
+        n["ALB"].outputs[0].default_value = alb
+        n["META"].outputs[0].default_value = meta
+
+
 def set_pass(kind):
-    """kind in {'color', 'normal', 'emit'}"""
+    """kind in {'color', 'normal', 'emit', 'albedo', 'light', 'meta'}"""
     sc = bpy.context.scene
     vl = sc.view_layers[0]
     world_bg = sc.world.node_tree.nodes["Background"]
+    if kind in ("albedo", "meta"):
+        vl.material_override = None
+        sc.view_settings.view_transform = "Standard" if kind == "albedo" else "Raw"
+        sc.cycles.samples = 4
+        sc.cycles.use_denoising = False
+        world_bg.inputs[1].default_value = 0.0
+        _branch(alb=1.0 if kind == "albedo" else 0.0, meta=1.0 if kind == "meta" else 0.0)
+        _set_lights(False)
+        return
+    if kind == "light":
+        vl.material_override = light_override_material()
+        sc.view_settings.view_transform = "Raw"
+        sc.cycles.samples = 14
+        sc.cycles.use_denoising = True
+        world_bg.inputs[1].default_value = 0.25
+        _set_lights(True)
+        return
+    _branch()
     if kind == "color":
         vl.material_override = None
         sc.view_settings.view_transform = "Standard"
         sc.cycles.samples = QUALITY["samples"]
         sc.cycles.use_denoising = True
         world_bg.inputs[1].default_value = sc.get("world_strength", 0.55)
-        for m in _MATS.values():
-            m.node_tree.nodes["PASS"].outputs[0].default_value = 0.0
         _set_lights(True)
     elif kind == "normal":
         vl.material_override = normal_override_material()
         sc.view_settings.view_transform = "Raw"
-        sc.cycles.samples = QUALITY["normal_samples"]
+        sc.cycles.samples = 4
         sc.cycles.use_denoising = False
         _set_lights(False)
     elif kind == "emit":
         vl.material_override = None
         sc.view_settings.view_transform = "Standard"
-        sc.cycles.samples = QUALITY["emit_samples"]
+        sc.cycles.samples = 4
         sc.cycles.use_denoising = False
         world_bg.inputs[1].default_value = 0.0
-        for m in _MATS.values():
-            m.node_tree.nodes["PASS"].outputs[0].default_value = 1.0
+        _branch(pas=1.0)
         _set_lights(False)
 
 
@@ -449,6 +528,143 @@ def render_passes(passes=("color", "normal", "emit")):
         out[p] = _render_to_array(os.path.join(_TMP, "f_%s.png" % p))
     set_pass("color")
     return out
+
+
+STYLE = {
+    "bands": (0.22, 0.52),      # light thresholds between shadow / mid / lit
+    "levels": (0.42, 0.76, 1.02), # brightness of each band
+    "soft": 0.035,              # band edge softness
+    "shadow_tint": (0.56, 0.46, 0.86),
+    "outline_px": 4,            # outer silhouette (at SS resolution)
+    "inner_px": 1,              # inner line dilation (at SS resolution)
+    "depth_edge": 0.018,
+    "normal_edge": 0.30,
+    "color_edge": 0.20,
+    "color_line": 0.55,         # opacity of albedo-boundary lines
+    "line_color": (0.05, 0.035, 0.05),
+    "grain": 0.06,
+}
+
+
+def render_stylized(style=None):
+    """Hand-inked, cel-shaded frame: returns {'color','normal','emit'} at final size."""
+    st = dict(STYLE)
+    if style:
+        st.update(style)
+    raw = {}
+    for p in ("albedo", "light", "meta", "normal", "emit"):
+        set_pass(p)
+        raw[p] = _render_to_array(os.path.join(_TMP, "s_%s.png" % p))
+    set_pass("color")
+    return stylize(raw, st)
+
+
+def _smooth(e0, e1, x):
+    t = np.clip((x - e0) / max(e1 - e0, 1e-6), 0, 1)
+    return t * t * (3 - 2 * t)
+
+
+def _dilate(mask, r):
+    if r <= 0:
+        return mask
+    out = mask.copy()
+    for dy in range(-r, r + 1):
+        for dx in range(-r, r + 1):
+            if dx * dx + dy * dy > r * r + r * 0.5:
+                continue
+            out = np.maximum(out, np.roll(np.roll(mask, dy, 0), dx, 1))
+    return out
+
+
+_GRAIN = None
+
+
+def _grain(h, w):
+    global _GRAIN
+    if _GRAIN is None or _GRAIN.shape != (h, w):
+        g = np.random.default_rng(3).random((h // 4 + 2, w // 4 + 2))
+        g = np.kron(g, np.ones((4, 4)))[:h, :w]
+        g = (g + np.roll(g, 2, 0) + np.roll(g, 2, 1) + np.roll(np.roll(g, 2, 0), 2, 1)) / 4
+        _GRAIN = g
+    return _GRAIN
+
+
+def stylize(raw, st):
+    alb = raw["albedo"][..., :3].astype(np.float32) / 255.0
+    a = raw["albedo"][..., 3].astype(np.float32) / 255.0
+    lit = raw["light"][..., :3].astype(np.float32).mean(axis=2) / 255.0
+    meta = raw["meta"][..., :3].astype(np.float32) / 255.0
+    nrm = raw["normal"][..., :3].astype(np.float32) / 255.0
+    emit = raw["emit"][..., :3].astype(np.float32) / 255.0
+    h, w = a.shape
+    solid = a > 0.5
+    # --- toon bands
+    t1, t2 = st["bands"]
+    s1 = _smooth(t1 - st["soft"], t1 + st["soft"], lit)
+    s2 = _smooth(t2 - st["soft"], t2 + st["soft"], lit)
+    lv = st["levels"]
+    shade = lv[0] + (lv[1] - lv[0]) * s1 + (lv[2] - lv[1]) * s2
+    tint = np.array(st["shadow_tint"], np.float32)
+    tint_mix = tint[None, None, :] + (1 - tint[None, None, :]) * s1[..., None]
+    col = alb * shade[..., None] * tint_mix
+    # metal glints (gold trim, blades)
+    metal = meta[..., 0]
+    glint = _smooth(0.66, 0.74, lit) * (metal > 0.4) * 0.75
+    col = col * (1 - 0.55 * glint[..., None]) + (alb * 1.5 + 0.12) * 0.55 * glint[..., None]
+    # painterly grain in shadows
+    g = _grain(h, w)
+    col *= (1 + (g[..., None] - 0.5) * st["grain"] * (1.6 - s1[..., None]))
+    # emissive parts stay flat and bright
+    em_flag = meta[..., 1] > 0.5
+    col[em_flag] = alb[em_flag]
+    # --- ink lines
+    depth = meta[..., 2]
+    def nbr_diff(img):
+        dx = np.abs(img - np.roll(img, 1, 1))
+        dy = np.abs(img - np.roll(img, 1, 0))
+        return np.maximum(dx, dy)
+    d_edge = nbr_diff(depth) > st["depth_edge"]
+    n = nrm * 2 - 1
+    ndx = (n * np.roll(n, 1, 1)).sum(2)
+    ndy = (n * np.roll(n, 1, 0)).sum(2)
+    n_edge = np.minimum(ndx, ndy) < (1 - st["normal_edge"])
+    c_edge = nbr_diff(alb).max(axis=2) > st["color_edge"]
+    both = solid & np.roll(solid, 1, 0) & np.roll(solid, 1, 1)
+    both[0, :] = False
+    both[:, 0] = False
+    hard = (d_edge | n_edge) & both & ~em_flag
+    soft = c_edge & both & ~hard & ~em_flag
+    hard = _dilate(hard.astype(np.float32), st["inner_px"])
+    soft = _dilate(soft.astype(np.float32), max(0, st["inner_px"] - 1)) * st["color_line"]
+    line = np.maximum(hard, soft)[..., None]
+    lc = np.array(st["line_color"], np.float32)[None, None, :] + alb * 0.12
+    col = col * (1 - line) + lc * line
+    # outer silhouette outline
+    outer = _dilate(a, st["outline_px"])
+    ring = np.clip(outer - a, 0, 1)
+    out_rgb = col * a[..., None] + lc * ring[..., None]
+    out_a = np.clip(a + ring, 0, 1)
+    out_rgb = np.where(out_a[..., None] > 0, out_rgb / np.maximum(out_a[..., None], 1e-4), 0)
+    # normals: flat in the outline ring
+    nrm_out = nrm.copy()
+    nrm_out[ring > 0.5] = (0.5, 0.5, 1.0)
+    return {
+        "color": _down(np.dstack([np.clip(out_rgb, 0, 1), out_a])),
+        "normal": _down(np.dstack([nrm_out, out_a])),
+        "emit": _down(np.dstack([emit * (a[..., None]), np.ones_like(a)])),
+    }
+
+
+def _down(rgba):
+    """Premultiplied 1/SS downsample -> uint8 RGBA."""
+    h, w = rgba.shape[:2]
+    pm = rgba.copy()
+    pm[..., :3] *= pm[..., 3:4]
+    im = Image.fromarray((np.clip(pm, 0, 1) * 255).astype(np.uint8), "RGBA")
+    im = im.resize((w // SS, h // SS), Image.LANCZOS)
+    out = np.array(im).astype(np.float32) / 255.0
+    out[..., :3] = np.where(out[..., 3:4] > 0.003, out[..., :3] / np.maximum(out[..., 3:4], 1e-4), 0)
+    return (np.clip(out, 0, 1) * 255).astype(np.uint8)
 
 
 def yaw_for_ground_angle(phi):

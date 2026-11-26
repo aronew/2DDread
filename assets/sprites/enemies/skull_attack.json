@@ -1,0 +1,19 @@
+{
+ "name": "skull_attack",
+ "frame_w": 176,
+ "frame_h": 200,
+ "origin": [
+  88,
+  168
+ ],
+ "rows": 16,
+ "cols": 4,
+ "files": {
+  "color": "skull_attack_c.png",
+  "normal": "skull_attack_n.png",
+  "emit": "skull_attack_e.png"
+ },
+ "dirs": 16,
+ "frames": 4,
+ "anim": "attack"
+}

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = &"launcher"
-display_name = "HAVOC Launcher"
+display_name = "Firebomb"
 flavor = "Shoulder-mounted grenade launcher. Recharges over time."
 torso = "rifle"
 fire_mode = "semi"

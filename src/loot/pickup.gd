@@ -50,8 +50,8 @@ func _ready() -> void:
 			_glow.modulate = col * 1.8
 		&"item":
 			var it: Item = data["item"]
-			_glow.scale = Vector2(0.55, 0.55)
-			_glow.modulate = col * 2.4
+			_glow.scale = Vector2(0.38, 0.38)
+			_glow.modulate = col * (1.0 + it.rarity * 0.3)
 			if it.rarity >= Item.Rarity.RARE:
 				_beam = Sprite2D.new()
 				_beam.texture = VFX.T.spark
@@ -87,7 +87,7 @@ func _ready() -> void:
 func _color() -> Color:
 	match kind:
 		&"xp":
-			return Color(0.45, 0.85, 1.0)
+			return Color(0.55, 1.0, 0.78)
 		&"health":
 			return Color(1.0, 0.18, 0.2)
 		&"ammo":

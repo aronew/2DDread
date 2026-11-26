@@ -14,11 +14,11 @@
   "emit": "wall_blocks_e.png"
  },
  "kinds": [
-  "panel",
-  "pod",
-  "machine",
-  "window",
-  "pipes",
+  "frieze",
+  "column",
+  "firealcove",
+  "relief",
+  "banner",
   "rock",
   "breach"
  ]

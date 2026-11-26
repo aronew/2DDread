@@ -10,8 +10,7 @@
  "cols": 9,
  "files": {
   "color": "player_legs_c.png",
-  "normal": "player_legs_n.png",
-  "emit": "player_legs_e.png"
+  "normal": "player_legs_n.png"
  },
  "dirs": 16,
  "anims": {

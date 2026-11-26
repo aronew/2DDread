@@ -4,7 +4,7 @@ extends Node2D
 ## and run flow (death/respawn, descending to deeper levels).
 
 const ENEMY_IDS := ["mite", "spitter", "brute", "bloater"]
-const AMBIENT := Color(0.64, 0.67, 0.76)
+const AMBIENT := Color(0.93, 0.93, 0.9)
 
 var level_root: Node2D
 var entities: Node2D
@@ -46,8 +46,8 @@ func _ready() -> void:
 	player.name = "Player"
 	var plight := PointLight2D.new()
 	plight.texture = Dungeon.make_light_texture()
-	plight.color = Color(1.0, 0.92, 0.85)
-	plight.energy = 0.75
+	plight.color = Color(1.0, 0.88, 0.72)
+	plight.energy = 0.6
 	plight.height = 140.0
 	plight.texture_scale = Iso.m(9.0) * 2.0 / 256.0
 	plight.scale = Vector2(1.0, Iso.K)
@@ -95,7 +95,7 @@ func _setup_background() -> void:
 	var rect := ColorRect.new()
 	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rect.color = Color(0.012, 0.035, 0.045)
+	rect.color = Color(0.02, 0.09, 0.06)
 	_bg_mat = ShaderMaterial.new()
 	_bg_mat.shader = preload("res://src/vfx/shaders/void_bg.gdshader")
 	_bg_mat.set_shader_parameter("noise_tex", preload("res://src/vfx/fog_noise.tres"))
@@ -241,7 +241,7 @@ func apply_graphics() -> void:
 	if dungeon:
 		dungeon.apply_light_level(lv)
 	# fewer static lights -> lift ambient so rooms stay readable
-	_cm.color = [Color(0.66, 0.69, 0.78), Color(0.7, 0.73, 0.82), AMBIENT][lv]
+	_cm.color = [Color(1.0, 1.0, 0.98), Color(0.96, 0.96, 0.93), AMBIENT][lv]
 	VFX.particle_scale = g["particles"]
 	_apply_render_cap()
 
@@ -313,7 +313,7 @@ func _rebuild() -> void:
 	level_root.free()
 	build_level()
 	Events.depth_changed.emit(Game.depth)
-	Events.message.emit("DEPTH %d — THE HIVE GROWS STRONGER" % Game.depth, Color(1.0, 0.6, 0.3))
+	Events.message.emit("DEPTH %d — THE UNDERWORLD STIRS" % Game.depth, Color(1.0, 0.6, 0.3))
 
 
 func _parse_args() -> void:

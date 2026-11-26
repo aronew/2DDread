@@ -560,35 +560,35 @@ func _build_lights() -> void:
 				var n: Vector2i = c + o
 				if is_floor(n):
 					var gw := Iso.tile_to_ground(Vector2(c.x + 0.5, c.y + 0.5) + Vector2(o) * 0.75)
-					add_light(Iso.to_screen(gw), Color(0.55, 0.75, 1.0) if k != 5 else Color(0.4, 0.9, 0.75), 0.55, 3.4, 40.0, 1)
+					add_light(Iso.to_screen(gw), Color(1.0, 0.82, 0.6) if k != 5 else Color(0.4, 0.9, 0.6), 0.5, 3.4, 40.0, 1)
 					break
 		match k:
-			3: col = Color(0.3, 0.85, 1.0); energy = 0.9
-			2: col = Color(0.75, 0.35, 1.0); energy = 0.75
-			1: col = Color(1.0, 0.3, 0.25); energy = 0.4
-			4: col = Color(1.0, 0.6, 0.2); energy = 0.45
-			6: col = Color(1.0, 0.6, 0.2); energy = 0.9
+			2: col = Color(0.35, 1.0, 0.55); energy = 0.95   # soul-fire alcove
+			4: col = Color(1.0, 0.6, 0.25); energy = 0.85    # torch sconce
+			6: col = Color(0.35, 1.0, 0.55); energy = 0.9    # cracked wall glow
 		if energy <= 0.0:
 			continue
-		if k != 6 and count % 2 == 0:
+		if k == 4 and count % 2 == 0:
 			continue
 		for o in face_dirs:
 			var n: Vector2i = c + o
 			if not is_floor(n):
 				continue
 			var g := Iso.tile_to_ground(Vector2(c.x + 0.5, c.y + 0.5) + Vector2(o) * 0.85)
-			add_light(Iso.to_screen(g) - Vector2(0, Iso.h(1.6)), col, energy, 4.2, 90.0, 0 if k in [3, 6] else 1)
+			add_light(Iso.to_screen(g) - Vector2(0, Iso.h(1.6)), col, energy, 4.2, 90.0, 0 if k in [2, 6] else 1)
 	for c in floor_kind:
 		if block.has(c):
 			continue
 		match floor_kind[c]:
 			4:
-				add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 20), Color(0.3, 0.9, 1.0), 0.5, 3.2, 90.0, 1)
+				add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 20), Color(1.0, 0.8, 0.45), 0.35, 3.0, 90.0, 1)
+			5:
+				add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 10), Color(0.35, 1.0, 0.55), 0.45, 2.6, 60.0, 1)
 			_:
 				# soft overhead fill on a loose grid: pools of light, not flat ambience
 				if c.x % 4 == 1 and c.y % 4 == 1:
 					var cool: bool = (c.x / 4 + c.y / 4) % 2 == 0
-					add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 160), Color(0.72, 0.84, 1.0) if cool else Color(0.45, 0.95, 0.85),
+					add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 160), Color(1.0, 0.86, 0.68) if cool else Color(0.55, 0.95, 0.75),
 						0.42, 6.0, 260.0, 2)
 
 

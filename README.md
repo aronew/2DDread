@@ -1,12 +1,14 @@
 # DREAD
 
-An isometric action-RPG twin-stick shooter (vertical slice) built in **Godot 4.7** with GDScript.
+An isometric action-RPG twin-stick shooter (vertical slice) built in **Godot 4.7** with GDScript —
+a gunslinger fighting through a mythic underworld, in a hand-inked, cel-shaded style.
 It plays fast and aggressive, with movement, gunplay, abilities and loot pulling against each other:
 dash through formations, flank armoured brutes, pop bloaters inside crowds, execute staggered
 enemies for health, and build around behaviour-changing legendaries.
 
-> The art is placeholder, pre-rendered from procedural 3D models in Blender with colour, normal and
-> emission passes. See [`docs/ASSETS.md`](docs/ASSETS.md) to drop in your own art.
+> The art is placeholder: procedural 3D models in Blender, rendered through an ink + cel-shading
+> stylizer into 2D sprites (with normal and emission maps for dynamic 2D lighting). The game itself is
+> fully 2D. See [`docs/ASSETS.md`](docs/ASSETS.md) to drop in your own art.
 
 ![Hatchery combat](docs/screenshots/hatchery_combat.png)
 
@@ -41,21 +43,21 @@ Each weapon is a data-driven `WeaponData` resource in `data/weapons/`.
 
 | Weapon | Behaviour |
 |---|---|
-| **VIGIL Pulse Rifle** | Automatic pulse bolts; accuracy blooms under sustained fire. |
-| **BREACHER Scattergun** | 10 pellets, loads shell by shell, huge knockback, falls off hard at range. |
-| **TESLA Arc Caster** | Lightning that chains between targets. Runs on heat, never ammo. |
-| **LANCE Rail Rifle** | Charged shot that pierces everything in a line. Loot drop. |
-| **HAVOC Launcher** (RMB) | Lobbed grenades on recharging charges. |
+| **Twin Hellfire Revolvers** | Alternating barrels, golden tracers; accuracy blooms under sustained fire. |
+| **Hellmouth Blunderbuss** | 10 pellets, loads shell by shell, huge knockback, falls off hard at range. |
+| **Stormcaller** | Lightning that chains between targets. Runs on heat, never ammo. |
+| **Longshot** | Charged rune bolt that pierces everything in a line. Loot drop. |
+| **Firebomb** (RMB) | Lobbed bombs on recharging charges. |
 
 ### Enemies
 Every attack is telegraphed on the ground before it lands.
 
 | Enemy | Role |
 |---|---|
-| **Mite** | Flanking swarmer. Plants, then lunges in a straight line you can dodge. |
-| **Spitter** | Ranged zoner. Kites and leads its shots; acid leaves puddles. |
-| **Brute** | Frontal armour (70%) with a weak back (+60%) and slow turning. Slams in a marked circle, charges in a line, and stuns itself on walls. |
-| **Bloater** | Explodes on players **and** enemies. Shoot it while it's next to its friends. |
+| **Hellhound** | Flanking swarmer. Crouches, then pounces in a straight line you can dodge. |
+| **Hex Witch** | Floating caster. Keeps her distance and fans out leading volleys of crystal shards. |
+| **Shade Legionnaire** | Tower shield = frontal armour (70%, breakable); weak back (+60%), slow turning. Overhead sword slam on a marked circle, shield charge in a line, stuns itself on walls. |
+| **Flaming Skull** | Flies over obstacles and detonates on players **and** enemies. Shoot it while it's next to its friends. |
 
 - **Elites** can roll any of four affixes: **Frenzied**, **Shielded** (shield regenerates; breaking it staggers), **Volatile** (mines) and **Molten** (fire trail).
 

@@ -1,23 +1,27 @@
 {
  "name": "player_torso_rifle",
- "frame_w": 224,
- "frame_h": 200,
+ "frame_w": 240,
+ "frame_h": 216,
  "origin": [
-  112,
-  176
+  120,
+  186
  ],
  "rows": 4,
  "cols": 8,
  "files": {
   "color": "player_torso_rifle_c.png",
-  "normal": "player_torso_rifle_n.png",
-  "emit": "player_torso_rifle_e.png"
+  "normal": "player_torso_rifle_n.png"
  },
  "dirs": 32,
  "layout": "grid",
  "muzzle_m": [
-  1.0800000429153442,
-  -0.11999999731779099,
-  1.320000022649765
+  0.8299999833106995,
+  -0.17000000178813934,
+  1.344999998807907
+ ],
+ "muzzle2_m": [
+  0.8100000023841858,
+  0.17000000178813934,
+  1.3650000095367432
  ]
 }

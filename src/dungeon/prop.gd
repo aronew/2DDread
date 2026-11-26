@@ -5,14 +5,14 @@ extends Node2D
 ## while an encounter is live, chests release loot.
 
 const DEFS := {
-	"barrel": {"r": 0.36, "hp": 22.0, "explode": true},
+	"barrel": {"r": 0.36, "hp": 22.0, "explode": true, "light": [Color(1.0, 0.55, 0.2), 0.45, 2.2, 1.1]},
 	"crate": {"r": 0.55, "hp": 40.0, "loot": "supply"},
-	"canisters": {"r": 0.42, "hp": 14.0, "loot": "minor"},
+	"canisters": {"r": 0.4, "hp": 14.0, "loot": "minor", "light": [Color(1.0, 0.72, 0.4), 0.6, 3.0, 0.5]},
 	"chest": {"r": 0.75, "hp": -1.0, "chest": true},
 	"eggs": {"r": 0.62, "hp": 110.0, "nest": true, "light": [Color(0.4, 1.0, 0.5), 0.55, 2.8, 0.4]},
-	"crystals": {"r": 0.5, "hp": -1.0, "light": [Color(0.3, 0.9, 1.0), 0.8, 3.6, 0.7]},
-	"pylon": {"r": 0.28, "hp": -1.0, "light": [Color(0.4, 0.9, 1.0), 1.25, 6.5, 2.2]},
-	"cryotube": {"r": 0.52, "hp": -1.0, "light": [Color(0.3, 0.95, 0.85), 0.8, 3.8, 1.2]},
+	"crystals": {"r": 0.5, "hp": -1.0, "light": [Color(0.35, 1.0, 0.55), 1.1, 5.0, 1.2]},
+	"pylon": {"r": 0.28, "hp": -1.0, "light": [Color(1.0, 0.7, 0.35), 1.15, 6.0, 2.0]},
+	"cryotube": {"r": 0.45, "hp": -1.0},
 }
 
 var kind := ""

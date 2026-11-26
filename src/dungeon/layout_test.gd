@@ -5,13 +5,13 @@ extends RefCounted
 ##
 ## Legend
 ##   (space) void / abyss          .  floor (auto variant)
-##   P pod/panel wall   W window wall   M machine wall   I pipe wall   R rock wall
+##   P frieze/column wall   W relief wall   M soul-fire alcove   I banner+torch wall   R rock wall
 ##   K cracked breakable wall (secret)
-##   g grate  h hazard  l light strip  v vent  o ring  c cables  , infested  w worn  r rock floor
+##   g grate  h meander border  l sunburst  v soul drain  o laurel emblem  c rune stain  , moss+bones  w cracked  r rock
 ##   z shock-plate hazard floor
-##   = console (low)  x crate stack (low)  | glass railing (low)   — low blocks stop movement, not bullets
-##   b explosive barrel  k supply crate  n canisters  C chest  e alien egg nest
-##   * crystals  p light pylon  t cryo tube
+##   = altar (low)  x rubble (low)  | soul-fire pit balustrade (low)   — low blocks stop movement, not bullets
+##   b fire urn (explodes)  k amphorae (supplies)  n candles  C chest  e bone nest (spawns hounds)
+##   * soul brazier  p candelabra  t broken statue
 ##   S player start   D door (locks during encounters)   X exit portal (opens when the slice is cleared)
 
 const MAP := [
@@ -69,26 +69,26 @@ const MAP := [
 ## [enemy_id, count, {"elite": [affix, ...]}].
 const ROOMS := [
 	{
-		"id": "landing", "name": "LANDING BAY", "rect": [2, 8, 10, 16], "lock": false,
+		"id": "landing", "name": "THE THRESHOLD", "rect": [2, 8, 10, 16], "lock": false,
 		"beats": [
 			{"trigger": "enter_delay", "delay": 2.5, "spawn": [["mite", 4]], "far": true},
 			{"trigger": {"remaining": 1}, "spawn": [["mite", 3], ["spitter", 1]]},
 		],
 	},
 	{
-		"id": "conduit", "name": "SERVICE CONDUIT", "rect": [12, 11, 19, 13], "lock": false,
+		"id": "conduit", "name": "BONE CORRIDOR", "rect": [12, 11, 19, 13], "lock": false,
 		"beats": [
 			{"trigger": "enter", "spawn": [["mite", 5], ["bloater", 1]], "far": true},
 		],
 	},
 	{
-		"id": "vault", "name": "SEALED VAULT", "rect": [13, 1, 19, 4], "lock": false, "secret": true,
+		"id": "vault", "name": "FORGOTTEN RELIQUARY", "rect": [13, 1, 19, 4], "lock": false, "secret": true,
 		"beats": [
 			{"trigger": "enter", "spawn": [["spitter", 1, {"elite": ["frenzied"]}], ["mite", 4]], "far": true},
 		],
 	},
 	{
-		"id": "hatchery", "name": "THE HATCHERY", "rect": [21, 7, 33, 19], "lock": true,
+		"id": "hatchery", "name": "THE KENNELS", "rect": [21, 7, 33, 19], "lock": true,
 		"beats": [
 			{"trigger": "enter", "spawn": [["mite", 12], ["spitter", 3]], "far": true},
 			{"trigger": {"remaining": 4}, "spawn": [["bloater", 3], ["mite", 8], ["spitter", 1]], "nests": true},
@@ -97,13 +97,13 @@ const ROOMS := [
 		"reward": "chest",
 	},
 	{
-		"id": "spine", "name": "ARC SPINE", "rect": [26, 21, 28, 27], "lock": false,
+		"id": "spine", "name": "THE STORMWALK", "rect": [26, 21, 28, 27], "lock": false,
 		"beats": [
 			{"trigger": "enter", "spawn": [["mite", 5]], "far": true},
 		],
 	},
 	{
-		"id": "reactor", "name": "REACTOR CORE", "rect": [18, 29, 36, 45], "lock": true,
+		"id": "reactor", "name": "HALL OF THE LEGION", "rect": [18, 29, 36, 45], "lock": true,
 		"beats": [
 			{"trigger": "enter", "spawn": [["mite", 10], ["spitter", 3], ["brute", 1]], "far": true},
 			{"trigger": {"remaining": 4}, "spawn": [["bloater", 3], ["spitter", 3], ["mite", 10]]},

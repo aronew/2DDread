@@ -22,7 +22,7 @@ func think(dt: float) -> void:
 			turn_toward(to, dt)
 			if dist < Iso.m(data.attack_range_m):
 				enter(S.WINDUP)
-				telegraph = VFX.telegraph_circle(gpos, Iso.m(3.2), data.telegraph_time, Color(1.0, 0.8, 0.2))
+				telegraph = VFX.telegraph_circle(gpos, Iso.m(3.2), data.telegraph_time, Color(1.0, 0.3, 0.15))
 				Audio.play("bloater_prime", gpos)
 		S.WINDUP:
 			steer_to(p.gpos, move_speed() * 0.35, dt)
@@ -46,7 +46,7 @@ func _detonate(killed: bool) -> void:
 	if killed:
 		# popped by the player: big damage to nearby enemies, still dangerous up close
 		d.amount *= 2.0
-	Combat.explode(gpos, r, d, true, Color(1.0, 0.85, 0.25), true)
+	Combat.explode(gpos, r, d, true, Color(0.4, 1.0, 0.55), true)
 	VFX.gore(gpos, blood_color, 1.6)
 	if not killed:
 		no_loot = true
@@ -58,5 +58,5 @@ func on_death(info: DamageInfo) -> void:
 	if not _exploded:
 		_exploded = true
 		var blast := TimedBlast.new()
-		blast.setup(gpos, Iso.m(3.2), 0.16, data.damage * dmg_mult * 2.0, self, Color(1.0, 0.85, 0.25))
+		blast.setup(gpos, Iso.m(3.2), 0.16, data.damage * dmg_mult * 2.0, self, Color(0.4, 1.0, 0.55))
 		Game.world.add_hazard(blast)

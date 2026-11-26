@@ -14,8 +14,8 @@
   "emit": "low_blocks_e.png"
  },
  "kinds": [
-  "console",
-  "crates",
-  "railing"
+  "altar",
+  "rubble",
+  "balustrade"
  ]
 }

@@ -48,3 +48,7 @@ environment/glow/upscale_mode=0
 texture={
 "compress/mode": 2
 }
+
+[gui]
+
+theme/custom_font="res://assets/fonts/Cinzel.ttf"

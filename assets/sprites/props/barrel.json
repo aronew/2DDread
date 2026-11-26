@@ -1,10 +1,10 @@
 {
  "name": "barrel",
- "frame_w": 96,
- "frame_h": 144,
+ "frame_w": 112,
+ "frame_h": 160,
  "origin": [
-  48,
-  110
+  56,
+  120
  ],
  "rows": 1,
  "cols": 1,

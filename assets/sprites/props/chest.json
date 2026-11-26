@@ -10,7 +10,6 @@
  "cols": 2,
  "files": {
   "color": "chest_c.png",
-  "normal": "chest_n.png",
-  "emit": "chest_e.png"
+  "normal": "chest_n.png"
  }
 }

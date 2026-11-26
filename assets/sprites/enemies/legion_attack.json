@@ -1,0 +1,19 @@
+{
+ "name": "legion_attack",
+ "frame_w": 272,
+ "frame_h": 336,
+ "origin": [
+  136,
+  250
+ ],
+ "rows": 16,
+ "cols": 7,
+ "files": {
+  "color": "legion_attack_c.png",
+  "normal": "legion_attack_n.png",
+  "emit": "legion_attack_e.png"
+ },
+ "dirs": 16,
+ "frames": 7,
+ "anim": "attack"
+}

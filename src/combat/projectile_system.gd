@@ -324,6 +324,13 @@ func _draw() -> void:
 	for p in list:
 		var head := Iso.lift(p.pos, p.height)
 		match p.kind:
+			&"shard":
+				var sd := Iso.to_screen(p.vel).normalized()
+				var sn := sd.orthogonal()
+				var pts := PackedVector2Array([head + sd * 13.0, head + sn * 5.0, head - sd * 11.0, head - sn * 5.0])
+				draw_colored_polygon(pts, p.color * Color(2.4, 2.4, 2.4, 1))
+				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(16, 16), Vector2(32, 32)), false, p.color * Color(1.4, 1.4, 1.4, 0.7))
+				draw_line(head - sd * 11.0, head - sd * 34.0, p.color * Color(1.2, 1.2, 1.2, 0.35), 3.0, true)
 			&"acid":
 				var r := 9.0 + sin(p.age * 30.0) * 1.5
 				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(r, r) * 2.4, Vector2(r, r) * 4.8), false, p.color * Color(1.6, 1.6, 1.6, 0.9))

@@ -4,13 +4,12 @@
  "frame_h": 160,
  "origin": [
   72,
-  104
+  116
  ],
  "rows": 1,
  "cols": 1,
  "files": {
   "color": "crate_c.png",
-  "normal": "crate_n.png",
-  "emit": "crate_e.png"
+  "normal": "crate_n.png"
  }
 }

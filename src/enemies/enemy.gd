@@ -96,6 +96,7 @@ func _ready() -> void:
 	body.region_enabled = true
 	body.offset = _sheet_move.offset()
 	body.material = mat
+	body.self_modulate = data.body_tint
 	body.scale = Vector2(vs, vs)
 	add_child(body)
 	glow = Sprite2D.new()
@@ -126,14 +127,14 @@ func _set_sheet(sh) -> void:
 
 
 func rim_color() -> Color:
-	return Color(1.0, 0.72, 0.25, 0.95) if is_elite else Color(1.0, 0.22, 0.18, 0.6)
+	return Color(1.0, 0.72, 0.25, 0.9) if is_elite else Color(1.0, 0.22, 0.15, 0.62)
 
 
 func _spawn_fx() -> void:
 	state = S.SPAWN
 	state_t = 0.0
 	# portal-violet so spawns never read as attack telegraphs (those are red)
-	var pc := Color(0.65, 0.35, 1.0) if not is_elite else Color(1.0, 0.7, 0.2)
+	var pc := Color(0.35, 1.0, 0.6) if not is_elite else Color(1.0, 0.7, 0.2)
 	VFX.ring(gpos, radius * 1.6, pc * 0.7, 0.45, 0.2)
 	VFX.emit("embers", Iso.lift(gpos, 0.2), -PI / 2, pc * 1.6, 0.25)
 	Audio.play("spawn", gpos)
@@ -417,7 +418,8 @@ func _stagger() -> void:
 	clear_telegraph()
 	_attack_frame = -1.0
 	enter(S.STAGGER)
-	VFX.popup(gpos, hit_height + 1.0, "STAGGERED", Color(1.0, 0.75, 0.3), 22)
+	if is_elite or data.stagger_threshold >= 60.0:
+		VFX.popup(gpos, hit_height + 1.0, "STAGGERED", Color(1.0, 0.75, 0.3), 22)
 	on_staggered()
 
 

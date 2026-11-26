@@ -31,6 +31,8 @@ extends Resource
 @export var sheet_attack := "mite_attack"
 @export var stride_m := 1.4
 @export var visual_scale := 1.0
+## Multiplies the sprite colour (brighten dark silhouettes without re-rendering)
+@export var body_tint := Color(1, 1, 1, 1)
 @export var blood_color := Color(0.9, 0.15, 0.2)
 @export var impact_style := "flesh"
 @export var death_size := 1.0

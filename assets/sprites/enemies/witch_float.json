@@ -1,0 +1,19 @@
+{
+ "name": "witch_float",
+ "frame_w": 200,
+ "frame_h": 240,
+ "origin": [
+  100,
+  200
+ ],
+ "rows": 16,
+ "cols": 6,
+ "files": {
+  "color": "witch_float_c.png",
+  "normal": "witch_float_n.png",
+  "emit": "witch_float_e.png"
+ },
+ "dirs": 16,
+ "frames": 6,
+ "anim": "float"
+}

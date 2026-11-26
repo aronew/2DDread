@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1")
 id = &"rail"
-display_name = "LANCE Rail Rifle"
-flavor = "Hold to charge. Releases a hypersonic slug that pierces everything in a line."
+display_name = "Longshot"
+flavor = "Hold to charge the runes. Releases a bolt that pierces every soul in its path."
 torso = "rail"
 fire_mode = "charge"
 damage = 140.0

@@ -1,22 +1,21 @@
 {
  "name": "player_torso_shotgun",
- "frame_w": 224,
- "frame_h": 200,
+ "frame_w": 240,
+ "frame_h": 216,
  "origin": [
-  112,
-  176
+  120,
+  186
  ],
  "rows": 4,
  "cols": 8,
  "files": {
   "color": "player_torso_shotgun_c.png",
-  "normal": "player_torso_shotgun_n.png",
-  "emit": "player_torso_shotgun_e.png"
+  "normal": "player_torso_shotgun_n.png"
  },
  "dirs": 32,
  "layout": "grid",
  "muzzle_m": [
-  0.9200000166893005,
+  0.8399999737739563,
   -0.11999999731779099,
   1.3300000131130219
  ]

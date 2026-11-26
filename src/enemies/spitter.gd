@@ -37,7 +37,7 @@ func think(dt: float) -> void:
 			if los and dist < Iso.m(data.attack_range_m) and attack_cd <= 0.0:
 				enter(S.WINDUP)
 				Audio.play("spitter_charge", gpos)
-				telegraph = VFX.telegraph_circle(gpos, radius * 1.8, data.telegraph_time, Color(0.5, 1.0, 0.25))
+				telegraph = VFX.telegraph_circle(gpos, radius * 1.8, data.telegraph_time, Color(1.0, 0.25, 0.6))
 		S.WINDUP:
 			desire(Vector2.ZERO, dt)
 			turn_toward(to, dt, 10.0)
@@ -59,21 +59,21 @@ func _fire(p) -> void:
 	var lead: Vector2 = p.gpos + p.vel * 0.3
 	var dir := (lead - gpos).normalized()
 	var mouth := gpos + dir * Iso.m(0.7)
-	var n := 4 if not is_elite else 6
+	var n := 5 if not is_elite else 7
 	for i in n:
-		var a := (i - (n - 1) * 0.5) * 0.15
+		var a := (i - (n - 1) * 0.5) * 0.17
 		var q := Projectile.new()
 		q.team = 1
 		q.pos = mouth
 		q.height = 1.05
-		q.vel = dir.rotated(a) * Iso.m(12.0)
-		q.info = DamageInfo.make(data.damage * dmg_mult, DamageInfo.Type.TOXIC, self)
+		q.vel = dir.rotated(a) * Iso.m(11.0)
+		q.info = DamageInfo.make(data.damage * dmg_mult * 0.75, DamageInfo.Type.VOID, self)
 		q.info.knockback = Iso.m(2.0)
 		q.max_range = Iso.m(15.0)
 		q.radius = Iso.m(0.22)
-		q.kind = &"acid"
-		q.color = Color(0.5, 1.0, 0.25)
-		q.impact_style = "acid"
+		q.kind = &"shard"
+		q.color = Color(1.0, 0.22, 0.6)
+		q.impact_style = "shard"
 		Game.projectiles.spawn(q)
-	VFX.muzzle(Iso.lift(mouth, 1.05), dir, {"color": Color(0.5, 1.0, 0.3), "scale": 0.7, "light": 1.5, "range": 3.0})
+	VFX.muzzle(Iso.lift(mouth, 1.05), dir, {"color": Color(1.0, 0.25, 0.6), "scale": 0.7, "light": 1.5, "range": 3.0})
 	Audio.play("spitter_spit", gpos)

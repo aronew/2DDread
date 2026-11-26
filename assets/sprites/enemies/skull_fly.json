@@ -1,0 +1,19 @@
+{
+ "name": "skull_fly",
+ "frame_w": 176,
+ "frame_h": 200,
+ "origin": [
+  88,
+  168
+ ],
+ "rows": 16,
+ "cols": 6,
+ "files": {
+  "color": "skull_fly_c.png",
+  "normal": "skull_fly_n.png",
+  "emit": "skull_fly_e.png"
+ },
+ "dirs": 16,
+ "frames": 6,
+ "anim": "fly"
+}

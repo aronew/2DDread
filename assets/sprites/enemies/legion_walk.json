@@ -1,0 +1,19 @@
+{
+ "name": "legion_walk",
+ "frame_w": 272,
+ "frame_h": 336,
+ "origin": [
+  136,
+  250
+ ],
+ "rows": 16,
+ "cols": 8,
+ "files": {
+  "color": "legion_walk_c.png",
+  "normal": "legion_walk_n.png",
+  "emit": "legion_walk_e.png"
+ },
+ "dirs": 16,
+ "frames": 8,
+ "anim": "walk"
+}

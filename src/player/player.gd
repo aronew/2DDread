@@ -312,6 +312,7 @@ func switch_weapon(i: int) -> void:
 
 func on_weapon_fired(w: Weapon, charge: float) -> void:
 	_last_fire_t = 0.0
+	visual.muzzle_alt = not visual.muzzle_alt
 	visual.kick(w.data.recoil_kick * (0.5 + charge * 0.5), aim_dir)
 	VFX.shake(w.data.shake * (0.5 + charge * 0.5))
 	VFX.kick(Iso.to_screen(aim_dir).normalized(), w.data.recoil_kick * 0.6)

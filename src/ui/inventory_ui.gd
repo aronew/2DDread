@@ -16,7 +16,7 @@ var _slot_buttons: Array = []
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var dim := ColorRect.new()
-	dim.color = Color(0.0, 0.02, 0.03, 0.78)
+	dim.color = Color(0.02, 0.01, 0.02, 0.8)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 	var root := HBoxContainer.new()
@@ -65,8 +65,8 @@ func _ready() -> void:
 func _panel(parent: Control, w: float) -> VBoxContainer:
 	var p := PanelContainer.new()
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.02, 0.06, 0.08, 0.92)
-	sb.border_color = Color(0.2, 0.8, 0.75, 0.6)
+	sb.bg_color = Color(0.05, 0.04, 0.05, 0.94)
+	sb.border_color = Color(0.93, 0.74, 0.38, 0.8)
 	sb.set_border_width_all(2)
 	sb.set_content_margin_all(18)
 	p.add_theme_stylebox_override("panel", sb)
@@ -82,7 +82,7 @@ func _header(parent: Control, t: String) -> void:
 	var l := Label.new()
 	l.text = t
 	l.add_theme_font_size_override("font_size", 24)
-	l.add_theme_color_override("font_color", Color(0.4, 0.95, 0.9))
+	l.add_theme_color_override("font_color", Color(0.93, 0.74, 0.38))
 	parent.add_child(l)
 
 

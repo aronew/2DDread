@@ -104,11 +104,19 @@ class HudDraw extends Control:
 	var _hint_t := 14.0
 	var _fps_t := 0.0
 
+	var portrait: Texture2D
+
 	func _ready() -> void:
-		font = ThemeDB.fallback_font
+		var cinzel: FontFile = load("res://assets/fonts/Cinzel.ttf")
+		var fv := FontVariation.new()
+		fv.base_font = cinzel
+		fv.variation_opentype = {"weight": 700}
+		font = fv
 		bold = FontVariation.new()
-		bold.base_font = font
-		bold.variation_embolden = 0.9
+		bold.base_font = cinzel
+		bold.variation_opentype = {"weight": 900}
+		if ResourceLoader.exists("res://assets/sprites/ui/portrait.png"):
+			portrait = load("res://assets/sprites/ui/portrait.png")
 		HUD.set_game_cursor(true)
 		Events.message.connect(func(t, c): messages.append({"t": 0.0, "text": t, "c": c}))
 		Events.item_picked.connect(_on_item)
@@ -160,11 +168,11 @@ class HudDraw extends Control:
 		_draw_room(vs)
 		if _hint_t > 0.0:
 			var a := clampf(_hint_t / 2.0, 0.0, 1.0)
-			_text(Vector2(0, vs.y - 30), "WASD move · Mouse aim · LMB fire · RMB launcher · SPACE dash · Q nova · E seekers · F rend/execute · R reload · 1-3 weapons · TAB inventory",
+			_text(Vector2(0, 30), "WASD move · Mouse aim · LMB fire · RMB launcher · SPACE dash · Q nova · E seekers · F rend/execute · R reload · 1-3 weapons · TAB inventory",
 				17, Color(0.8, 0.85, 0.9, 0.85 * a), null, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
 		if not pl.alive:
 			draw_rect(Rect2(Vector2.ZERO, vs), Color(0.2, 0.0, 0.0, 0.35))
-			_text(Vector2(0, vs.y * 0.45), "YOU DIED", 84, Color(1.0, 0.2, 0.2), bold, HORIZONTAL_ALIGNMENT_CENTER, vs.x, 10)
+			_text(Vector2(0, vs.y * 0.45), "YOU HAVE FALLEN", 84, Color(0.9, 0.15, 0.12), bold, HORIZONTAL_ALIGNMENT_CENTER, vs.x, 10)
 		_draw_offscreen(pl, vs)
 		if get_parent().paused_menu:
 			draw_rect(Rect2(Vector2.ZERO, vs), Color(0, 0.02, 0.03, 0.7))
@@ -181,132 +189,182 @@ class HudDraw extends Control:
 		if not get_tree().paused:
 			_draw_crosshair(pl)
 
-	# -------------------------------------------------------------- health / dash
+	# -------------------------------------------------------------- shared ornaments
+
+	const GOLD := Color(0.93, 0.74, 0.38)
+	const GOLD_DK := Color(0.42, 0.3, 0.13)
+	const PANEL := Color(0.045, 0.035, 0.045, 0.88)
+
+	func _diamond(c: Vector2, r: float) -> PackedVector2Array:
+		return PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)])
+
+	func _gold_frame(pts: PackedVector2Array, w := 2.5) -> void:
+		var closed := pts.duplicate()
+		closed.append(pts[0])
+		draw_polyline(closed, Color(0, 0, 0, 0.8), w + 3.0, true)
+		draw_polyline(closed, GOLD_DK, w + 1.0, true)
+		draw_polyline(closed, GOLD, w * 0.6, true)
+
+	static func _area(poly: PackedVector2Array) -> float:
+		var s := 0.0
+		for i in poly.size():
+			var p0 := poly[i]
+			var p1 := poly[(i + 1) % poly.size()]
+			s += p0.x * p1.y - p1.x * p0.y
+		return s * 0.5
+
+	func _plate(r: Rect2, notch := 12.0) -> PackedVector2Array:
+		var n := notch
+		return PackedVector2Array([r.position + Vector2(n, 0), Vector2(r.end.x - n, r.position.y), Vector2(r.end.x, r.position.y + r.size.y * 0.5),
+			Vector2(r.end.x - n, r.end.y), Vector2(r.position.x + n, r.end.y), Vector2(r.position.x, r.position.y + r.size.y * 0.5)])
+
+	# -------------------------------------------------------------- portrait + health
 
 	func _draw_health(pl, vs: Vector2) -> void:
-		var x := 40.0
-		var y := vs.y - 168.0
-		var w := 400.0
-		var h := 30.0
+		var pc := Vector2(98, vs.y - 104)
+		var pr := 66.0
+		var dia := _diamond(pc, pr)
+		draw_colored_polygon(dia, PANEL)
+		if portrait:
+			var uv := PackedVector2Array([Vector2(0.5, 0), Vector2(1, 0.5), Vector2(0.5, 1), Vector2(0, 0.5)])
+			draw_colored_polygon(_diamond(pc, pr - 4), Color.WHITE, uv, portrait)
+		_gold_frame(dia, 3.5)
+		_gold_frame(_diamond(pc, pr + 7), 1.5)
+		var x := 168.0
+		var y := vs.y - 118.0
+		var w := 430.0
+		var h := 24.0
 		var frac: float = clampf(pl.hp / pl.max_hp, 0.0, 1.0)
 		_hp_shown = move_toward(_hp_shown, frac, get_process_delta_time() * 0.6) if _hp_shown > frac else frac
-		_skew_rect(x - 6, y - 6, w + 12, h + 12, Color(0.02, 0.05, 0.06, 0.8))
-		_skew_rect(x - 6, y - 6, w + 12, h + 12, Color(0.2, 0.9, 0.8, 0.5), false)
-		var segs := 12
-		var sw := w / segs
-		for i in segs:
-			var s0 := float(i) / segs
-			var fill := clampf((frac - s0) * segs, 0.0, 1.0)
-			var lag := clampf((_hp_shown - s0) * segs, 0.0, 1.0)
-			_skew_rect(x + i * sw + 2, y, (sw - 4), h, Color(0.25, 0.04, 0.05, 0.9))
-			if lag > 0.0:
-				_skew_rect(x + i * sw + 2, y, (sw - 4) * lag, h, Color(1.0, 0.85, 0.75, 0.6))
-			if fill > 0.0:
-				var c := Color(0.95, 0.12, 0.14)
-				if frac < 0.3:
-					c = c.lerp(Color(1.0, 0.5, 0.4), 0.5 + 0.5 * sin(_t * 10.0))
-				_skew_rect(x + i * sw + 2, y, (sw - 4) * fill, h, c)
-		_text(Vector2(x + 14, y + 23), "%d / %d" % [int(ceil(pl.hp)), int(pl.max_hp)], 20, Color(1, 0.95, 0.95), bold)
-		# dash pips
+		var bar := _plate(Rect2(x, y, w, h), 10)
+		draw_colored_polygon(bar, PANEL)
+		var inner := Rect2(x + 9, y + 5, w - 18, h - 10)
+		if _hp_shown > frac:
+			draw_rect(Rect2(inner.position, Vector2(inner.size.x * _hp_shown, inner.size.y)), Color(1.0, 0.85, 0.7, 0.55))
+		var c := Color(0.8, 0.06, 0.07)
+		if frac < 0.3:
+			c = c.lerp(Color(1.0, 0.4, 0.3), 0.5 + 0.5 * sin(_t * 10.0))
+		draw_rect(Rect2(inner.position, Vector2(inner.size.x * frac, inner.size.y)), c)
+		draw_rect(Rect2(inner.position, Vector2(inner.size.x * frac, inner.size.y * 0.35)), Color(1.0, 0.45, 0.4, 0.35))
+		_gold_frame(bar, 2.0)
+		_text(Vector2(x + w + 16, y + 20), "%d / %d" % [int(ceil(pl.hp)), int(pl.max_hp)], 22, Color(0.96, 0.92, 0.86), font)
+		# xp line + dash diamonds + level
+		var xy := y + h + 10
+		draw_rect(Rect2(x + 10, xy, w - 20, 4), Color(0, 0, 0, 0.7))
+		draw_rect(Rect2(x + 10, xy, (w - 20) * float(pl.xp) / pl.xp_next, 4), GOLD)
 		for i in pl.dash_max:
-			var px: float = x + 10 + i * 30
-			var py := y + h + 18
-			var pts := PackedVector2Array([Vector2(px, py - 9), Vector2(px + 9, py), Vector2(px, py + 9), Vector2(px - 9, py)])
-			var ready: bool = i < pl.dash_charges
-			draw_colored_polygon(pts, Color(0.4, 0.75, 1.0, 1.0) if ready else Color(0.1, 0.18, 0.25, 0.9))
-			pts.append(pts[0])
-			draw_polyline(pts, Color(0.6, 0.9, 1.0, 0.8), 1.5)
-		_text(Vector2(x + 10 + pl.dash_max * 30, y + h + 25), "DASH", 15, Color(0.6, 0.85, 1.0, 0.8))
-		var lv: String = "LV %d" % pl.level
+			var dc := Vector2(x + 20 + i * 24, xy + 22)
+			draw_colored_polygon(_diamond(dc, 8), Color(0.45, 0.85, 1.0) if i < pl.dash_charges else Color(0.08, 0.12, 0.16))
+			_gold_frame(_diamond(dc, 8), 1.2)
+		var lv: String = "Level %d" % pl.level
 		if pl.build.attr_points > 0:
-			lv += "   +%d POINTS [TAB]" % pl.build.attr_points
-		_text(Vector2(x + 190, y + h + 25), lv, 16, Color(1.0, 0.85, 0.4) if pl.build.attr_points > 0 else Color(0.8, 0.85, 0.9))
+			lv += "    +%d points  [Tab]" % pl.build.attr_points
+		_text(Vector2(x + 30 + pl.dash_max * 24, xy + 29), lv, 16, GOLD if pl.build.attr_points > 0 else Color(0.82, 0.8, 0.75), font)
+
+	# -------------------------------------------------------------- abilities (diamonds)
 
 	func _draw_abilities(pl, vs: Vector2) -> void:
 		var items: Array = [pl.abilities[0], pl.abilities[1], pl.rend]
-		var x := 40.0
-		var y := vs.y - 96.0
+		var cx := vs.x * 0.5
 		for i in items.size():
 			var a = items[i]
-			var r := Rect2(x + i * 84, y, 70, 70)
-			draw_rect(r, Color(0.02, 0.05, 0.07, 0.85))
-			var c: Color = a.color
-			var ctr := r.get_center()
+			var small := i == 2
+			var r := 40.0 if not small else 30.0
+			var c := Vector2(cx + (i - 0.5) * 112.0 + (14.0 if small else 0.0), vs.y - 92 + (10.0 if small else 0.0))
+			var dia := _diamond(c, r)
+			draw_colored_polygon(dia, PANEL)
+			var col: Color = a.color
 			match i:
 				0:
-					draw_arc(ctr, 22, 0, TAU, 32, c * 1.4, 3.0)
-					draw_arc(ctr, 12, 0, TAU, 24, c * 1.4, 3.0)
-					draw_circle(ctr, 4, c * 1.6)
+					draw_arc(c, r * 0.42, 0, TAU, 28, col * 1.3, 3.0)
+					draw_arc(c, r * 0.22, 0, TAU, 20, col * 1.4, 3.0)
+					for k in 6:
+						var d := Vector2.from_angle(k * TAU / 6.0)
+						draw_line(c + d * r * 0.5, c + d * r * 0.68, col * 1.4, 2.0)
 				1:
 					for k in 3:
-						var o := Vector2(-14 + k * 14, 6 - (k % 2) * 12)
-						draw_colored_polygon(PackedVector2Array([ctr + o + Vector2(0, -10), ctr + o + Vector2(6, 8), ctr + o + Vector2(-6, 8)]), c * 1.4)
+						var o := Vector2(-r * 0.32 + k * r * 0.32, r * 0.12 - (k % 2) * r * 0.24)
+						draw_colored_polygon(PackedVector2Array([c + o + Vector2(0, -r * 0.24), c + o + Vector2(r * 0.12, r * 0.16), c + o + Vector2(-r * 0.12, r * 0.16)]), col * 1.4)
 				2:
-					draw_arc(ctr + Vector2(-8, 4), 24, -1.3, 0.6, 20, c * 1.5, 5.0)
+					draw_arc(c + Vector2(-r * 0.15, r * 0.1), r * 0.5, -1.3, 0.6, 18, col * 1.5, 4.0)
 			if not a.is_ready():
 				var k: float = 1.0 - a.progress()
-				draw_rect(Rect2(r.position, Vector2(r.size.x, r.size.y * k)), Color(0, 0, 0, 0.7))
-				_text(Vector2(r.position.x, r.position.y + 44), "%.1f" % a.cd_left, 20, Color(1, 1, 1), bold, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-			else:
-				var pulse := 0.5 + 0.5 * sin(_t * 4.0 + i)
-				draw_rect(r, c * Color(1.5, 1.5, 1.5, 0.35 + 0.35 * pulse), false, 2.0)
-			draw_rect(r, Color(0.3, 0.6, 0.7, 0.6), false, 1.5)
-			_text(r.position + Vector2(5, 18), a.key_hint, 16, Color(1, 1, 1, 0.9), bold)
+				var top := c.y - r + 2.0 * r * (1.0 - k)
+				var clip := Geometry2D.intersect_polygons(dia, PackedVector2Array([Vector2(c.x - r, top), Vector2(c.x + r, top), Vector2(c.x + r, c.y + r), Vector2(c.x - r, c.y + r)]))
+				for poly in clip:
+					# skip slivers (degenerate polygons fail to triangulate)
+					if poly.size() >= 3 and absf(_area(poly)) > 4.0:
+						draw_colored_polygon(poly, Color(0, 0, 0, 0.68))
+				_text(Vector2(c.x - r, c.y + 7), "%.1f" % a.cd_left, 18, Color(1, 1, 1), font, HORIZONTAL_ALIGNMENT_CENTER, r * 2)
+			_gold_frame(dia, 3.0 if not small else 2.2)
+			if a.is_ready():
+				var pulse := 0.4 + 0.3 * sin(_t * 4.0 + i)
+				var glow := dia.duplicate()
+				glow.append(dia[0])
+				draw_polyline(glow, col * Color(1.6, 1.6, 1.6, pulse), 2.0, true)
+			var kc := c + Vector2(0, r + 18)
+			draw_colored_polygon(_diamond(kc, 13), PANEL)
+			_gold_frame(_diamond(kc, 13), 1.4)
+			_text(Vector2(kc.x - 13, kc.y + 6), a.key_hint, 15, Color(0.95, 0.92, 0.85), font, HORIZONTAL_ALIGNMENT_CENTER, 26, 3)
 
-	# -------------------------------------------------------------- weapons
+	# -------------------------------------------------------------- weapon / ammo plate
 
 	func _draw_weapons(pl, vs: Vector2) -> void:
-		var x := vs.x - 380.0
-		var y := vs.y - 250.0
-		for i in 3:
-			var w = pl.weapons[i]
-			if w == null:
+		var w = pl.cur_weapon()
+		if w == null:
+			return
+		var pr := Rect2(vs.x - 330, vs.y - 104, 300, 62)
+		var pts := _plate(pr, 16)
+		draw_colored_polygon(pts, PANEL)
+		var col: Color = w.item.color() if w.item else Color(0.9, 0.9, 0.85)
+		if w.uses_heat():
+			var hk: float = w.heat
+			var hc := Color(0.55, 0.8, 1.0).lerp(Color(1.0, 0.3, 0.2), hk)
+			if w.overheated:
+				hc = Color(1.0, 0.25, 0.2) if fmod(_t, 0.3) < 0.15 else Color(0.5, 0.1, 0.1)
+			draw_rect(Rect2(pr.position.x + 26, pr.position.y + 25, 150, 12), Color(0, 0, 0, 0.7))
+			draw_rect(Rect2(pr.position.x + 26, pr.position.y + 25, 150 * hk, 12), hc)
+			_text(Vector2(pr.position.x + 186, pr.position.y + 42), "VENT" if w.overheated else "HEAT", 24, hc, font)
+		else:
+			for k in 3:  # bullet icons
+				var bx := pr.position.x + 30 + k * 16
+				var by := pr.position.y + 16
+				draw_rect(Rect2(bx, by + 8, 9, 22), GOLD_DK)
+				draw_rect(Rect2(bx + 1, by + 10, 7, 18), GOLD if w.mag > k else Color(0.2, 0.15, 0.1))
+				draw_circle(Vector2(bx + 4.5, by + 8), 4.5, GOLD if w.mag > k else Color(0.2, 0.15, 0.1))
+			var mc := Color(0.97, 0.94, 0.88) if w.mag > w.s_mag * 0.25 else Color(1.0, 0.4, 0.3)
+			_text(Vector2(pr.position.x + 92, pr.position.y + 44), "%d" % w.mag, 32, mc, font)
+			_text(Vector2(pr.position.x + 150, pr.position.y + 44), "/ %d" % w.reserve(pl), 22, Color(0.8, 0.76, 0.68), font)
+			if w.reloading or w.charging:
+				var k2: float = w.reload_progress() if w.reloading else w.charge
+				draw_rect(Rect2(pr.position.x + 26, pr.end.y - 12, 248, 4), Color(0, 0, 0, 0.7))
+				draw_rect(Rect2(pr.position.x + 26, pr.end.y - 12, 248 * k2, 4), GOLD if w.reloading else Color(1.0, 0.4, 0.4))
+		_gold_frame(pts, 2.2)
+		_text(Vector2(pr.position.x, pr.position.y - 10), w.display_name(), 17, col, font, HORIZONTAL_ALIGNMENT_RIGHT, pr.size.x - 10)
+		# other weapon slots, compact
+		var sx := pr.position.x - 8
+		for i in range(2, -1, -1):
+			var ow = pl.weapons[i]
+			if ow == null:
 				continue
 			var active: bool = i == pl.cur
-			var cx := x - (30.0 if active else 0.0)
-			var cy := y + i * 64.0
-			var col: Color = w.item.color() if w.item else Color(0.8, 0.8, 0.8)
-			_skew_rect(cx, cy, 340, 54, Color(0.02, 0.05, 0.07, 0.88 if active else 0.6))
-			_skew_rect(cx, cy, 340, 54, col * Color(1, 1, 1, 0.9 if active else 0.35), false)
-			_text(Vector2(cx + 24, cy + 21), "%d  %s" % [i + 1, w.display_name()], 16 if active else 14, col if active else col * Color(1, 1, 1, 0.7), bold if active else null, HORIZONTAL_ALIGNMENT_LEFT, 250)
-			if w.uses_heat():
-				var hk: float = w.heat
-				var hc := Color(0.6, 0.5, 1.0).lerp(Color(1.0, 0.3, 0.2), hk)
-				if w.overheated:
-					hc = Color(1.0, 0.25, 0.2) if fmod(_t, 0.3) < 0.15 else Color(0.5, 0.1, 0.1)
-				draw_rect(Rect2(cx + 24, cy + 32, 220, 10), Color(0.1, 0.1, 0.15, 0.9))
-				draw_rect(Rect2(cx + 24, cy + 32, 220 * hk, 10), hc)
-				_text(Vector2(cx + 254, cy + 44), "HEAT" if not w.overheated else "VENT", 18, hc, bold)
-			else:
-				var mc := Color(1, 1, 1) if w.mag > w.s_mag * 0.25 else Color(1.0, 0.4, 0.3)
-				_text(Vector2(cx + 250, cy + 44), "%d" % w.mag, 30 if active else 22, mc, bold, HORIZONTAL_ALIGNMENT_RIGHT, 60)
-				_text(Vector2(cx + 314, cy + 44), "/%d" % w.reserve(pl), 16, Color(0.7, 0.8, 0.85))
-				if w.reloading:
-					draw_rect(Rect2(cx + 24, cy + 36, 200, 6), Color(0.1, 0.1, 0.1, 0.9))
-					draw_rect(Rect2(cx + 24, cy + 36, 200 * w.reload_progress(), 6), Color(1.0, 0.8, 0.3))
-				elif w.charging:
-					draw_rect(Rect2(cx + 24, cy + 36, 200, 6), Color(0.1, 0.1, 0.1, 0.9))
-					draw_rect(Rect2(cx + 24, cy + 36, 200 * w.charge, 6), Color(1.0, 0.4, 0.5) if w.charge < 1.0 else Color(1, 1, 1))
-		# launcher charges
-		var ly := y + 3 * 64.0 + 6
-		_text(Vector2(x + 24, ly + 18), "RMB  HAVOC", 15, Color(1.0, 0.65, 0.3))
+			var c := Vector2(sx - 22, pr.position.y + 31)
+			draw_colored_polygon(_diamond(c, 18), PANEL if not active else Color(0.25, 0.18, 0.08, 0.95))
+			_gold_frame(_diamond(c, 18), 1.6 if not active else 2.4)
+			_text(Vector2(c.x - 18, c.y + 7), str(i + 1), 18, GOLD if active else Color(0.75, 0.72, 0.66), font, HORIZONTAL_ALIGNMENT_CENTER, 36, 3)
+			sx -= 44
+		# firebomb charges (RMB)
 		var l = pl.launcher
 		for k in l.s_mag:
-			var px: float = x + 140 + k * 26
-			var filled: bool = k < l.mag
-			draw_circle(Vector2(px, ly + 12), 8, Color(1.0, 0.6, 0.25) if filled else Color(0.2, 0.12, 0.08))
-			draw_arc(Vector2(px, ly + 12), 9, 0, TAU, 16, Color(1.0, 0.7, 0.4, 0.7), 1.5)
+			var bc := Vector2(pr.end.x - 20 - k * 22, pr.end.y + 16)
+			draw_circle(bc, 7, Color(1.0, 0.55, 0.2) if k < l.mag else Color(0.18, 0.1, 0.06))
+			draw_arc(bc, 8, 0, TAU, 16, GOLD_DK, 1.5)
+		_text(Vector2(pr.end.x - 30 - l.s_mag * 22 - 90, pr.end.y + 22), "RMB bomb", 14, Color(0.85, 0.7, 0.5), font, HORIZONTAL_ALIGNMENT_RIGHT, 90)
 
-	func _draw_xp(pl, vs: Vector2) -> void:
-		var w := 560.0
-		var x := (vs.x - w) * 0.5
-		var y := vs.y - 18.0
-		draw_rect(Rect2(x, y, w, 6), Color(0.05, 0.08, 0.1, 0.9))
-		draw_rect(Rect2(x, y, w * float(pl.xp) / pl.xp_next, 6), Color(0.45, 0.85, 1.0))
+	func _draw_xp(_pl, _vs: Vector2) -> void:
+		pass  # xp lives under the health bar now
 
-	# -------------------------------------------------------------- minimap
-
-	# -------------------------------------------------------------- elite bar / room
+	# -------------------------------------------------------------- elite bar
 
 	func _draw_elite(pl, vs: Vector2) -> void:
 		var best = null
@@ -316,28 +374,47 @@ class HudDraw extends Control:
 				break
 		if best == null:
 			return
-		var w := 640.0
+		var w := 620.0
 		var x := (vs.x - w) * 0.5
-		var y := 54.0
-		var title: String = "ELITE " + best.data.display_name.to_upper()
-		_text(Vector2(0, y - 10), title, 24, Color(1.0, 0.7, 0.3), bold, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
-		draw_rect(Rect2(x - 3, y - 3, w + 6, 22), Color(0, 0, 0, 0.8))
-		draw_rect(Rect2(x, y, w * best.hp / best.max_hp, 16), Color(0.95, 0.45, 0.1))
+		var y := 60.0
+		_text(Vector2(0, y - 12), best.data.display_name, 26, GOLD, font, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
+		var pts := _plate(Rect2(x - 12, y - 4, w + 24, 24), 12)
+		draw_colored_polygon(pts, PANEL)
+		draw_rect(Rect2(x, y + 2, w * best.hp / best.max_hp, 12), Color(0.85, 0.25, 0.08))
 		if best.shield_max > 0.0:
-			draw_rect(Rect2(x, y + 18, w * best.shield / best.shield_max, 5), Color(0.4, 0.75, 1.0))
-		var tags: String = "  ·  ".join(best.affixes.map(func(a): return String(a).to_upper()))
-		_text(Vector2(0, y + 44), tags, 16, Color(1.0, 0.55, 0.45), null, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
+			draw_rect(Rect2(x, y + 14, w * best.shield / best.shield_max, 4), Color(0.45, 0.8, 1.0))
+		_gold_frame(pts, 2.0)
+		var tags: String = "   ·   ".join(best.affixes.map(func(a): return String(a).capitalize()))
+		_text(Vector2(0, y + 46), tags, 17, Color(1.0, 0.6, 0.45), font, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
+
+	# -------------------------------------------------------------- wave plate (top right)
 
 	func _draw_room(vs: Vector2) -> void:
 		var dir = Game.world.director if Game.world else null
 		if dir == null or dir.active == null:
 			return
 		var r = dir.active
+		var total: int = r.beats.size()
+		var cur: int = clampi(r.beat_i, 1, total)
+		var pr := Rect2(vs.x - 290, 22, 260, 52)
+		var pts := _plate(pr, 14)
+		draw_colored_polygon(pts, PANEL)
+		_gold_frame(pts, 2.2)
+		var ic := Vector2(pr.position.x - 4, pr.position.y + 26)
+		draw_colored_polygon(_diamond(ic, 30), PANEL)
+		_gold_frame(_diamond(ic, 30), 2.2)
+		draw_colored_polygon(PackedVector2Array([ic + Vector2(0, -14), ic + Vector2(8, 4), ic + Vector2(0, 12), ic + Vector2(-8, 4)]), Color(0.4, 1.0, 0.6))
+		_text(Vector2(pr.position.x + 34, pr.position.y + 35), "WAVE %d / %d" % [cur, total], 24, Color(0.96, 0.92, 0.84), font)
+		for k in total:
+			var dc := Vector2(pr.position.x + 46 + k * 22, pr.end.y + 16)
+			var filled: bool = k < cur
+			draw_colored_polygon(_diamond(dc, 7), GOLD if filled else Color(0.08, 0.07, 0.07))
+			_gold_frame(_diamond(dc, 7), 1.0)
 		var n: int = r.alive_count() + r.spawn_queue.size()
-		var s := "HOSTILES  %d" % n
+		var s := "%d foes" % n
 		if r.nests_alive() > 0:
-			s += "   NESTS  %d" % r.nests_alive()
-		_text(Vector2(vs.x - 400, 300), s, 18, Color(1.0, 0.45, 0.4), bold, HORIZONTAL_ALIGNMENT_RIGHT, 370)
+			s += "  ·  %d nests" % r.nests_alive()
+		_text(Vector2(pr.position.x, pr.end.y + 22), s, 15, Color(1.0, 0.5, 0.42), font, HORIZONTAL_ALIGNMENT_RIGHT, pr.size.x - 6)
 
 	func _draw_messages(vs: Vector2) -> void:
 		var y := vs.y * 0.2
@@ -347,7 +424,7 @@ class HudDraw extends Control:
 			var sc := 1.0 + maxf(0.0, 0.25 - t) * 1.2
 			var c: Color = m["c"]
 			c.a = a
-			_text(Vector2(0, y), m["text"], int(40 * sc), c, bold, HORIZONTAL_ALIGNMENT_CENTER, vs.x, 8)
+			_text(Vector2(0, y), m["text"], int(42 * sc), c, bold, HORIZONTAL_ALIGNMENT_CENTER, vs.x, 8)
 			y += 56
 
 	func _draw_feed(vs: Vector2) -> void:
@@ -433,14 +510,14 @@ class MinimapDraw extends Control:
 		if pl == null:
 			return
 		var vs := get_viewport_rect().size
-		var c := Vector2(vs.x - 150, 150)
-		var R := 118.0
+		var c := Vector2(vs.x - 120, 210)
+		var R := 84.0
 		draw_circle(c, R + 6, Color(0.01, 0.03, 0.04, 0.85))
 		var d = Game.dungeon
 		if d == null:
 			return
 		var pt := Iso.ground_to_tile(pl.gpos)
-		var s := 11.0
+		var s := 8.0
 		var to_map := func(t: Vector2) -> Vector2:
 			var rel := t - pt
 			return c + Vector2((rel.x - rel.y) * s, (rel.x + rel.y) * s * 0.75)
@@ -454,11 +531,11 @@ class MinimapDraw extends Control:
 				if p0.distance_to(c) > R - 6:
 					continue
 				var b: int = d.block.get(cell, 0)
-				var col := Color(0.08, 0.25, 0.27, 0.9)
+				var col := Color(0.12, 0.2, 0.15, 0.9)
 				if b == Dungeon.Block.WALL:
-					col = Color(0.55, 0.75, 0.8, 0.9)
+					col = Color(0.72, 0.6, 0.38, 0.95)
 				elif b == Dungeon.Block.LOW:
-					col = Color(0.2, 0.4, 0.45, 0.9)
+					col = Color(0.3, 0.32, 0.25, 0.9)
 				elif b == Dungeon.Block.DOOR:
 					col = Color(1.0, 0.25, 0.2, 0.95)
 				var pts := PackedVector2Array([to_map.call(Vector2(cell)), to_map.call(Vector2(cell) + Vector2(1, 0)),
@@ -477,6 +554,6 @@ class MinimapDraw extends Control:
 		var ad: Vector2 = pl.aim_dir
 		var mdir := Vector2(ad.x, ad.y * 0.75).normalized()
 		draw_colored_polygon(PackedVector2Array([c + mdir * 10, c + mdir.orthogonal() * 6 - mdir * 5, c - mdir.orthogonal() * 6 - mdir * 5]), Color(1, 1, 1))
-		draw_arc(c, R + 4, 0, TAU, 64, Color(0.25, 0.85, 0.8, 0.7), 2.5)
-		draw_arc(c, R + 9, -0.5, 0.5, 16, Color(0.25, 0.85, 0.8, 0.5), 2.0)
+		draw_arc(c, R + 4, 0, TAU, 64, Color(0, 0, 0, 0.8), 5.0)
+		draw_arc(c, R + 4, 0, TAU, 64, Color(0.93, 0.74, 0.38, 0.9), 2.0)
 

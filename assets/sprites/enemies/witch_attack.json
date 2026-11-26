@@ -1,0 +1,19 @@
+{
+ "name": "witch_attack",
+ "frame_w": 200,
+ "frame_h": 240,
+ "origin": [
+  100,
+  200
+ ],
+ "rows": 16,
+ "cols": 6,
+ "files": {
+  "color": "witch_attack_c.png",
+  "normal": "witch_attack_n.png",
+  "emit": "witch_attack_e.png"
+ },
+ "dirs": 16,
+ "frames": 6,
+ "anim": "attack"
+}

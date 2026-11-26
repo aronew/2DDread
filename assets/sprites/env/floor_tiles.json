@@ -14,16 +14,16 @@
   "emit": "floor_tiles_e.png"
  },
  "kinds": [
-  "plate",
-  "plate2",
+  "flag",
+  "flag2",
   "grate",
-  "hazard",
-  "light",
-  "vent",
-  "worn",
-  "infested",
-  "circle",
-  "cables",
+  "meander",
+  "sun",
+  "drain",
+  "cracked",
+  "moss",
+  "emblem",
+  "runes",
   "rockfloor"
  ]
 }

@@ -20,7 +20,7 @@ func setup(g: Vector2) -> void:
 func _ready() -> void:
 	_light = PointLight2D.new()
 	_light.texture = VFX.T.light
-	_light.color = Color(0.4, 0.8, 1.0)
+	_light.color = Color(0.4, 1.0, 0.6)
 	_light.energy = 0.3
 	_light.texture_scale = 3.0
 	_light.scale = Vector2(1, Iso.K)
@@ -47,7 +47,7 @@ func _process(dt: float) -> void:
 func _draw() -> void:
 	var r := Iso.m(1.3)
 	var a := 1.0 if active else 0.25
-	var col := Color(0.4, 0.8, 1.0)
+	var col := Color(0.4, 1.0, 0.6)
 	for i in 3:
 		var rr := r * (1.0 - i * 0.25)
 		var start := _t * (1.5 + i) * (1 if i % 2 == 0 else -1)
