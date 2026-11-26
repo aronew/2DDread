@@ -132,6 +132,7 @@ func refresh() -> void:
 		var short: String = it.display_name()
 		var b := _item_button(it, short, Vector2(86, 86))
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.add_theme_font_size_override("font_size", 11)
 		b.mouse_entered.connect(func(): _show(it))
 		b.gui_input.connect(func(ev): _on_item_input(ev, it))
 		_grid.add_child(b)
