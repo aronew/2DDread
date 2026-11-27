@@ -12,11 +12,11 @@ the architecture where it is.
 | `temple_02_guide.png` | **current** 1536×1024 frame of the temple room (`--level=temple`), tall back walls, no HUD, no player |
 | `temple_02_lines.png` | the same frame as line art, for generators that follow outlines more strictly |
 | `temple_02_guide.json` | where the frame looks: `world_to_image` maps game positions to image pixels |
-| `stair_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, upper half: THE GREAT STAIR** (the gallery and the stair down; `--look=65.94,2.44 --zoom=0.62`). `stair_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/stair_01` (gallery only). It leaves out the gallery's last two columns at the right (76-77) |
+| `stair_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, upper half: THE GREAT STAIR** (the gallery and the stair down; `--look=65.94,2.44 --zoom=0.62`). `stair_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/stair_01` (gallery only). It stops at column 76; before import its painted right end (columns 75-76 and the edge lip) was copied one cell further along +i, so the floor reaches column 77 |
 | `undercroft_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, lower half: THE UNDERCROFT** (the hall two levels down; `--look=71.94,12.98 --zoom=0.66`). `undercroft_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/undercroft_01` (everything below the terrace's top edge) |
 | `altar_01_guide.png` / `_lines.png` / `_guide.json` | **room 3, THE BONE ALTAR** (`--look=46.1,1.8 --zoom=0.72`). `altar_01_painted_sol.webp` is the owner's SOL painting of it, in the game as `assets/rooms/altar_01` |
 | `sanctum_01_guide.png` / `_lines.png` / `_guide.json` | **room 2, THE HOODED SANCTUM** (`--look=29.6,1.8 --zoom=0.72`). Prompt below. `sanctum_01_painted_sol.webp` is the owner's SOL painting of it, in the game as `assets/rooms/sanctum_01` |
-| `temple_01_*` | the first guide (closer framing). `temple_01_painted_sol.webp` is the first SOL painting (low walls); **`temple_01_painted_sol_v2_tall.webp` is the one in the game**: tall walls, painted at this guide's framing (the floor layout didn't change when the walls grew, so this guide's camera still fits) |
+| `temple_01_*` | the first guide (closer framing). `temple_01_painted_sol.webp` is the first SOL painting (low walls); `temple_01_painted_sol_v2_tall.webp` added tall walls at this guide's framing (the floor layout didn't change when the walls grew, so this guide's camera still fits); **`temple_01_painted_sol_v3.webp` is the one in the game**: the owner's inked restyle of v2 (same edges, heavy ink, purple shadows) |
 
 The step-by-step recipe for a new room is section 0 of `CLAUDE.md`. Helpers:
 `tools/rooms/guide_lines.py` (line art from a guide), `tools/rooms/check_paint.py`
@@ -29,6 +29,16 @@ VK_ICD_FILENAMES=/opt/lavapipe/lvp_icd.json xvfb-run -a -s "-screen 0 1536x1024x
   godot --path . --resolution 1536x1024 --fixed-fps 30 --audio-driver Dummy -- \
   --level=temple --look=5.0,7.6 --zoom=0.72 --paint-guide --shots=/tmp/guide --shot-every=5 --quit-after=2.2
 ```
+
+## The current style (v3)
+
+Every room painting in the game is now the owner's **v3** restyle: SOL repainted each
+earlier painting with heavy black ink, flat cel shading and purple-tinted shadows (same
+edges, so the layouts still match; only some props changed, and the layout's props were
+moved to match). The `*_painted_sol.webp` files are the v3 versions (room 1:
+`temple_01_painted_sol_v3.webp`; older versions are in git history). For a new room,
+attach one of them as a style reference with the mockup, so the room comes out in the
+same style.
 
 ## Prompt for SOL
 

@@ -196,7 +196,7 @@ func _pick_target(p):
 		var nest = null
 		var nest_d := Iso.m(14.0)
 		for pr in Game.dungeon.props:
-			if pr.alive and pr.nest_active and Game.dungeon.has_los(p.gpos, pr.gpos):
+			if pr.alive and pr.nest_active and _clear_shot(p.gpos, pr.gpos):
 				var dd: float = pr.gpos.distance_to(p.gpos)
 				if dd < nest_d:
 					nest_d = dd
@@ -204,6 +204,14 @@ func _pick_target(p):
 		if nest != null:
 			return nest
 	return best
+
+
+## Line of sight wide enough for a bullet: a thin ray can graze past a column that the
+## shot itself clips (the altar's nest beside a column kept the bot firing into stone).
+func _clear_shot(a: Vector2, b: Vector2) -> bool:
+	var side := (b - a).orthogonal().normalized() * Iso.m(0.25)
+	return Game.dungeon.has_los(a, b) and Game.dungeon.has_los(a + side, b + side) \
+		and Game.dungeon.has_los(a - side, b - side)
 
 
 func _fight(p, t, s: Dictionary, dt: float) -> void:

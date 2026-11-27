@@ -17,10 +17,10 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 
 | # | Room (`ROOMS` id) | Map columns | State |
 |---|---|---|---|
-| 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`) |
+| 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`, the inked v3) |
 | 2 | THE HOODED SANCTUM (`sanctum`) | 26-37 | painted (`assets/rooms/sanctum_01`); its props were moved to match the painting |
 | 3 | THE BONE ALTAR (`altar`) | 42-54 | painted (`assets/rooms/altar_01`); no pit: a ritual hall with a central altar, three bone nests that spawn hounds until broken, fire urns, then a shielded elite Legionnaire; drops a chest and opens the exit portal. Props follow the painting (its banners became plain frieze, braziers and candles became painted shrubs) |
-| 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | painted in two halves (`assets/rooms/stair_01` = the gallery, `undercroft_01` = everything below the terrace's top edge; each was masked to its half with `clip_paint.py` so they meet along that edge). SOL left out the gallery's last two columns at the right end (76-77), which still show kit tiles: repaint `stair_01` with that corner to finish it. L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
+| 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | painted in two halves (`assets/rooms/stair_01` = the gallery, `undercroft_01` = everything below the terrace's top edge; each was masked to its half with `clip_paint.py` so they meet along that edge). SOL painted the gallery only to column 76; the painted right end was shifted out one cell to cover column 77 (see the paint guide README). L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
 
 Each room's right edge has a gold bridge (row 3) across the abyss to the next; the last
 room holds the exit portal (`X`, and `"exit": true` in its `ROOMS` entry), which
@@ -89,6 +89,12 @@ game renders ("paint guides"). Recipe for every new room:
    (`-- --bot --level=... --start=<room id> --quit-after=50`), and a rendered screenshot
    (`--look=... --shots=...`, section 6). If the room layout changes later, the painting no
    longer matches: render a new guide and repaint.
+
+**Current art style (v3, Nov 2026):** the owner had SOL restyle every room painting with
+heavy black ink, flat cel shading and purple-tinted shadows on green-grey stone, much closer
+to the mockup; all five rooms in the game use it. Keep new rooms in this style: attach one
+of the v3 paintings (`docs/paint_guides/*_painted_sol*.webp`) as a style reference next to
+the mockup.
 
 How it works: `src/dungeon/room_paint.gd` (painting = floor layer; walls/props draw it
 through `paint_cutout.gdshader` so they still hide actors behind them; tiles stay where
