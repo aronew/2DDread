@@ -7,6 +7,7 @@ extends Node2D
 
 const FLOOR_SHEET := "res://assets/sprites/env/floor_tiles"
 const WALL_SHEET := "res://assets/sprites/env/wall_blocks"
+const WALL_TALL_SHEET := "res://assets/sprites/env/wall_blocks_tall"   # 6 m, for back walls
 const LOW_SHEET := "res://assets/sprites/env/low_blocks"
 
 enum Block { NONE, WALL, LOW, DOOR }
@@ -35,6 +36,7 @@ var shock_cells: Array = []
 var breakables := {}      # Vector2i -> hp
 var bridges := {}         # Vector2i -> true: floor cells drawn as bridge decks over a pit
 var painted_cells := {}   # Vector2i -> true: covered by a room painting, no tile drawn
+var tall_walls := {}      # Vector2i -> true: back walls drawn 6 m tall (see _is_back_wall)
 var start_cell := Vector2i.ZERO
 var exit_cell := Vector2i(-1, -1)
 var flow := {}
@@ -90,6 +92,7 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 					bridges[c] = true
 				"S":
 					start_cell = c
+					floor_kind[c] = 0   # plain stone where the player appears
 				"D":
 					door_cells.append(c)
 				"X":
@@ -535,13 +538,36 @@ class TileChunk extends Node2D:
 			draw_texture_rect_region(tex, Rect2(t[0] - origin, size), t[1])
 
 
+## A back wall stands at the far edge of the floor: nothing walkable behind it (the -i,
+## -j side, up on screen, for 4 cells) and something walkable around it. Back walls are
+## drawn from the tall sheet, so rooms are enclosed by towering walls like the mockup's;
+## nothing can stand behind them, so they never hide anyone. Interior walls (floor on
+## both sides) stay 3 m, and near walls are cut low (_cut_near_walls).
+func _is_back_wall(c: Vector2i) -> bool:
+	if block.get(c, Block.NONE) != Block.WALL or breakables.has(c) or block_kind.get(c, 0) == CUT_KIND:
+		return false
+	# a 6 m wall covers about 4 cells of floor behind it on screen: none may be walkable
+	for o in [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(-1, -1)]:
+		for k in range(1, 5):
+			if is_floor(c + o * k):
+				return false
+	for o in NEIGH8:
+		if is_floor(c + o):
+			return true
+	return false
+
+
 func _build_blocks() -> void:
 	var wsheet := SheetDB.get_sheet(WALL_SHEET)
+	var tsheet := SheetDB.get_sheet(WALL_TALL_SHEET)
 	var lsheet := SheetDB.get_sheet(LOW_SHEET)
 	for c in block:
 		var b: int = block[c]
 		if b == Block.WALL:
-			block_nodes[c] = _block_sprite(c, wsheet, block_kind[c])
+			var tall := tsheet != null and _is_back_wall(c)
+			if tall:
+				tall_walls[c] = true
+			block_nodes[c] = _block_sprite(c, tsheet if tall else wsheet, block_kind[c])
 		elif b == Block.LOW:
 			block_nodes[c] = _block_sprite(c, lsheet, block_kind[c])
 
@@ -563,7 +589,7 @@ func _block_sprite(c: Vector2i, sheet, idx: int) -> Node2D:
 		e.region_rect = s.region_rect
 		e.offset = s.offset
 		e.material = _add_mat
-		e.modulate = Color(1.15, 1.15, 1.15) if sheet.name == "wall_blocks" else Color(0.75, 0.75, 0.75)
+		e.modulate = Color(1.15, 1.15, 1.15) if sheet.name.begins_with("wall_blocks") else Color(0.75, 0.75, 0.75)
 		n.add_child(e)
 	entities.add_child(n)
 	return n
@@ -738,7 +764,8 @@ func _fade_occluders(pl, dt: float) -> void:
 				continue
 			var n: Node2D = block_nodes[c]
 			var dy := n.position.y - p.y
-			if dy > 0.0 and dy < 300.0 and absf(n.position.x - p.x) < 190.0:
+			var reach := 540.0 if tall_walls.has(c) else 300.0
+			if dy > 0.0 and dy < reach and absf(n.position.x - p.x) < 190.0:
 				want[c] = true
 	for c in want:
 		_faded[c] = true

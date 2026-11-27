@@ -268,7 +268,8 @@ models are made from primitives in code, then rendered through a custom stylizer
     pair. Run two processes in parallel.
   - `build_env.py`: 19 floor kinds (11 floors, then 8 bridge decks), 10 wall kinds (incl.
     freestanding `pillar` and `pillar_broken`, legend `O`/`Q`, and `cut`, a waist-high
-    wall), 3 low blocks, 8 props, and the 16 pit capstone pieces (`-- pits`); ~2 min.
+    wall) in a 3 m and a 6 m sheet (`-- walls` renders both, `-- tall` only the 6 m one),
+    3 low blocks, 8 props, and the 16 pit capstone pieces (`-- pits`); ~3 min.
     Index order is fixed because the layout legend maps to it.
   - `prep_pit_textures.py` (plain python): unprojects the pit pack's painted wall into
     `assets/sprites/env/pit_wall.png` (one clean masonry course, tiling) and
@@ -291,9 +292,9 @@ godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to 
 - **Rooms for `--start`:** `landing conduit vault hatchery spine reactor`.
 - **Look test:** `--level=temple` builds a single room composed like the temple mockup
   (`layout_temple.gd`), laid out the mockup's way so the path runs left to right with
-  nothing in front of it: the map's left column and top row are the back walls (tall
-  mural wall up the left, then a column and the waist-high Greek-key wall `U` around the
-  back of the arena), a band of soul-fire pits with two gold bridges runs down-right
+  nothing in front of it: the map's left column and top row are the back walls (6 m
+  tall: the mural wall up the left to a corner column, then the frieze wall with columns
+  around the back of the arena), a band of soul-fire pits with two gold bridges runs down-right
   from the mural wall's base, the open arena spreads right, and the near edges break off
   into the abyss. (On screen +i is down-right and +j down-left, so walls on the map's
   bottom rows or right columns would stand in front of the room.) Add `--start=temple` with
@@ -327,11 +328,22 @@ godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to 
   dark stone face over the pit). `Dungeon._orient_bridges()` picks the axis and end
   pieces from the neighbours, and the decks are drawn above the pit layers (z −17) so
   the fire glows under them. The pit side under a deck is "open": no masonry, just glow.
-- **Paint guides (generated art):** the owner's art comes from an image generator
-  (SOL), which takes attached reference images. `--paint-guide` (with `--look` and
-  `--shots`) hides the HUD and player and writes each shot's camera next to it
-  (`world_to_image`), so a room frame can be repainted in the mockup's style and laid
-  back on the same room. Workflow, prompt and limits: `docs/paint_guides/README.md`.
+- **Paint guides and room paintings (generated art):** the owner's art comes from an
+  image generator (SOL), which takes attached reference images. `--paint-guide` (with
+  `--look` and `--shots`) hides the HUD and player and writes each shot's camera next to
+  it (`world_to_image`). SOL repaints that frame in the mockup's style,
+  `tools/rooms/import_room_paint.py` keys out its black abyss and stores it in
+  `assets/rooms/`, and `RoomPaint` (`src/dungeon/room_paint.gd`) lays it back over the
+  room: as the floor layer (z −14, over tiles/pits/bridges, under decals and actors),
+  and through walls/props via `paint_cutout.gdshader` so they keep y-sorting. Tiles stay
+  wherever the painting has no floor. Layouts list paintings in `PAINTS`; `--no-paint`
+  turns them off. The painting must match the layout: change the room, repaint it.
+  Workflow, prompt and limits: `docs/paint_guides/README.md`.
+- **Tall back walls:** walls with nothing walkable within 4 cells behind them
+  (`Dungeon._is_back_wall`) use `env/wall_blocks_tall` (6 m, `build_env.py -- tall`):
+  the 3 m features plus a ledge, a gold Greek-key band and ashlar above, so rooms are
+  enclosed by towering walls like the mockup's. Interior walls stay 3 m and near walls
+  are cut low, so walls never hide the fight.
 - **Other dev flags:** `--shots=DIR --shot-every=S` (screenshots), `--inv-shot`
   (inventory test), `--dmg-mult=N` (forced deaths), `--bench=S` (avg FPS),
   `--g-<setting>=v` (per-setting overrides).

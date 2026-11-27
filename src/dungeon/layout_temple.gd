@@ -9,9 +9,9 @@ extends RefCounted
 ## Laid out like the mockup, so the way runs left to right with nothing in front of it.
 ## Screen directions: +i (right in this map) is down-right, +j (down in this map) is
 ## down-left, so the map's left column and top row are the room's two back walls.
-## * Back walls: the tall mural wall (hooded reliefs W, soul-fire niches M) along the
-##   left column, running up-right on screen from the lower left to a column (O), where
-##   the waist-high Greek-key wall (U) takes over and wraps the back of the arena.
+## * Back walls (drawn 6 m tall, Dungeon._is_back_wall): the mural wall (hooded reliefs
+##   W, soul-fire niches M) up the left column to a corner column (O), then the frieze
+##   wall (P, Greek-key band) with columns and a niche around the back of the arena.
 ## * A band of soul-fire pits runs down-right from the mural wall's base (a narrow ledge
 ##   with candles between them), crossed by two gold bridges (B) to the lower floor.
 ## * The player starts just above the bridges; the open arena spreads to the right with
@@ -19,12 +19,12 @@ extends RefCounted
 ##   abyss.
 
 const MAP := [
-	"UUUUUUUUUUUUUUUUUUUU    ",
-	"U::::::O:::::::O:::::   ",
-	"U:::::::::::::::::::::  ",
-	"U::::::::::::::::k::::  ",
-	"U::::::::o:::::::::p::  ",
-	"U:::k:::::::::::::::::  ",
+	"OPPPPMPPPOPPPPMPPPPO    ",
+	"W::::::O:::::::O:::::   ",
+	"M:::::::::::::::::::::  ",
+	"W::::::::::::::::k::::  ",
+	"M::::::::o:::::::::p::  ",
+	"W:::k:::::::::::::::::  ",
 	"O::::::::::Q::::::::*:  ",
 	"W:::::::::::::::::::n:  ",
 	"M::::S::::::::::::::::  ",
@@ -39,9 +39,11 @@ const MAP := [
 	"                        ",
 ]
 
-## Room paintings laid over the layout (RoomPaint; docs/paint_guides/README.md). The
-## first one is the owner's SOL painting of paint guide temple_01.
-const PAINTS := ["res://assets/rooms/temple_01"]
+## Room paintings laid over the layout (RoomPaint; docs/paint_guides/README.md).
+## assets/rooms/temple_01 (the owner's first SOL painting) was painted from the old,
+## low-walled version of this room; it no longer matches the tall back walls, so it's
+## off until the room is repainted from paint guide temple_02.
+const PAINTS: Array = []
 
 const ROOMS := [
 	{

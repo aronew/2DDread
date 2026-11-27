@@ -352,7 +352,9 @@ def render_floors():
 
 # ======================================================================= walls
 
-H = 3.0
+H = 3.0              # wall height; render_walls(tall=True) sets TALL_H for the back-wall sheet
+TALL_H = 6.0         # back walls (nothing walkable behind them) tower like the mockup's
+WALL_TALL_FRAME = (260, 640, (130, 556))
 UP = Vector((0, 0, 1))
 
 
@@ -403,12 +405,12 @@ def wall_variant(M, kind, rng):
     elif kind == "column":
         r = wall_base(M, rng, "wall2")
         c = Vector((CELL / 2, -CELL / 2, 0))
-        C.cyl(0.34, 2.4, c + UP * 1.5, M["pillar"], r, verts=20, bevel=0.0)
+        C.cyl(0.34, H - 0.6, c + UP * (0.3 + (H - 0.6) / 2), M["pillar"], r, verts=20, bevel=0.0)
         for i in range(10):  # flutes
             a = i * 2 * math.pi / 10
-            C.box((0.04, 0.04, 2.3), c + Vector((0.34 * math.cos(a), 0.34 * math.sin(a), 1.5)), M["wall2"], r, bevel=0.0,
-                  rot=(0, 0, a))
-        for z in (0.3, 2.72):
+            C.box((0.04, 0.04, H - 0.7), c + Vector((0.34 * math.cos(a), 0.34 * math.sin(a), 0.3 + (H - 0.6) / 2)),
+                  M["wall2"], r, bevel=0.0, rot=(0, 0, a))
+        for z in (0.3, H - 0.28):
             C.cyl(0.44, 0.2, c + UP * z, M["pillar"], r, verts=20, bevel=0.03)
             C.torus(0.38, 0.03, c + UP * (z + 0.12 if z > 1 else z + 0.12), M["gold"], r, seg=24, mseg=6)
     elif kind == "firealcove":
@@ -505,7 +507,21 @@ def wall_variant(M, kind, rng):
                 C.box((0.2, 0.2, 0.2), o + n * 0.12 + a * rng.uniform(-0.8, 0.8) + UP * 0.1, M["wall"], r,
                       rot=(rng.random(), rng.random(), rng.random()), bevel=0.03)
         _face_items(face)
+    if H > 4 and kind not in ("rock", "cut", "pillar", "pillar_broken"):
+        tall_upper(M, r)
     return r
+
+
+def tall_upper(M, r):
+    """The upper half of a tall back wall: above the 3 m features, a dark ledge, a gold
+    Greek-key band and another ledge, then plain ashlar up to the cornice."""
+    def face(o, a, n):
+        rot = _rot_for_normal(n)
+        C.box((0.12, CELL * 1.0, 0.16), o + n * 0.05 + UP * 3.08, M["wall_dk"], r, rot=rot, bevel=0.02)
+        if "t_band" in M:
+            C.box((0.03, CELL, 0.62), o + n * 0.016 + UP * 3.5, M["t_band"], r, rot=rot, bevel=0.0)
+        C.box((0.12, CELL * 1.0, 0.12), o + n * 0.05 + UP * 3.88, M["wall_dk"], r, rot=rot, bevel=0.02)
+    _face_items(face)
 
 
 def pillar(M, r, rng, broken=False):
@@ -522,7 +538,7 @@ def pillar(M, r, rng, broken=False):
                          scale=(0.4, 1.5, 0.6), rot=(sgn * 0.5, 0, math.atan2(n.y, n.x)))
     C.cyl(0.66, 0.2, (0, 0, 0.45), M["pillar"], r, verts=32, bevel=0.04)
     C.torus(0.6, 0.035, (0, 0, 0.62), M["gold"], r, seg=32, mseg=6)
-    top = 1.85 if broken else 3.5
+    top = 1.85 if broken else (H + 0.3 if H > 4 else 3.5)
     shaft = top - 0.6
     C.cyl(0.5, shaft, (0, 0, 0.6 + shaft / 2), M["pillar"], r, verts=32, bevel=0.0)
     for i in range(14):  # flutes
@@ -546,13 +562,17 @@ def pillar(M, r, rng, broken=False):
 WALL_KINDS = ["frieze", "column", "firealcove", "relief", "banner", "rock", "breach", "pillar", "pillar_broken", "cut"]
 
 
-def render_walls():
+def render_walls(tall=False):
+    """tall: the 6 m sheet (wall_blocks_tall) the game uses for back walls."""
+    global H
+    H = TALL_H if tall else 3.0
     C.reset_scene()
     C.setup_lights()
     M = materials()
-    fw, fh, org = WALL_FRAME
+    fw, fh, org = WALL_TALL_FRAME if tall else WALL_FRAME
     C.setup_camera(fw, fh, org)
-    sw = C.SheetWriter("env", "wall_blocks", fw, fh, org, 1, len(WALL_KINDS), meta={"kinds": WALL_KINDS})
+    sw = C.SheetWriter("env", "wall_blocks_tall" if tall else "wall_blocks", fw, fh, org, 1, len(WALL_KINDS),
+                       meta={"kinds": WALL_KINDS, "height_m": H})
     rng = random.Random(3)
     for i, k in enumerate(WALL_KINDS):
         C.clear_scene_objects()
@@ -885,6 +905,8 @@ if __name__ == "__main__":
         render_floors()
     if "walls" in what:
         render_walls()
+    if "walls" in what or "tall" in what:
+        render_walls(tall=True)
     if "lows" in what:
         render_lows()
     if "props" in what:
