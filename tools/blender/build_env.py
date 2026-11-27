@@ -73,6 +73,8 @@ PAINTED = {
     "t_band": ("floor_border_meander.png", (CELL, CELL, 0.6), {}),
     "t_flames": ("soulfire_flames.png", (1.0, 3.24, 1.62),
                  {"tex_emit": True, "emit": (1.0, 1.0, 1.0), "emit_strength": 6.0}),
+    # pit capstones: the floor's slab paint, lighter, like the owner's pit pack coping
+    "t_coping": ("slab_worn.png", (1.3, 1.3, 1.3), {"tex_gain": 1.55}),
 }
 
 
@@ -676,9 +678,128 @@ def render_props():
         sw.save()
 
 
+# ======================================================================= pit coping
+
+# Soul-fire pits (src/dungeon/pit_fire.gd) get a narrow row of capstones on the floor
+# around their opening, like the owner's pit pack (tools/blender/textures/
+# kit_2026-11-27_pits). The coping is drawn per grid corner ("dual grid"): a piece is
+# centred on a tile vertex, covers the quarter of each of the four cells around it, and
+# its column in the sheet is a 4-bit mask of which of those cells are pit:
+#   bit 0 = cell (-1,-1) (top on screen), 1 = (0,-1) (right), 2 = (-1,0) (left),
+#   3 = (0,0) (bottom).
+# 16 pieces cover every pit shape, and corners join by construction. Only the stones are
+# rendered here; the pit's masonry walls and flames are drawn by PitFire under them.
+PIT_FRAME = (264, 160, (132, 70))
+COPE_W = 0.35        # capstone depth from the pit's edge into the floor (m)
+COPE_TOP = 0.035     # capstones sit just proud of the floor...
+COPE_LOW = -0.17     # ...and their front face drops this far
+
+
+def _tile_to_blender(i, j):
+    return Vector((2.0 * i, -2.0 * j, 0.0))
+
+
+def _capstone(M, root, rng, i0, i1, j0, j1, deep):
+    """One capstone over tile rect [i0,i1] x [j0,j1] (tile units around the vertex).
+    deep: its camera-facing side borders the pit, so its front face drops into the pit;
+    otherwise that side faces the floor and only the stone's lip above the floor shows."""
+    a, b = _tile_to_blender(i0, j0), _tile_to_blender(i1, j1)
+    gap = 0.012
+    sx, sy = abs(b.x - a.x) - gap, abs(b.y - a.y) - gap
+    c = (a + b) / 2
+    top = COPE_TOP + rng.uniform(-0.006, 0.006)
+    h = top - (COPE_LOW if deep else -0.01)
+    C.box((sx, sy, h), (c.x, c.y, top - h / 2), M.get("t_coping", M["stone"][2]), root,
+          bevel=0.022 if deep else 0.012,
+          rot=(rng.uniform(-0.008, 0.008), rng.uniform(-0.008, 0.008), rng.uniform(-0.01, 0.01)))
+
+
+def _grout(M, root, i0, i1, j0, j1, deep):
+    """Dark bed under a run of capstones, a little lower and inset so only the joints show it."""
+    a, b = _tile_to_blender(i0, j0), _tile_to_blender(i1, j1)
+    c = (a + b) / 2
+    low = COPE_LOW if deep else -0.012
+    C.box((abs(b.x - a.x) - 0.004, abs(b.y - a.y) - 0.004, COPE_TOP - 0.02 - low), (c.x, c.y, (COPE_TOP - 0.02 + low) / 2),
+          M["grout"], root, bevel=0.0)
+
+
+def _strip_blocks(M, root, rng, along_i, fixed0, fixed1, s0, s1, deep, deep_first):
+    """Capstones along a strip: across = [fixed0, fixed1], along = from s0 (at the vertex)
+    to s1 (tile units), split into one or two stones. deep_first applies to the stone at s0."""
+    length = abs(s1 - s0) * 2.0
+    cuts = [s0, s1]
+    if length > 0.8:
+        t = rng.uniform(0.42, 0.58)
+        cuts = [s0, s0 + (s1 - s0) * t, s1]
+    for k, (u0, u1) in enumerate(zip(cuts[:-1], cuts[1:])):
+        lo, hi = min(u0, u1), max(u0, u1)
+        d = deep_first if k == 0 else deep
+        if along_i:
+            _capstone(M, root, rng, lo, hi, fixed0, fixed1, d)
+        else:
+            _capstone(M, root, rng, fixed0, fixed1, lo, hi, d)
+
+
+def pit_coping(M, mask, rng):
+    root = C.empty("coping")
+    w = COPE_W / 2.0            # in tile units
+    quarters = {(-1, -1): 0, (0, -1): 1, (-1, 0): 2, (0, 0): 3}
+
+    def pit(di, dj):
+        return bool(mask & (1 << quarters[(di, dj)]))
+
+    # every floor quarter lays stones only inside itself, so pieces never overlap
+    for (di, dj) in quarters:
+        if pit(di, dj):
+            continue
+        si = -1 if di < 0 else 1     # which side of the vertex this quarter lies on
+        sj = -1 if dj < 0 else 1
+        across_i = pit(-1 - di, dj)  # pit beyond the i = 0 line
+        across_j = pit(di, -1 - dj)  # pit beyond the j = 0 line
+        diag = pit(-1 - di, -1 - dj)
+        # the camera-facing sides of a stone are +i and +j: the pit is in front of the
+        # stone when it lies on the vertex's side opposite this quarter's negative side
+        deep_i = across_i and si < 0
+        deep_j = across_j and sj < 0
+        band_i = sorted((0.0, w * si))
+        band_j = sorted((0.0, w * sj))
+        # dark grout under each run, so the joints between stones never show the pit's glow
+        if across_i:
+            _grout(M, root, band_i[0], band_i[1], *sorted((0.0, 0.5 * sj)), deep_i or deep_j)
+        if across_j:
+            _grout(M, root, *sorted((0.0, 0.5 * si)), band_j[0], band_j[1], deep_j)
+        if diag and not across_i and not across_j:
+            _grout(M, root, band_i[0], band_i[1], band_j[0], band_j[1], si < 0 and sj < 0)
+        if across_i:
+            _strip_blocks(M, root, rng, False, band_i[0], band_i[1], 0.0, 0.5 * sj, deep_i, deep_i or deep_j)
+        if across_j:
+            _strip_blocks(M, root, rng, True, band_j[0], band_j[1], (w * si) if across_i else 0.0, 0.5 * si,
+                          deep_j, deep_j)
+        if diag and not across_i and not across_j:
+            # the stone that turns a pit's corner; only the far corner's one hangs over the pit
+            _capstone(M, root, rng, band_i[0], band_i[1], band_j[0], band_j[1], si < 0 and sj < 0)
+    return root
+
+
+def render_pit_coping():
+    C.reset_scene()
+    C.setup_lights()
+    M = materials()
+    fw, fh, org = PIT_FRAME
+    C.setup_camera(fw, fh, org)
+    sw = C.SheetWriter("env", "pit_coping", fw, fh, org, 1, 16, meta={"layout": "dual grid, bit0=(-1,-1) bit1=(0,-1) bit2=(-1,0) bit3=(0,0)"})
+    for mask in range(1, 15):
+        C.clear_scene_objects()
+        pit_coping(M, mask, random.Random(100 + mask))
+        sw.put(0, mask, C.render_stylized(ENV_STYLE))
+    sw.save()
+
+
 if __name__ == "__main__":
     import sys
-    what = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["floors", "walls", "lows", "props"]
+    what = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["floors", "walls", "lows", "props", "pits"]
+    if "pits" in what:
+        render_pit_coping()
     if "floors" in what:
         render_floors()
     if "walls" in what:

@@ -1,7 +1,7 @@
 shader_type canvas_item;
 render_mode unshaded;
-// Painted soul-fire strips standing along chasm walls (PitFire). The texture holds
-// four flame strips side by side, each faded at its base and sides. A gentle sway
+// Painted soul-fire burning along the foot of pit walls (PitFire). The texture is the
+// owner's painted flame strip, repeating along x (tips at the top). A gentle sway
 // (stronger toward the tips) and flicker driven by TIME keep it alive with no
 // script work per frame. `gain` > 1 lets the hottest parts bloom.
 
@@ -12,5 +12,5 @@ void fragment() {
 	float sway = sin(TIME * 2.4 + FRAGCOORD.x * 0.021 + UV.y * 7.0) * 0.006 * tip;
 	vec4 c = texture(TEXTURE, UV + vec2(sway, 0.0));
 	float flick = 0.88 + 0.12 * sin(TIME * 6.1 + FRAGCOORD.x * 0.027) * sin(TIME * 3.3 + FRAGCOORD.y * 0.019);
-	COLOR = vec4(c.rgb * gain * flick, c.a);
+	COLOR = vec4(c.rgb * gain * flick * COLOR.rgb, c.a * COLOR.a);   // COLOR in: the vertex colour (row dimming)
 }

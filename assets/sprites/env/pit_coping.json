@@ -1,0 +1,16 @@
+{
+ "name": "pit_coping",
+ "frame_w": 264,
+ "frame_h": 160,
+ "origin": [
+  132,
+  70
+ ],
+ "rows": 1,
+ "cols": 16,
+ "files": {
+  "color": "pit_coping_c.png",
+  "normal": "pit_coping_n.png"
+ },
+ "layout": "dual grid, bit0=(-1,-1) bit1=(0,-1) bit2=(-1,0) bit3=(0,0)"
+}

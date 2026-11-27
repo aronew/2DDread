@@ -353,6 +353,15 @@ func _parse_args() -> void:
 	if opts.has("zoom"):
 		# dev: camera zoom multiplier, e.g. --zoom=1.4 for the closer mockup framing
 		camera.zoom_mult = float(opts["zoom"])
+	if opts.has("look"):
+		# dev: still look-test, e.g. --look=12.5,9 puts the player on that tile point with
+		# no encounters and no mouse look-ahead, for comparing a room against concept art
+		var xy: PackedStringArray = String(opts["look"]).split(",")
+		if xy.size() == 2:
+			player.spawn_at(Iso.tile_to_ground(Vector2(float(xy[0]), float(xy[1]))))
+		director.set_process(false)
+		camera.lookahead = 0.0
+		camera.snap()
 	if opts.has("gfx"):
 		Game.set_preset(opts["gfx"], false)
 	for k in Game.gfx.keys():
