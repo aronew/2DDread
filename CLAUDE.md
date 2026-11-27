@@ -290,14 +290,18 @@ godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to 
 
 - **Rooms for `--start`:** `landing conduit vault hatchery spine reactor`.
 - **Look test:** `--level=temple` builds a single room composed like the temple mockup
-  (`layout_temple.gd`): a V-shaped back wall running left to right (mural wall down to a
-  corner pillar, waist-high meander wall `U` rising to the right), a soul-fire chasm with
-  gold bridges, and near edges breaking off into the abyss. Add `--start=temple` with
+  (`layout_temple.gd`), laid out the mockup's way so the path runs left to right with
+  nothing in front of it: the map's left column and top row are the back walls (tall
+  mural wall up the left, then a column and the waist-high Greek-key wall `U` around the
+  back of the arena), a band of soul-fire pits with two gold bridges runs down-right
+  from the mural wall's base, the open arena spreads right, and the near edges break off
+  into the abyss. (On screen +i is down-right and +j down-left, so walls on the map's
+  bottom rows or right columns would stand in front of the room.) Add `--start=temple` with
   `--bot`. `--zoom=N` multiplies the camera zoom; at the 30° camera the default zoom
   already matches the mockup's scale. `--look=X,Y` makes a still: the player stands on
   that tile point, no encounters start and the camera has no mouse look-ahead. Use it
   with `--shots` (the first shot is at 2 s) to compare a room against concept art:
-  `-- --level=temple --look=8,11 --zoom=0.9 --shots=/tmp/s --shot-every=5 --quit-after=2.2`.
+  `-- --level=temple --look=5.5,8.5 --shots=/tmp/s --shot-every=5 --quit-after=2.2`.
 - **Near walls are cut low:** a wall with the room behind it and nothing walkable in front
   (`dungeon._cut_near_walls()`) is drawn with the waist-high `cut` wall sprite so it never
   hides the floor; it still blocks movement and shots like any wall.
