@@ -1,16 +1,16 @@
 {
  "name": "canisters",
- "frame_w": 128,
- "frame_h": 112,
+ "frame_w": 97,
+ "frame_h": 116,
  "origin": [
-  64,
-  72
+  49,
+  85
  ],
  "rows": 1,
  "cols": 1,
  "files": {
   "color": "canisters_c.png",
-  "normal": "canisters_n.png",
   "emit": "canisters_e.png"
- }
+ },
+ "source": "painted: textures/kit_2026-11-27/sprites/candle_cluster"
 }

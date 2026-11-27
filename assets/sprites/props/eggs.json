@@ -1,16 +1,16 @@
 {
  "name": "eggs",
- "frame_w": 192,
- "frame_h": 176,
+ "frame_w": 254,
+ "frame_h": 152,
  "origin": [
-  96,
-  112
+  113,
+  90
  ],
  "rows": 1,
  "cols": 2,
  "files": {
   "color": "eggs_c.png",
-  "normal": "eggs_n.png",
   "emit": "eggs_e.png"
- }
+ },
+ "source": "painted: textures/kit_2026-11-27/sprites/bone_nest_empty, bone_nest_active"
 }

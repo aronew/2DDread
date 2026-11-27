@@ -1,16 +1,16 @@
 {
  "name": "pylon",
- "frame_w": 112,
- "frame_h": 240,
+ "frame_w": 73,
+ "frame_h": 144,
  "origin": [
-  56,
-  200
+  36,
+  111
  ],
  "rows": 1,
  "cols": 1,
  "files": {
   "color": "pylon_c.png",
-  "normal": "pylon_n.png",
   "emit": "pylon_e.png"
- }
+ },
+ "source": "painted: textures/kit_2026-11-27/sprites/candelabra"
 }

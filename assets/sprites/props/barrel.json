@@ -1,16 +1,16 @@
 {
  "name": "barrel",
- "frame_w": 112,
- "frame_h": 160,
+ "frame_w": 113,
+ "frame_h": 145,
  "origin": [
   56,
-  120
+  107
  ],
  "rows": 1,
  "cols": 1,
  "files": {
   "color": "barrel_c.png",
-  "normal": "barrel_n.png",
   "emit": "barrel_e.png"
- }
+ },
+ "source": "painted: textures/kit_2026-11-27/sprites/fire_urn"
 }

@@ -1,15 +1,15 @@
 {
  "name": "cryotube",
- "frame_w": 144,
- "frame_h": 256,
+ "frame_w": 106,
+ "frame_h": 186,
  "origin": [
-  72,
-  196
+  52,
+  138
  ],
  "rows": 1,
  "cols": 1,
  "files": {
-  "color": "cryotube_c.png",
-  "normal": "cryotube_n.png"
- }
+  "color": "cryotube_c.png"
+ },
+ "source": "painted: textures/kit_2026-11-27/sprites/broken_statue"
 }

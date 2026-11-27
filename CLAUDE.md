@@ -220,6 +220,13 @@ models are made from primitives in code, then rendered through a custom stylizer
     `floor_moss`, `column_wrap_v1`) are kept but unused.
   - `textures/kit_2026-11-27/` holds the owner's full generated kit (textures, props,
     wall modules, decals, glow masks) with its own README and prompts.
+- **Props are painted, not modelled:** `tools/blender/import_painted_props.py` turns the
+  kit's painted prop sprites into the 8 prop sheets (amphorae → `crate`, candles →
+  `canisters`, fire urn → `barrel`, chest, soul brazier → `crystals`, candelabra →
+  `pylon`, broken statue → `cryotube`, bone nest → `eggs`). It scales each from its
+  real-world size, anchors it on its base and builds the glow layer from the kit's glow
+  masks. They ship without normal maps. `build_env.py -- props` brings back the
+  modelled ones.
 - **Sheet edges:** `SheetWriter.save()` runs `bleed_alpha()` on colour sheets. Without it
   the stylizer leaves faint white semi-transparent pixels at silhouettes, and texture
   filtering turns them into light fringes and dotted seams between floor tiles.

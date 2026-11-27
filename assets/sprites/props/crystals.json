@@ -1,16 +1,16 @@
 {
  "name": "crystals",
- "frame_w": 160,
- "frame_h": 200,
+ "frame_w": 111,
+ "frame_h": 152,
  "origin": [
-  80,
-  140
+  55,
+  109
  ],
  "rows": 1,
  "cols": 1,
  "files": {
   "color": "crystals_c.png",
-  "normal": "crystals_n.png",
   "emit": "crystals_e.png"
- }
+ },
+ "source": "painted: textures/kit_2026-11-27/sprites/soul_brazier"
 }

@@ -144,6 +144,14 @@ each kind uses lives in `tools/blender/build_env.py → PAINTED`. After adding o
 replacing one, run `build_env.py -- floors walls` and then `godot --headless --path .
 --import`.
 
+### Painted props
+
+The prop sheets are currently the owner's painted sprites, imported by
+`tools/blender/import_painted_props.py` (sizes and glow sources are in its `PROPS`
+table). To swap in new painted props, replace the PNGs in
+`tools/blender/textures/kit_2026-11-27/sprites/` (transparent background, one object per
+image, same file names) and run the script, then `godot --headless --path . --import`.
+
 ## 6. Audio
 
 Every combat action calls `Audio.play("<name>", ground_pos)`. Files live in
