@@ -40,10 +40,10 @@ const MAP := [
 ]
 
 ## Room paintings laid over the layout (RoomPaint; docs/paint_guides/README.md).
-## assets/rooms/temple_01 (the owner's first SOL painting) was painted from the old,
-## low-walled version of this room; it no longer matches the tall back walls, so it's
-## off until the room is repainted from paint guide temple_02.
-const PAINTS: Array = []
+## assets/rooms/temple_01: the owner's SOL painting with the tall back walls
+## (docs/paint_guides/temple_01_painted_sol_v2_tall.webp), painted at paint guide
+## temple_01's camera; the floor layout is the same as when that guide was taken.
+const PAINTS: Array = ["res://assets/rooms/temple_01"]
 
 const ROOMS := [
 	{

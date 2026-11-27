@@ -6,8 +6,9 @@ shader_type canvas_item;
 //   painting decides the silhouette, so a wall painted lower than the kit's stays lower.
 // * Toward the painting's outer edge (EDGE px), and outside it, the sprite's own art
 //   fades back in.
-// * Lit as a flat surface facing the camera, like the painting on the floor, so walls
-//   don't come out darker than the floor around them.
+// * Lit softly and without its normal map: the painting has its own light, so the
+//   room's lights only tint it (a light right against a flat surface would otherwise
+//   make a hard bright dot, and side-facing normals made walls darker than the floor).
 
 uniform sampler2D painting : filter_linear, repeat_disable;
 uniform vec2 paint_size;
@@ -33,4 +34,8 @@ void fragment() {
 	vec4 p = texture(painting, clamp(px / paint_size, vec2(0.0), vec2(1.0)));
 	COLOR = vec4(mix(own.rgb, p.rgb, k), own.a * mix(1.0, p.a, k)) * vcol;
 	NORMAL = vec3(0.0, 0.0, 1.0);
+}
+
+void light() {
+	LIGHT = vec4(COLOR.rgb * LIGHT_COLOR.rgb * LIGHT_ENERGY * 0.3, LIGHT_COLOR.a);
 }

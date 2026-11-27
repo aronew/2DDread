@@ -105,7 +105,9 @@ All of this is playable, and a bot plays the whole route without errors:
   - Locked Kennels arena (nests spawn hounds until destroyed).
   - Stormwalk (shock-plate hazard).
   - Hall of the Legion (elite finale) → descent portal to depth N+1, with harder enemies.
-- **Temple look-test room** (`--level=temple`, `layout_temple.gd`), built toward mockup 01:
+- **Temple look-test room** (`--level=temple`, `layout_temple.gd`), built toward mockup 01
+  and now covered by the owner's SOL painting (`assets/rooms/temple_01`, see "Paint guides
+  and room paintings"); `--no-paint` shows the kit underneath:
   soul-fire pits with capstone lips (the owner's pit pack), gold Greek-key bridges with
   sunburst medallions, mural walls with the hooded figure and laurels, green fire niches,
   dark green columns, grey slab floor. **The owner's goal (2026-11-27): make this room

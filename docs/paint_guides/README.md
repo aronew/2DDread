@@ -12,7 +12,7 @@ the architecture where it is.
 | `temple_02_guide.png` | **current** 1536×1024 frame of the temple room (`--level=temple`), tall back walls, no HUD, no player |
 | `temple_02_lines.png` | the same frame as line art, for generators that follow outlines more strictly |
 | `temple_02_guide.json` | where the frame looks: `world_to_image` maps game positions to image pixels |
-| `temple_01_*` | the first guide (low back walls) and the owner's SOL painting of it (`temple_01_painted_sol.webp`); superseded when the back walls became 6 m tall |
+| `temple_01_*` | the first guide (closer framing). `temple_01_painted_sol.webp` is the first SOL painting (low walls); **`temple_01_painted_sol_v2_tall.webp` is the one in the game**: tall walls, painted at this guide's framing (the floor layout didn't change when the walls grew, so this guide's camera still fits) |
 
 Make a new guide (any room, any framing):
 
@@ -68,7 +68,9 @@ Send the result back as a PNG file (not pasted inline) so it can be imported.
 python3 tools/rooms/import_room_paint.py PAINTING docs/paint_guides/temple_02_guide.json temple_02
 ```
 
-writes `assets/rooms/temple_02.png/.json`; then list `"res://assets/rooms/temple_02"` in
+writes `assets/rooms/temple_02.png/.json`. Use the camera JSON of the guide the painting
+actually follows (overlay its `_lines.png` on the painting to check: pits, columns and
+urns should line up); then list `"res://assets/rooms/temple_02"` in
 the layout's `PAINTS` (see `layout_temple.gd`) and run `godot --headless --path . --import`.
 `--no-paint` shows the room without it. The painting must have **pure black** outside
 the floor: that black, where it touches the image border, becomes transparent.
