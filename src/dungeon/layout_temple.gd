@@ -24,22 +24,35 @@ extends RefCounted
 ## column; the bridge arrives below that. A soul-fire moat (two cells wide) splits the
 ## nave front to back, crossed by one short bridge in the middle and by the narrow ledges
 ## behind and in front of it. Columns and broken columns flank the moat; the descent
-## portal (X) waits on the far side by a cluster of candles, with a laurel-skull plate in
-## front of it. (Props follow the owner's painting, sanctum_01: amphorae in the back-left
-## corner, candles by the portal; the two dark shrubs on the floor are painted only.)
+## far side keeps a cluster of candles, with a laurel-skull plate in front of it. (Props
+## follow the owner's painting, sanctum_01: amphorae in the back-left corner, candles by
+## the far bank; the two dark shrubs on the floor are painted only.) Its right edge has
+## a gold bridge (row 3) on to room 3. (The exit portal used to wait here; it moved to
+## room 3, onto floor the painting shows as plain stone.)
+##
+## Room 3, THE BONE ALTAR (columns 42-54): no pit; a ritual hall lit warm instead of
+## green. Its back wall carries crimson banners with burning torches (I) and friezes, with
+## a hooded mural (W) behind the altar; a short frieze return runs down its left corner,
+## above where the bridge arrives. A gold processional band (h) runs from the bridge to
+## a stone altar (=, two cells) between sunburst plates and two soul braziers; two
+## columns stand behind it and two broken columns in front, with a laurel-skull plate
+## before it. Three bone nests (e), two of them beside explosive fire urns (b), spawn
+## hounds until they're broken. Fight: witches and a flaming skull while the nests pour
+## out hounds; once the nests are down, a shielded elite Legionnaire. Clearing it drops a
+## chest and opens the exit portal (X) at the far right, which descends to the next depth.
 ## Fight: Hex Witches hold the far bank and shoot across the moat while hounds come over
 ## the bridge; a Legionnaire's charge stops dead at the moat's edge.
 
 const MAP := [
-	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO",
-	"W::::::O:::::::O:::::     Pk::k:::::::",
-	"M:::::::::::::::::::::    P::O:  ::O::",
-	"W::::::::::::::::k::::BBBB:::::  :::::",
-	"M::::::::o:::::::::p::    :::::BB:::X:",
-	"W:::k:::::::::::::::::    :::Q:  ::Q:o",
-	"O::::::::::Q::::::::*:    ::::,  :::n:",
-	"W:::::::::::::::::::n:     ::::::::::",
-	"M::::S::::::::::::::::      ::::::",
+	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OIPIOPWPOIPIO",
+	"W::::::O:::::::O:::::     Pk::k:::::::    P:::n:::n:eb:",
+	"M:::::::::::::::::::::    P::O:  ::O::    P::O:::::O:::",
+	"W::::::::::::::::k::::BBBB:::::  :::::BBBB:hhhhl=l:::::",
+	"M::::::::o:::::::::p::    :::::BB:::::    :::::*=*:::::",
+	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::",
+	"O::::::::::Q::::::::*:    ::::,  :::n:    bn:Q::o::Q:X:",
+	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::k:",
+	"M::::S::::::::::::::::      ::::::           ::::::::",
 	"Wn  B  B    ::::w:::::",
 	"M:  B  B    :::::::::",
 	"W:::::::::::::::::::k:",
@@ -73,6 +86,14 @@ const ROOMS := [
 			{"trigger": "enter", "spawn": [["spitter", 2], ["mite", 4]], "far": true},
 			{"trigger": {"remaining": 2}, "spawn": [["brute", 1], ["mite", 3], ["bloater", 1]], "far": true},
 		],
+	},
+	{
+		"id": "altar", "name": "THE BONE ALTAR", "rect": [42, 1, 54, 8], "lock": false,
+		"beats": [
+			{"trigger": "enter", "spawn": [["spitter", 2], ["mite", 3], ["bloater", 1]], "far": true, "nests": true},
+			{"trigger": {"remaining": 2}, "spawn": [["brute", 1, {"elite": ["shielded"]}], ["mite", 3], ["spitter", 1]], "far": true},
+		],
+		"reward": "chest",
 		"exit": true,
 	},
 ]

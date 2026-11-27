@@ -71,7 +71,11 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 			if ch == " ":
 				continue
 			var c := Vector2i(i, j)
-			floor_kind[c] = _auto_floor(rng)
+			# random variants only on generic "." floor; props, walls and markers stand on
+			# plain stone (a variant can be the red rune ring, which reads as a telegraph).
+			# The draw is made either way, so the random column swaps below stay the same.
+			var auto := _auto_floor(rng)
+			floor_kind[c] = auto if ch == "." else 0
 			if FLOOR_CHAR.has(ch):
 				floor_kind[c] = FLOOR_CHAR[ch]
 			if WALL_CHAR.has(ch):

@@ -19,9 +19,12 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 |---|---|---|---|
 | 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`) |
 | 2 | THE HOODED SANCTUM (`sanctum`) | 26-37 | painted (`assets/rooms/sanctum_01`); its props were moved to match the painting |
+| 3 | THE BONE ALTAR (`altar`) | 42-54 | laid out, guide `altar_01` rendered, **waiting for the owner's SOL painting**. No pit: a torch-lit ritual hall (crimson banner walls `I`), a central altar, three bone nests that spawn hounds until broken, fire urns, then a shielded elite Legionnaire; drops a chest and opens the exit portal |
 
-Room 1's right edge has a gold bridge (row 3) across the abyss to room 2; room 2 holds
-the exit portal, which descends to the next depth (the same rooms, harder). New rooms
+Each room's right edge has a gold bridge (row 3) across the abyss to the next; the last
+room holds the exit portal (`X`, and `"exit": true` in its `ROOMS` entry), which
+descends to the next depth (the same rooms, harder). When adding a room after it, move
+the `X` and the exit flag. New rooms
 go further right in the **same map**: only ever add columns to the right or rows at the
 bottom, never insert any before existing ones, or every painting's camera stops
 matching its room. Keep a gap of abyss (4+ cells) between rooms, bridged, so each
@@ -40,6 +43,8 @@ game renders ("paint guides"). Recipe for every new room:
      `WALL_CHAR`, `PROP_CHAR`).
    - Check on the guide that nothing tall stands right in front of a feature on screen:
      cells with the same `i - j` line up vertically, the nearer one in front.
+   - Keep explosive fire urns (`b`, 3.2 m blast) at least 2 cells off the entry path.
+     Props, walls and markers stand on plain stone; only `.` gets random floor variants.
    - The path runs left to right like the mockup; keep one room within about one
      screen so one painting covers it.
    - Hook the layout up in `World._layout()` (as `--level=temple` is) and add `ROOMS`

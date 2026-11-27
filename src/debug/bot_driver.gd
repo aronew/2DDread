@@ -29,6 +29,9 @@ var _strafe := 1.0
 var _strafe_t := 0.0
 var _dash_t := 0.0
 var _hold_t := 0.0   # keeps the whip key down to yank
+var _loot_target = null
+var _loot_t := 0.0
+var _skip_loot := {}
 var _fire_toggle := false
 var _bfs_cache := {}
 var _stuck_t := 0.0
@@ -146,9 +149,10 @@ func _shot() -> void:
 func _log() -> void:
 	var pl = Game.player
 	var room = Game.world.director.active
-	print("[bot] t=%.0fs fps=%d hp=%d/%d lvl=%d enemies=%d proj=%d room=%s route=%s %s" % [
+	print("[bot] t=%.0fs fps=%d hp=%d/%d lvl=%d enemies=%d proj=%d room=%s route=%s cell=%s %s" % [
 		_elapsed(), Engine.get_frames_per_second(), pl.hp, pl.max_hp, pl.level, Game.living_enemies(),
-		Game.projectiles.list.size(), room.id if room else "-", _route[mini(_route_i, _route.size() - 1)], stats])
+		Game.projectiles.list.size(), room.id if room else "-", _route[mini(_route_i, _route.size() - 1)],
+		Iso.cell_of(pl.gpos), stats])
 
 
 # ------------------------------------------------------------------ brain
@@ -186,10 +190,19 @@ func _pick_target(p):
 		if d < best_d and Game.dungeon.has_los(p.gpos, e.gpos):
 			best_d = d
 			best = e
-	if best == null:
+	# like a player: break active nests (they spawn hounds without end) unless an enemy is
+	# right on top of us
+	if best == null or best_d > Iso.m(3.5):
+		var nest = null
+		var nest_d := Iso.m(14.0)
 		for pr in Game.dungeon.props:
-			if pr.alive and pr.nest_active and pr.gpos.distance_to(p.gpos) < Iso.m(14.0):
-				return pr
+			if pr.alive and pr.nest_active and Game.dungeon.has_los(p.gpos, pr.gpos):
+				var dd: float = pr.gpos.distance_to(p.gpos)
+				if dd < nest_d:
+					nest_d = dd
+					nest = pr
+		if nest != null:
+			return nest
 	return best
 
 
@@ -296,13 +309,31 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 func _navigate(p, s: Dictionary, dt: float) -> void:
 	var dir_node = Game.world.director
 	var target_cell := Vector2i(-999, -999)
-	# loot first: walk over nearby items/orbs
+	# loot first: walk over nearby items it can walk straight to (an altar or a brazier in
+	# the way would pin it); give up on an item it can't reach within a few seconds
 	for n in Game.world.entities.get_children():
-		if n is Pickup and n.kind == &"item" and n.gpos.distance_to(p.gpos) < Iso.m(8.0):
+		if n is Pickup and n.kind == &"item" and n.gpos.distance_to(p.gpos) < Iso.m(8.0) \
+				and not _skip_loot.has(n.get_instance_id()) and not Game.dungeon.raycast(p.gpos, n.gpos, "walk").hit:
+			if n != _loot_target:
+				_loot_target = n
+				_loot_t = 0.0
+			_loot_t += dt
+			if _loot_t > 4.0:
+				_skip_loot[n.get_instance_id()] = true
+				continue
 			s["move"] = (n.gpos - p.gpos).normalized()
 			s["mouse"] = Iso.lift(n.gpos, 0.5)
 			return
-	while _route_i < _route.size():
+	# an active nest out of sight (behind a column): go to it, it won't stop spawning
+	var nest_c := Vector2i(-999, -999)
+	var nest_d := INF
+	for pr in Game.dungeon.props:
+		if pr.alive and pr.nest_active and pr.gpos.distance_to(p.gpos) < nest_d:
+			nest_d = pr.gpos.distance_to(p.gpos)
+			nest_c = Iso.cell_of(pr.gpos)
+	if nest_c.x != -999:
+		target_cell = nest_c
+	while target_cell.x == -999 and _route_i < _route.size():
 		var id: String = _route[_route_i]
 		if id == "exit":
 			if Game.world.portal and Game.world.portal.active:

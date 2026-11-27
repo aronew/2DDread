@@ -12,6 +12,7 @@ the architecture where it is.
 | `temple_02_guide.png` | **current** 1536×1024 frame of the temple room (`--level=temple`), tall back walls, no HUD, no player |
 | `temple_02_lines.png` | the same frame as line art, for generators that follow outlines more strictly |
 | `temple_02_guide.json` | where the frame looks: `world_to_image` maps game positions to image pixels |
+| `altar_01_guide.png` / `_lines.png` / `_guide.json` | **room 3, THE BONE ALTAR**, waiting for its SOL painting (`--look=46.1,1.8 --zoom=0.72`). Prompt below |
 | `sanctum_01_guide.png` / `_lines.png` / `_guide.json` | **room 2, THE HOODED SANCTUM** (`--look=29.6,1.8 --zoom=0.72`). Prompt below. `sanctum_01_painted_sol.webp` is the owner's SOL painting of it, in the game as `assets/rooms/sanctum_01` |
 | `temple_01_*` | the first guide (closer framing). `temple_01_painted_sol.webp` is the first SOL painting (low walls); **`temple_01_painted_sol_v2_tall.webp` is the one in the game**: tall walls, painted at this guide's framing (the floor layout didn't change when the walls grew, so this guide's camera still fits) |
 
@@ -96,6 +97,42 @@ list in place of the temple's:
 Then check alignment with `sanctum_01_lines.png` and import with
 `sanctum_01_guide.json` as `sanctum_01` (section 0 of `CLAUDE.md`), and add
 `"res://assets/rooms/sanctum_01"` to `LayoutTemple.PAINTS`.
+
+## Prompt for SOL: room 3, the Bone Altar
+
+Attach `altar_01_lines.png` (image 1), the mockup (image 2) and, if SOL takes a third
+image, `altar_01_guide.png`. Use the temple prompt above, replacing its "What things
+are" list and its light sentence with these:
+
+> What things are:
+> - The long wall at the back (top, running down to the right) is a towering temple wall,
+>   about three times a person's height: long crimson cloth banners hang between gold
+>   Greek-key bands, with bronze wall torches burning warm orange beside them. In its
+>   middle, behind the altar, is one hooded-figure relief with gold laurel branches. Dark
+>   green stone blocks rise to a heavy cornice; tall fluted stone columns stand against it.
+> - The short block at the top left is the corner of the same wall (Greek-key bands), with
+>   a column at its corner.
+> - The long narrow strip at the far left, edged in gold, is a stone bridge over the
+>   black abyss, back to the previous room (the floor in the top-left corner).
+> - The thin gold line on the floor from the bridge to the middle is a processional strip
+>   of gold Greek-key inlay.
+> - The long block in the middle is a stone sacrificial altar with a gold rim and dark
+>   carved panels. Gold sunburst plates are set in the floor at its two ends, and two
+>   bronze tripod braziers with green flames stand beside it.
+> - The two tall shapes on square bases are fluted stone columns; the two short ones are
+>   broken columns.
+> - The three low heaps are nests of old bones and gnarled roots with a faint green glow
+>   inside. The two lidded urns are sealed fire urns with glowing orange cracks.
+> - The vase pair at the bottom is red-orange Greek amphorae; the small clusters are lit
+>   candles. The round gold shape on the floor is a laurel-and-skull emblem.
+> - Keep the bare floor just right of the amphorae at the bottom plain stone: a portal
+>   glows there.
+>
+> Light: this room is lit warm orange by the torches and candles, with green only from
+> the braziers and the bone nests. Keep the floor calm and the corners dark.
+
+Then check alignment with `altar_01_lines.png` and import with `altar_01_guide.json` as
+`altar_01`, and add `"res://assets/rooms/altar_01"` to `LayoutTemple.PAINTS`.
 
 ## Importing a painting
 
