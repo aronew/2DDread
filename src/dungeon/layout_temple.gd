@@ -30,28 +30,29 @@ extends RefCounted
 ## a gold bridge (row 3) on to room 3. (The exit portal used to wait here; it moved to
 ## room 3, onto floor the painting shows as plain stone.)
 ##
-## Room 3, THE BONE ALTAR (columns 42-54): no pit; a ritual hall lit warm instead of
-## green. Its back wall carries crimson banners with burning torches (I) and friezes, with
-## a hooded mural (W) behind the altar; a short frieze return runs down its left corner,
-## above where the bridge arrives. A gold processional band (h) runs from the bridge to
-## a stone altar (=, two cells) between sunburst plates and two soul braziers; two
-## columns stand behind it and two broken columns in front, with a laurel-skull plate
-## before it. Three bone nests (e), two of them beside explosive fire urns (b), spawn
-## hounds until they're broken. Fight: witches and a flaming skull while the nests pour
-## out hounds; once the nests are down, a shielded elite Legionnaire. Clearing it drops a
+## Room 3, THE BONE ALTAR (columns 42-54): no pit; a ritual hall. Painted by the owner
+## (altar_01); its props follow the painting: the back wall is frieze (P) with small
+## doors and bronze roundels, a hooded mural (W) behind the altar and a short frieze
+## return down its left corner, above where the bridge arrives. A raised gold-edged
+## processional curb (h) runs from the bridge to a stone altar (=, two cells) with a
+## sunburst plate at its front end; two columns stand behind it and two broken columns
+## (candles painted at their feet) in front, with a sunburst plate before it. An
+## amphora (k) stands by the back wall. Three bone nests (e), two of them beside
+## explosive fire urns (b), spawn hounds until they're broken; SOL painted them as
+## low shrubs, so nests keep their own sprites (RoomPaint.dress). The painting's other
+## shrubs are painted only. Fight: witches and a flaming skull while the nests pour out
+## hounds; once the nests are down, a shielded elite Legionnaire. Clearing it drops a
 ## chest and opens the exit portal (X) at the far right, which descends to the next depth.
-## Fight: Hex Witches hold the far bank and shoot across the moat while hounds come over
-## the bridge; a Legionnaire's charge stops dead at the moat's edge.
 
 const MAP := [
-	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OIPIOPWPOIPIO",
-	"W::::::O:::::::O:::::     Pk::k:::::::    P:::n:::n:eb:",
+	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OPPPOPWPOPPPO",
+	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:",
 	"M:::::::::::::::::::::    P::O:  ::O::    P::O:::::O:::",
-	"W::::::::::::::::k::::BBBB:::::  :::::BBBB:hhhhl=l:::::",
-	"M::::::::o:::::::::p::    :::::BB:::::    :::::*=*:::::",
+	"W::::::::::::::::k::::BBBB:::::  :::::BBBB:hhhh:=l:::::",
+	"M::::::::o:::::::::p::    :::::BB:::::    ::::::=::::::",
 	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::",
-	"O::::::::::Q::::::::*:    ::::,  :::n:    bn:Q::o::Q:X:",
-	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::k:",
+	"O::::::::::Q::::::::*:    ::::,  :::n:    b::Q::o::Q:X:",
+	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::",
 	"M::::S::::::::::::::::      ::::::           ::::::::",
 	"Wn  B  B    ::::w:::::",
 	"M:  B  B    :::::::::",
@@ -70,7 +71,7 @@ const MAP := [
 ## temple_01's camera; the floor layout is the same as when that guide was taken.
 ## assets/rooms/sanctum_01: the owner's SOL painting of room 2
 ## (docs/paint_guides/sanctum_01_painted_sol.webp), painted at paint guide sanctum_01.
-const PAINTS: Array = ["res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01"]
+const PAINTS: Array = ["res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01", "res://assets/rooms/altar_01"]
 
 const ROOMS := [
 	{

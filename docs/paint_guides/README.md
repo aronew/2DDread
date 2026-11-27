@@ -131,8 +131,10 @@ are" list and its light sentence with these:
 > Light: this room is lit warm orange by the torches and candles, with green only from
 > the braziers and the bone nests. Keep the floor calm and the corners dark.
 
-Then check alignment with `altar_01_lines.png` and import with `altar_01_guide.json` as
-`altar_01`, and add `"res://assets/rooms/altar_01"` to `LayoutTemple.PAINTS`.
+Imported as `altar_01` (`altar_01_painted_sol.webp`). SOL dropped the banners, torches,
+braziers and candles (shrubs and small doors instead) and added ruin fragments on the
+abyss in the top-left corner, which were blacked out before import. The layout's props
+were changed to match; the bone nests keep their own sprites over the painted shrubs.
 
 ## Importing a painting
 

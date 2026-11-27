@@ -19,7 +19,7 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 |---|---|---|---|
 | 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`) |
 | 2 | THE HOODED SANCTUM (`sanctum`) | 26-37 | painted (`assets/rooms/sanctum_01`); its props were moved to match the painting |
-| 3 | THE BONE ALTAR (`altar`) | 42-54 | laid out, guide `altar_01` rendered, **waiting for the owner's SOL painting**. No pit: a torch-lit ritual hall (crimson banner walls `I`), a central altar, three bone nests that spawn hounds until broken, fire urns, then a shielded elite Legionnaire; drops a chest and opens the exit portal |
+| 3 | THE BONE ALTAR (`altar`) | 42-54 | painted (`assets/rooms/altar_01`); no pit: a ritual hall with a central altar, three bone nests that spawn hounds until broken, fire urns, then a shielded elite Legionnaire; drops a chest and opens the exit portal. Props follow the painting (its banners became plain frieze, braziers and candles became painted shrubs) |
 
 Each room's right edge has a gold bridge (row 3) across the abyss to the next; the last
 room holds the exit portal (`X`, and `"exit": true` in its `ROOMS` entry), which
@@ -69,7 +69,10 @@ game renders ("paint guides"). Recipe for every new room:
    SOL sometimes swaps or drops small props (the sanctum came back with amphorae for
    candles, shrubs, and no braziers). Walls and pits must match, but props can follow the
    painting: change the layout's prop letters to what was painted, because each prop
-   shows the painting through its own outline.
+   shows the painting through its own outline. Bone nests are the exception: they keep
+   their own sprite (`RoomPaint.KEEP_OWN`) so they still pulse and vanish when broken.
+   Black out any stray bits SOL paints on the abyss (the altar came back with ruin
+   fragments in a corner) before importing, or they draw over the neighbouring room.
 5. **Import** with the matching guide's camera, then list it in the layout's `PAINTS`:
    ```bash
    cp PAINTING docs/paint_guides/ROOM_painted_sol.webp

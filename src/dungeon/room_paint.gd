@@ -20,6 +20,7 @@ extends Sprite2D
 const CUTOUT := preload("res://src/vfx/shaders/paint_cutout.gdshader")
 const FLOOR_SHADER := preload("res://src/vfx/shaders/room_paint.gdshader")
 const EDGE_PX := 56.0            # the painting's outer edge fades over this many px
+const KEEP_OWN := ["eggs"]       # prop kinds drawn with their own sprites inside a painting
 
 var w2i := Transform2D.IDENTITY  # world -> painting pixel
 var size_px := Vector2.ZERO
@@ -115,7 +116,9 @@ func dress(d: Dungeon, painted: Dictionary) -> void:
 		if covers(n.position):
 			_cut(n)
 	for pr in d.props:
-		if is_instance_valid(pr) and covers(pr.position):
+		# nests keep their own sprite: they pulse and glow while they spawn and vanish when
+		# broken, a tell the fight depends on (the painting can't show either)
+		if is_instance_valid(pr) and covers(pr.position) and not KEEP_OWN.has(pr.kind):
 			_cut(pr)
 
 
