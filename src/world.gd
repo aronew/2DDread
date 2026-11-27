@@ -146,6 +146,8 @@ func build_level() -> void:
 	var args := OS.get_cmdline_user_args()
 	if layout.has("paints") and not args.has("--no-paint") and not args.has("--paint-guide"):
 		RoomPaint.apply(layout["paints"], dungeon)
+		if RoomPaint.backfill_misses > 0:
+			print("[paint] near walls with a flat backfill (nothing clean to borrow): %d of %d" % [RoomPaint.backfill_misses, RoomPaint.backfill_tries])
 	for c in dungeon.door_cells:
 		var df := DoorField.new()
 		df.setup(c, dungeon)
@@ -377,6 +379,18 @@ func _parse_args() -> void:
 		director.set_process(false)
 		camera.lookahead = 0.0
 		camera.snap()
+	if opts.has("break-props"):
+		# dev: after N seconds break every destructible prop and open every chest (to check
+		# that painted props go with them)
+		get_tree().create_timer(float(opts["break-props"])).timeout.connect(func():
+			for pr in dungeon.props.duplicate():
+				if not is_instance_valid(pr) or not pr.alive:
+					continue
+				if pr.kind == "chest":
+					pr.open_chest()
+				elif pr.destructible():
+					var d := DamageInfo.make(9999.0, DamageInfo.Type.PHYSICAL, player)
+					pr.take_damage(d))
 	if opts.has("paint-guide"):
 		# dev: a clean frame of the room for an image generator to paint over (no HUD,
 		# no player), plus where the camera was, so the painting can be laid back on

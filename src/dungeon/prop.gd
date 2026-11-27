@@ -95,6 +95,7 @@ func take_damage(info: DamageInfo) -> void:
 
 func _break(info: DamageInfo) -> void:
 	alive = false
+	RoomPaint.patch_prop(self)   # its painted copy goes with it
 	dungeon.remove_prop(self)
 	if _def.get("explode", false):
 		# short fuse so chained barrels ripple instead of popping on one frame
@@ -153,6 +154,10 @@ func _update_nest(dt: float) -> void:
 
 func open_chest() -> void:
 	_opened = true
+	if has_meta("painted"):
+		# the painting shows it closed: patch that out and show the chest's own open sprite
+		RoomPaint.patch_prop(self)
+		_body.material = null
 	_body.region_rect = _sheet.region(0, 1)
 	if _glow:
 		_glow.region_rect = _body.region_rect
