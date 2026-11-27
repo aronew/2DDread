@@ -39,7 +39,7 @@ extends RefCounted
 ## (candles painted at their feet) in front, with a sunburst plate before it. An
 ## amphora (k) stands by the back wall. Three bone nests (e), two of them beside
 ## explosive fire urns (b), spawn hounds until they're broken; SOL painted them as
-## low shrubs, so nests keep their own sprites (RoomPaint.dress). The painting's other
+## low shrubs, so nests keep their own sprites (RoomPaint.KEEP_OWN). The painting's other
 ## shrubs are painted only. Fight: witches and a flaming skull while the nests pour out
 ## hounds; once the nests are down, a shielded elite Legionnaire. Clearing it drops a
 ## chest and opens the exit portal (X) at the far right, which descends to the next depth.
@@ -59,24 +59,24 @@ extends RefCounted
 
 const MAP := [
 	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OPPPOPWPOPPPO    OPMPOPWPOWMWOPWPOMO",
-	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:    P:k:::n:::::::n::k:",
+	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:    P:::::k:::::::k::k:",
 	"M:::::::::::::::::::::    P::O:  ::O::    P::O:::::O:::    P::::::::::::::::::",
 	"W::::::::::::::::k::::BBBB:::::  :::::BBBB:hhhh:=l:::::BBBB:hhhhhhh:l:::::::::",
-	"M::::::::o:::::::::p::    :::::BB:::::    ::::::=::::::    :::o:::::::::::*:::",
+	"M::::::::o:::::::::p::    :::::BB:::::    ::::::=::::::    :::o:::::::::::::::",
 	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b",
-	"O::::::::::Q::::::::*:    ::::,  :::n:    b::Q::o::Q:::    ::b:::::*////*:::::",
-	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::",
+	"O::::::::::Q::::::::*:    ::::,  :::n:    b::Q::o::Q:::    ::b::::::////::::::",
+	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :::::::::_///::::::",
 	"M::::S::::::::::::::::      ::::::           ::::::::           _____///______",
 	"Wn  B  B    ::::w:::::                                           _____///______",
-	"M:  B  B    :::::::::                                              P:*::::*:::::",
-	"W:::::::::::::::::::k:                                             M:::::::::::n",
+	"M:  B  B    :::::::::                                              P:k::::::::::",
+	"W:::::::::::::::::::k:                                             M::::::::::::",
 	"M::Q::,::::::::::::::                                              P::::o:::::::",
 	"W:n:::::::::::w::::n                                               M::O:::::O:::",
 	" :::Q:::::,:::::::::                                               W:::::=::::::",
-	"   ::::::::::::::::                                                Ok::::=::::::",
+	"   ::::::::::::::::                                                O:::::=::::::",
 	"      ::::::::::                                                   W::O:::::O:::",
-	"                                                                   M:b:::::::k::",
-	"                                                                   P:::::X:::n::",
+	"                                                                   M:b::::::::::",
+	"                                                                   P:::::X::::::",
 	"                                                                   O::,:::::::::",
 ]
 
@@ -86,7 +86,8 @@ const MAP := [
 ## temple_01's camera; the floor layout is the same as when that guide was taken.
 ## assets/rooms/sanctum_01: the owner's SOL painting of room 2
 ## (docs/paint_guides/sanctum_01_painted_sol.webp), painted at paint guide sanctum_01.
-const PAINTS: Array = ["res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01", "res://assets/rooms/altar_01"]
+const PAINTS: Array = ["res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01", "res://assets/rooms/altar_01",
+	"res://assets/rooms/stair_01", "res://assets/rooms/undercroft_01"]
 
 const ROOMS := [
 	{

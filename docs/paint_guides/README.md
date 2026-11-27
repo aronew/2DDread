@@ -12,8 +12,8 @@ the architecture where it is.
 | `temple_02_guide.png` | **current** 1536×1024 frame of the temple room (`--level=temple`), tall back walls, no HUD, no player |
 | `temple_02_lines.png` | the same frame as line art, for generators that follow outlines more strictly |
 | `temple_02_guide.json` | where the frame looks: `world_to_image` maps game positions to image pixels |
-| `stair_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, upper half: THE GREAT STAIR** (the gallery and the stair down), waiting for its SOL painting (`--look=65.94,2.44 --zoom=0.62`). Prompt below |
-| `undercroft_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, lower half: THE UNDERCROFT** (the hall two levels down), waiting for its SOL painting (`--look=71.94,12.98 --zoom=0.66`). Prompt below |
+| `stair_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, upper half: THE GREAT STAIR** (the gallery and the stair down; `--look=65.94,2.44 --zoom=0.62`). `stair_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/stair_01` (gallery only). It leaves out the gallery's last two columns at the right (76-77) |
+| `undercroft_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, lower half: THE UNDERCROFT** (the hall two levels down; `--look=71.94,12.98 --zoom=0.66`). `undercroft_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/undercroft_01` (everything below the terrace's top edge) |
 | `altar_01_guide.png` / `_lines.png` / `_guide.json` | **room 3, THE BONE ALTAR** (`--look=46.1,1.8 --zoom=0.72`). `altar_01_painted_sol.webp` is the owner's SOL painting of it, in the game as `assets/rooms/altar_01` |
 | `sanctum_01_guide.png` / `_lines.png` / `_guide.json` | **room 2, THE HOODED SANCTUM** (`--look=29.6,1.8 --zoom=0.72`). Prompt below. `sanctum_01_painted_sol.webp` is the owner's SOL painting of it, in the game as `assets/rooms/sanctum_01` |
 | `temple_01_*` | the first guide (closer framing). `temple_01_painted_sol.webp` is the first SOL painting (low walls); **`temple_01_painted_sol_v2_tall.webp` is the one in the game**: tall walls, painted at this guide's framing (the floor layout didn't change when the walls grew, so this guide's camera still fits) |
@@ -201,11 +201,26 @@ upper painting (image 4). Same prompt, with this list:
 > Light: dim and cold, a crypt; green from the braziers and niches, warm only at the
 > candles. The hall's front and right edges break off into black abyss.
 
-Import each with its own guide's camera: `stair_01` with `stair_01_guide.json`,
-`undercroft_01` with `undercroft_01_guide.json`, and add both to `LayoutTemple.PAINTS`
-in that order (the lower one on top). Black out anything SOL paints left of the bridge
-in `stair_01` before importing: that part of the frame is room 3, which has its own
-painting.
+How they were imported: the two paintings agreed on the architecture but not on the
+props where they overlap (the upper one painted shrubs at the stair head, the lower one
+green-flame bowls), so each owns half of the room, cut along the terrace's top edge
+with `tools/rooms/clip_paint.py`, and the layout's props follow whichever painting owns
+their spot (all braziers became shrubs or urns):
+
+```bash
+EDGE="59,8 64,8 68,8 68,6 72,6 72,8 78,8"   # the gallery's front edge, around the stair
+python3 tools/rooms/clip_paint.py docs/paint_guides/stair_01_painted_sol.webp docs/paint_guides/stair_01_guide.json /tmp/stair.png \
+  "17,50 $EDGE 143,-57 243,43 117,150" "55,-100 55,100 -200,100 -200,-100"   # below the edge; room 3
+python3 tools/rooms/clip_paint.py docs/paint_guides/undercroft_01_painted_sol.webp docs/paint_guides/undercroft_01_guide.json /tmp/under.png \
+  "17,50 $EDGE 143,-57 -57,-257 -183,-150"                                     # above the edge
+python3 tools/rooms/import_room_paint.py /tmp/stair.png docs/paint_guides/stair_01_guide.json stair_01
+python3 tools/rooms/import_room_paint.py /tmp/under.png docs/paint_guides/undercroft_01_guide.json undercroft_01
+```
+
+(The lower painting's stair-head bowl also poked into the stair's top-right corner; those
+few pixels were patched with the step beside them.) Both are in `LayoutTemple.PAINTS`,
+the lower one last. A repainted `stair_01` that includes the gallery's right end
+(columns 76-77: amphorae by the back wall, a fire urn near the edge) would finish the room.
 
 ## Importing a painting
 

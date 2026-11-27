@@ -20,7 +20,7 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 | 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`) |
 | 2 | THE HOODED SANCTUM (`sanctum`) | 26-37 | painted (`assets/rooms/sanctum_01`); its props were moved to match the painting |
 | 3 | THE BONE ALTAR (`altar`) | 42-54 | painted (`assets/rooms/altar_01`); no pit: a ritual hall with a central altar, three bone nests that spawn hounds until broken, fire urns, then a shielded elite Legionnaire; drops a chest and opens the exit portal. Props follow the painting (its banners became plain frieze, braziers and candles became painted shrubs) |
-| 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | laid out, two guides (`stair_01`, `undercroft_01`) rendered, **waiting for the owner's two SOL paintings**. L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
+| 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | painted in two halves (`assets/rooms/stair_01` = the gallery, `undercroft_01` = everything below the terrace's top edge; each was masked to its half with `clip_paint.py` so they meet along that edge). SOL left out the gallery's last two columns at the right end (76-77), which still show kit tiles: repaint `stair_01` with that corner to finish it. L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
 
 Each room's right edge has a gold bridge (row 3) across the abyss to the next; the last
 room holds the exit portal (`X`, and `"exit": true` in its `ROOMS` entry), which
@@ -74,7 +74,11 @@ game renders ("paint guides"). Recipe for every new room:
    shows the painting through its own outline. Bone nests are the exception: they keep
    their own sprite (`RoomPaint.KEEP_OWN`) so they still pulse and vanish when broken.
    Black out any stray bits SOL paints on the abyss (the altar came back with ruin
-   fragments in a corner) before importing, or they draw over the neighbouring room.
+   fragments in a corner) before importing, or they draw over the neighbouring room:
+   `tools/rooms/clip_paint.py PAINTING GUIDE_JSON OUT "i,j i,j ..."` blacks out a polygon
+   given in layout cells. Where two paintings overlap (room 4), give each its own part
+   along an architectural edge the same way; walls and props then draw whichever
+   painting shows something at their base (`RoomPaint._pick`).
 5. **Import** with the matching guide's camera, then list it in the layout's `PAINTS`:
    ```bash
    cp PAINTING docs/paint_guides/ROOM_painted_sol.webp

@@ -44,11 +44,34 @@ static func apply(paths: Array, d: Dungeon) -> Array:
 		var rp := RoomPaint.new()
 		rp.setup(load(String(p) + ".png"), info)
 		d.add_child(rp)
-		rp.dress(d, painted)
+		rp.mark_floor(d, painted)
 		out.append(rp)
 	if not painted.is_empty():
 		d.set_painted_cells(painted)
+	# walls, columns and props draw the painting that shows at their base: where paintings
+	# overlap (room 4's upper and lower halves), the topmost one with something painted there
+	for c in d.block_nodes:
+		var rp := _pick(out, d.block_nodes[c].position)
+		if rp:
+			rp._cut(d.block_nodes[c])
+	for pr in d.props:
+		# nests keep their own sprite: they pulse and glow while they spawn and vanish when
+		# broken, a tell the fight depends on (the painting can't show either)
+		if is_instance_valid(pr) and not KEEP_OWN.has(pr.kind):
+			var rp := _pick(out, pr.position)
+			if rp:
+				rp._cut(pr)
 	return out
+
+
+## None if no painting shows anything there (the thing keeps its own sprite rather than
+## turning invisible against painted abyss).
+static func _pick(paints: Array, world: Vector2) -> RoomPaint:
+	for margin in [EDGE_PX, 0.0]:
+		for k in range(paints.size() - 1, -1, -1):
+			if paints[k].has_floor(world, margin):
+				return paints[k]
+	return null
 
 
 func setup(tex: Texture2D, info: Dictionary) -> void:
@@ -88,8 +111,8 @@ func covers(world: Vector2, margin := 0.0) -> bool:
 
 
 ## True where the painting shows solid floor (or anything opaque) around this point.
-func has_floor(world: Vector2) -> bool:
-	if not covers(world, EDGE_PX):
+func has_floor(world: Vector2, margin := EDGE_PX) -> bool:
+	if not covers(world, margin):
 		return false
 	if _mask.is_empty():
 		return true
@@ -99,9 +122,8 @@ func has_floor(world: Vector2) -> bool:
 	return _mask[my * _mask_w + mx] >= 12
 
 
-## Switches the walls and props it covers to the painting, and marks the floor cells it
-## paints so their tiles are dropped.
-func dress(d: Dungeon, painted: Dictionary) -> void:
+## Marks the floor cells it paints, so their tiles are dropped.
+func mark_floor(d: Dungeon, painted: Dictionary) -> void:
 	for c in d.floor_kind:
 		# the whole diamond must be painted floor, or the tile stays
 		var ok := true
@@ -111,15 +133,6 @@ func dress(d: Dungeon, painted: Dictionary) -> void:
 				break
 		if ok:
 			painted[c] = true
-	for c in d.block_nodes:
-		var n: Node2D = d.block_nodes[c]
-		if covers(n.position):
-			_cut(n)
-	for pr in d.props:
-		# nests keep their own sprite: they pulse and glow while they spawn and vanish when
-		# broken, a tell the fight depends on (the painting can't show either)
-		if is_instance_valid(pr) and covers(pr.position) and not KEEP_OWN.has(pr.kind):
-			_cut(pr)
 
 
 func _cut(n: Node) -> void:
