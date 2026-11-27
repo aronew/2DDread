@@ -1,0 +1,595 @@
+[
+  {
+    "file": "decals/crack_network.png",
+    "width": 1536,
+    "height": 1024,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      251
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 790770,
+    "sha256": "594f56ef882b9716d1aa2505cc69b7c01c4266de8eca5e2255723c53ee315b7b"
+  },
+  {
+    "file": "decals/moss_patch.png",
+    "width": 1312,
+    "height": 1199,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 803185,
+    "sha256": "b75645726a0b9184bd5faf2f7b565f292eab41ed842a13d769fc136c07063974"
+  },
+  {
+    "file": "decals/old_scorch.png",
+    "width": 1536,
+    "height": 1024,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      254
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1601113,
+    "sha256": "ad3673d2359826bd433b1c6aa6157e78b1a0cfa9c897cac4b019e54087b0a784"
+  },
+  {
+    "file": "decals/rubble_chips.png",
+    "width": 1536,
+    "height": 1024,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      254
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1143851,
+    "sha256": "a9f30d8ff3319783530112b23eb1dfafa4947870804bf734444f58abcff8ccbc"
+  },
+  {
+    "file": "emission_drafts/alcove_emission.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 393869,
+    "sha256": "30b520f39282aab702c17d720d76193e6658678db6112df755a4ebceac023f92"
+  },
+  {
+    "file": "emission_drafts/bone_nest_emission.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 355484,
+    "sha256": "bfccfc51189ceeee761b60351c18583e90e92edc6feba9d6747f06d4d6f0b462"
+  },
+  {
+    "file": "emission_drafts/brazier_emission.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 532855,
+    "sha256": "5e6e79076623374ab3f6edd8809c73d833a02131c93a7f562145b3397fa96235"
+  },
+  {
+    "file": "emission_drafts/candelabra_emission.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 286918,
+    "sha256": "09356c98e672e4bfeb664551e11b1f758c4a450fa46a00299ae238c75d6c551e"
+  },
+  {
+    "file": "emission_drafts/candles_emission.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 312409,
+    "sha256": "1f1b1b87e75fd941899a39efcf0034ce6dae1624d6536a03c74725c543075935"
+  },
+  {
+    "file": "emission_drafts/chasm_emission.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 444466,
+    "sha256": "3c85dce2ad4003c126c1b8c080c00626fccb82482af9b69c5f7fa5a08d3f56ef"
+  },
+  {
+    "file": "emission_drafts/fire_urn_emission.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 337295,
+    "sha256": "14a973946b411186aa167ddfebe7397b70395c70b357e1fd4d81600069e23e65"
+  },
+  {
+    "file": "emission_drafts/wall_torch_emission.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 289724,
+    "sha256": "8fac055dae118748ab6f02c640b45cff9e21600b80f2285d649f4015124aa821"
+  },
+  {
+    "file": "modules/altar_low.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1020583,
+    "sha256": "25506050999d87be8a5fe56e2af080d5c40590787f0c0f8f20fcc79cfd0cc45b"
+  },
+  {
+    "file": "modules/bridge_gold_walkway.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1172512,
+    "sha256": "df1d5018dba5d22fc6800bdb4ef827d76e4af9a78f0d81009639e3705bed4418"
+  },
+  {
+    "file": "modules/chasm_edge.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 983875,
+    "sha256": "9ce36613e93eeb4d1b5077f607aa382aeea323567e718275cfb0dabbca20506e"
+  },
+  {
+    "file": "modules/door_arch.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 904956,
+    "sha256": "eec42a874be95184c7c926e90f31686178c1e4a3610110d98cda04e446230df9"
+  },
+  {
+    "file": "modules/pit_balustrade.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 742668,
+    "sha256": "8635e26281e91576bf85a083df6b70408c958b8b29af3cf6a56d92e015a15db7"
+  },
+  {
+    "file": "modules/wall_banner_torch.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1069829,
+    "sha256": "a7b1fd786252248429b9c4fbfb9c8ef2fd137da340fa49ba6e0987dabcf6a61c"
+  },
+  {
+    "file": "modules/wall_cracked_secret.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1053257,
+    "sha256": "758210aacce2862ab7dfad6d21d2bb24430e3234d4e9e3f1ee5aca3f6dc50f51"
+  },
+  {
+    "file": "modules/wall_frieze_column.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 954058,
+    "sha256": "804fd5210b81dc7548477b3823517b74f73fff7cce922598eb0f1bcad128c07e"
+  },
+  {
+    "file": "modules/wall_frieze_plain.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 941031,
+    "sha256": "7b4cbe1ee3eeb6c86dbaf05ded9451f55db152a86c34e0bb795fef025007aa3b"
+  },
+  {
+    "file": "modules/wall_hooded_relief.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1035929,
+    "sha256": "9a643c9f30e236a841943e427c767aa510beca9344fab2d89eb3165e4fa6390f"
+  },
+  {
+    "file": "modules/wall_rock.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 688861,
+    "sha256": "6782e4f4986cb8af1a7ead4b3454025a8ccb0d6ef1cb0fe735417f8537c68d17"
+  },
+  {
+    "file": "modules/wall_soul_alcove.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 799344,
+    "sha256": "c09006b018c01f06a6a74a7e1a53206cc5a87b5daeab752c80c6c4c2d483e8d4"
+  },
+  {
+    "file": "sprites/amphorae_pair.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 685751,
+    "sha256": "594d383f909495810d6febbe89e08e9465454f1601fc53d65759069b777fac0a"
+  },
+  {
+    "file": "sprites/bone_nest_active.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 712254,
+    "sha256": "cbf9febffd28c55499db7beb5f68cd409bce31a1a2ad3c9f6ad6da43329f5ddf"
+  },
+  {
+    "file": "sprites/bone_nest_empty.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 678190,
+    "sha256": "9f177d2102ca39a3abbecf922d1fce0f9a0f68403ef5827b2e00fe7f4dae486b"
+  },
+  {
+    "file": "sprites/broken_statue.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 697797,
+    "sha256": "8d5f8694fe74b000f1aeb2fc4277daa9199c01f24f540db805a6f426b97c362f"
+  },
+  {
+    "file": "sprites/candelabra.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 432636,
+    "sha256": "680f806cc0cbdb88e38e800fb4692a1a71d86d7af696145436dd39931b4f7507"
+  },
+  {
+    "file": "sprites/candle_cluster.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 789863,
+    "sha256": "000fc1e3bb5bfe9f8d834d240e42f1773114591004c65db1e2a141f84b16aa9d"
+  },
+  {
+    "file": "sprites/chest_closed.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 677632,
+    "sha256": "b8b9628d42b243861a3feef017e1553b8dd9e21bce26a30293dccea69004d32b"
+  },
+  {
+    "file": "sprites/chest_open.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 875427,
+    "sha256": "ca5129d4c0787d27056fbf3fc2e08cae9695bef3b1fc10150804464361db1ff5"
+  },
+  {
+    "file": "sprites/column_broken.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 543655,
+    "sha256": "c4b01dfee1bf9b9d799fb37bffd2d5ac02ed812ab1284803ec870bc08ccc0237"
+  },
+  {
+    "file": "sprites/column_intact.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 502415,
+    "sha256": "d47f01ea40d67a53865035f57cc097ec3598b0954378e09cb230ad4bd43bd458"
+  },
+  {
+    "file": "sprites/fire_urn.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 558054,
+    "sha256": "cb978fed90b6fe3269157e0e29c76eb5694961dc64cc901d6f786fce5ef0f2d7"
+  },
+  {
+    "file": "sprites/rubble_heap.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 863437,
+    "sha256": "daa44dfb5aa6d3e94edeb00f6d2f8b58ef746cde2898c9e9eff295f3186ace55"
+  },
+  {
+    "file": "sprites/soul_brazier.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 613929,
+    "sha256": "8a8fcd217c50b639949044841724ba7d1a1b1cf18ce9f3fb6d68573cb784f4a2"
+  },
+  {
+    "file": "textures/column_wrap.png",
+    "width": 1774,
+    "height": 887,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1573095,
+    "sha256": "fee18d8ad419e0c106e311df0d8cd616f70f01a70411fc56446ee2378235cefe"
+  },
+  {
+    "file": "textures/emblem_laurel_skull.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1638466,
+    "sha256": "4f7d7963d31ca4854d1f69104a69bb366b833f55c7c814dfe793387c351f8439"
+  },
+  {
+    "file": "textures/emblem_sunburst.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1450771,
+    "sha256": "bf9e4afaeee4736fbc7830c0e87763bfa0ae211f800d664e8666d2e3dc3d063d"
+  },
+  {
+    "file": "textures/floor_damaged.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1696184,
+    "sha256": "76f4bfc80c43e0326a71731830dee2603053f4e98dd101d7af1774459e73542a"
+  },
+  {
+    "file": "textures/floor_moss_bones.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1794528,
+    "sha256": "6198ec43877a78b5ce0e778e908f4b9e4cf75b6c73f49b6cf2bc906dea53fc2e"
+  },
+  {
+    "file": "textures/floor_worn.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1800989,
+    "sha256": "9b28b6a2743f503fbfaf9964fba1d6aa115b75cca23b4ed3e79935fde41d0db4"
+  },
+  {
+    "file": "textures/gold_meander_strip.png",
+    "width": 2172,
+    "height": 724,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1137521,
+    "sha256": "bb1db2e6fcd9fa4de1672e5c9e9a113347f549a43fb485d32211009854f443d9"
+  },
+  {
+    "file": "textures/soul_fire_strip.png",
+    "width": 1774,
+    "height": 887,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1007943,
+    "sha256": "846ea21ed343d0c753333cd982933f3fe40c0d5cbd3337ce4a2cbcec717e52bb"
+  },
+  {
+    "file": "textures/wall_ashlar_frieze.png",
+    "width": 1024,
+    "height": 1536,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bright_red_pixels": 0,
+    "pink_pixels": 0,
+    "bytes": 1712452,
+    "sha256": "5678bf8f9a403312e11370fb7dea3fd7f37d23db4a1d40ad8bac2996ade119ec"
+  }
+]

@@ -1,0 +1,707 @@
+[
+  {
+    "name": "floor_worn",
+    "initial": {
+      "name": "floor_worn",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-21e1fdff-b299-4d66-b103-531ed6df1ccf.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. Square 2048x2048 or largest square available, seamless BOTH axes.2x2m floor surface matching reference floor paving. Irregular hand-cut cobbles and flagstones20–45cm across,5–8 per row, loose stagger, occasional larger slab. Warm olive-grey #5F5841/#484539 and one third green-black #2B3F32, narrow uneven1–2cm #181E1A grout. Worn rounded chipped corners, few hairline cracks. LOW CONTRAST, calm small value range. No symbols or moss."
+    },
+    "selected": {
+      "name": "floor_worn",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-21e1fdff-b299-4d66-b103-531ed6df1ccf.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. Square 2048x2048 or largest square available, seamless BOTH axes.2x2m floor surface matching reference floor paving. Irregular hand-cut cobbles and flagstones20–45cm across,5–8 per row, loose stagger, occasional larger slab. Warm olive-grey #5F5841/#484539 and one third green-black #2B3F32, narrow uneven1–2cm #181E1A grout. Worn rounded chipped corners, few hairline cracks. LOW CONTRAST, calm small value range. No symbols or moss."
+    }
+  },
+  {
+    "name": "floor_damaged",
+    "initial": {
+      "name": "floor_damaged",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-f47be8a8-66f2-433d-95f3-10952346aac1.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. Square 2048x2048 or largest square, seamless BOTH axes. Same2x2m reference floor paving:20–45cm stones,5–8 per row, #5F5841/#484539 and one third #2B3F32, narrow #181E1A grout.3–5 stones split by tapered branching #0B0A0C cracks,1–2 missing leaving flat dark packed-earth #181E1A patches and few loose chips. Low contrast, no depicted pit depth or glow."
+    },
+    "selected": {
+      "name": "floor_damaged",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-8da2ae5a-2819-4b6d-be42-af57839c8fad.png",
+      "prompt": "Use this EXACT flat paving texture as the base. Create damaged variant, same visual scale, stone pattern, palette and brushwork. Split3–5 stones by fine branching tapered dark #0B0A0C cracks; remove1–2 stones replacing with FLAT packed dark #181E1A earth and tiny chips. NO OTHER ELEMENTS: no gold, trim, borders, columns, arches, symbols, fire, glow or architecture. Fill square edge to edge with only subdued paving. Seamless both axes. Flat albedo, no directional light/bevel/shadows/AO. Low contrast."
+    }
+  },
+  {
+    "name": "floor_moss_bones",
+    "initial": {
+      "name": "floor_moss_bones",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-d2de82bb-ba98-4acc-9790-09d98a52b93f.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. Square 2048x2048 or largest square, seamless BOTH axes. Same2x2m reference paving20–45cm stones,5–8 per row, #5F5841/#484539/#2B3F32 and #181E1A grout. Dull moss #596E45/#33563D creeps irregularly over just2–3 edges. At most3 old hand-sized bone fragments dull #B8AE92 half buried. Low contrast non-glowing."
+    },
+    "selected": {
+      "name": "floor_moss_bones",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-7648066b-edf4-4397-9fe6-7a15546fb400.png",
+      "prompt": "Use this EXACT flat paving texture as base. Same low-contrast scale and brushwork. Add dull sparse moss #596E45/#33563D along grout and over only2–3 edges, and just2 tiny dull #B8AE92 old bone fragments half buried. No gold borders, symbols, arches, columns, flames, glow or other architecture. Only continuous paving edge to edge, seamless both axes, flat albedo no lighting, bevel shadows or depth."
+    }
+  },
+  {
+    "name": "gold_meander_strip",
+    "initial": {
+      "name": "gold_meander_strip",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-36365589-2e0c-40f4-b97e-4c2f4a3d4bc2.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. 4:1 wide texture2048x512 or closest available, seamless LEFT-RIGHT only. Exactly reference's broad right-angle gold Greek-key floor inlay: one continuous square meander #C08C3A on #252A27 stone, fine gold rules above/below, flat worn pigment #E8B85A/#6E4A1C, few chips/scratches. Match meander phase at ends. No shine."
+    },
+    "selected": {
+      "name": "gold_meander_strip",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-2ca5a776-2b42-4bf2-9737-33fc5c456f7c.png",
+      "prompt": "Extract ONLY the gold Greek-key inlay band from this image and make it fill almost the entire wide rectangle: continuous worn #C08C3A square meander on flat #252A27 dark stone, thin gold lines above/below. DELETE all wall blocks, arched alcoves, flames and scenery completely. No fire or green glow anywhere. Straight-on perfectly flat painted ALBEDO, no shadows/bevel shine. Horizontal seamless strip, ends join at same meander phase.4:1 if available, otherwise widest format."
+    }
+  },
+  {
+    "name": "emblem_laurel_skull",
+    "initial": {
+      "name": "emblem_laurel_skull",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-ee996fd7-d62d-40c4-8599-83e430c014a1.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. Square2048x2048 non-tiling floor texture. Reproduce reference's floor laurel-and-skull medallion: simplified skull in broad worn gold laurel-leaf wreath,70percent width, square #252A27 stone field fills frame. #C08C3A/#E8B85A/#6E4A1C gold, subdued dust in one corner. No thin plain ring or glow, low-contrast inlay."
+    },
+    "selected": {
+      "name": "emblem_laurel_skull",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-97650e88-1074-4f6d-a7ce-c7b2de8fe9cf.png",
+      "prompt": "Keep ONLY the single central gold laurel-and-skull emblem from this texture, centered at70% frame width. Replace ALL surrounding ashlar and top/bottom gold friezes with a plain uniform dark #252A27 stone square filling entire canvas, subdued brush grain. No border frame, outer Greek-key strips, flames, glow or extra symbols. Perfectly flat top-down albedo; keep same angular worn gold pigment and dark carved lines. No directional light or bevel shadows."
+    }
+  },
+  {
+    "name": "emblem_sunburst",
+    "initial": {
+      "name": "emblem_sunburst",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-672281ab-a940-40fe-b8ac-1f733101dcb4.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. Square2048x2048 non-tiling floor texture. Match reference's small gold sunburst medallions at bridge ends: broad angular worn gold rays and central dark olive disk,70percent of square, background #252A27 stone fills frame. #C08C3A/#E8B85A/#6E4A1C pigment. No thin targeting circle, no glow, calm."
+    },
+    "selected": {
+      "name": "emblem_sunburst",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-2ff9e4eb-74e4-4032-8613-4550852ef7f3.png",
+      "prompt": "Isolate ONE of the gold sunburst floor emblems, centered and enlarged to70% width of a square canvas. Delete EVERY other feature: no second sunburst, no bridging meander, no flame, trench, arches, blocks, border or scene. Background plain uniform #252A27 stone filling entire square. Broad angular #C08C3A/#E8B85A/#6E4A1C worn gold rays around muted olive disk, NO thin plain ring or glow. Top-down flat albedo no directional lighting or dimensional depth."
+    }
+  },
+  {
+    "name": "wall_ashlar_frieze",
+    "initial": {
+      "name": "wall_ashlar_frieze",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-d3be3e79-bf23-43f2-ad25-27374635b851.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. Portrait2:3 texture1365x2048 or closest, seamless LEFT-RIGHT only. Flat2m wide3m tall wall face matching reference: large60–100cm dressed #2B3F32/#252A27 ashlar, crisp #181E1A joints, gold Greek-key frieze25cm tall near top with thin gold rules, darker30cm plinth course below. Painted chips and fine damp streaks, no dimensional moulding shadows."
+    },
+    "selected": {
+      "name": "wall_ashlar_frieze",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-d3be3e79-bf23-43f2-ad25-27374635b851.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. Portrait2:3 texture1365x2048 or closest, seamless LEFT-RIGHT only. Flat2m wide3m tall wall face matching reference: large60–100cm dressed #2B3F32/#252A27 ashlar, crisp #181E1A joints, gold Greek-key frieze25cm tall near top with thin gold rules, darker30cm plinth course below. Painted chips and fine damp streaks, no dimensional moulding shadows."
+    }
+  },
+  {
+    "name": "column_wrap",
+    "initial": {
+      "name": "column_wrap",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-f1590d3f-aa00-4e66-a8ac-52a2aacc332c.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. 2:1 wide2048x1024 flat UNWRAPPED column texture, not object image, seamless LEFT-RIGHT only.16 evenly spaced vertical darker #2B3F32 fluting stripes on pale weathered stone #6B6A58. Bottom15percent gold #C08C3A band with simple reference laurel leaves, grime low down and fine painted chips. No lighting or shading that models column volume."
+    },
+    "selected": {
+      "name": "column_wrap",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-f1590d3f-aa00-4e66-a8ac-52a2aacc332c.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. 2:1 wide2048x1024 flat UNWRAPPED column texture, not object image, seamless LEFT-RIGHT only.16 evenly spaced vertical darker #2B3F32 fluting stripes on pale weathered stone #6B6A58. Bottom15percent gold #C08C3A band with simple reference laurel leaves, grime low down and fine painted chips. No lighting or shading that models column volume."
+    }
+  },
+  {
+    "name": "soul_fire_strip",
+    "initial": {
+      "name": "soul_fire_strip",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-d5a977bf-1139-4bb6-bcdf-86875c0eca0c.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. 2:1 wide2048x1024, seamless LEFT-RIGHT only. EMISSIVE exception. Isolate the reference's stylized green chasm soul-fire as a flat emissive strip on pure opaque black #000000. Connected tall pointed hand-inked flame tongues rise from full bottom edge, thin out by two-thirds height, upper third pure black. #E8FFE0 base cores,#6AF59A body,#1FAE5C edges. No smoke, glow halo, dots, detached sparks or embers."
+    },
+    "selected": {
+      "name": "soul_fire_strip",
+      "category": "textures",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-d5a977bf-1139-4bb6-bcdf-86875c0eca0c.png",
+      "prompt": "DREAD Soul-Fire Temple production environmental asset. Use the attached image as the direct art-direction reference: match its restrained angular hand-painted brushwork, assertive dark ink, broad chipped stone shapes, subdued olive and green-black masonry and worn gold Greek-key details. Do not invent extra ornate baroque ornament or glossy rendering. Only extract the ENVIRONMENT art language: never reproduce characters, enemies, weapons, projectiles, UI or text. Palette: stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; void #07180F #040503; moss #596E45 #33563D; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 with #141012 black figures; ink #0B0A0C. No bright red, pink, magenta, floating glowing dots, sparkles, pickup-like objects or ground warning shapes. Green emission ONLY on actual soul-fire sources #E8FFE0 core #6AF59A body #1FAE5C edge. OUTPUT: PAINTED TEXTURE MAP FOR BLENDER, not an isometric sprite. Camera normal to the surface, perfectly flat rectangle edge to edge, no perspective, depth, bevel, rim light, specular shine, directional illumination, cast shadows or ambient occlusion. Albedo only unless explicitly emissive. Hand-painted soft brush texture inside color regions, no photo texture or noise. Draw seams/cracks as thin painted dark lines. No frame, UI, typography, labels or watermark. 2:1 wide2048x1024, seamless LEFT-RIGHT only. EMISSIVE exception. Isolate the reference's stylized green chasm soul-fire as a flat emissive strip on pure opaque black #000000. Connected tall pointed hand-inked flame tongues rise from full bottom edge, thin out by two-thirds height, upper third pure black. #E8FFE0 base cores,#6AF59A body,#1FAE5C edges. No smoke, glow halo, dots, detached sparks or embers."
+    }
+  },
+  {
+    "name": "amphorae_pair",
+    "initial": {
+      "name": "amphorae_pair",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-9a6ba46d-acb7-4dd3-b668-6dd4f8f07afb.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. Match the amphora pairs visible beside the columns in the reference. Two simple round Greek terracotta amphorae,1.0m and0.75m tall, together1x1m footprint, small handles, dark interiors, black Greek-key shoulder band and black laurel belly band. One chipped lip, dusty bases, shorter pot leaning very slightly. No gold lion faces or extra jewelry."
+    },
+    "selected": {
+      "name": "amphorae_pair",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-9a6ba46d-acb7-4dd3-b668-6dd4f8f07afb.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. Match the amphora pairs visible beside the columns in the reference. Two simple round Greek terracotta amphorae,1.0m and0.75m tall, together1x1m footprint, small handles, dark interiors, black Greek-key shoulder band and black laurel belly band. One chipped lip, dusty bases, shorter pot leaning very slightly. No gold lion faces or extra jewelry."
+    }
+  },
+  {
+    "name": "candle_cluster",
+    "initial": {
+      "name": "candle_cluster",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-722c60e4-e51b-4b62-aece-f9c77be898be.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. Match the reference's chunky creamy melting candles. Exactly8 candles, varied0.1–0.6m tall, on a small broken #2B3F32 stone block0.6x0.5x0.3m with simple worn gold meander front strip. #E8E0C4 wax and long drips, small #FFB45A teardrop flames with pale-yellow cores. No halo or scattered wax dots."
+    },
+    "selected": {
+      "name": "candle_cluster",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-722c60e4-e51b-4b62-aece-f9c77be898be.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. Match the reference's chunky creamy melting candles. Exactly8 candles, varied0.1–0.6m tall, on a small broken #2B3F32 stone block0.6x0.5x0.3m with simple worn gold meander front strip. #E8E0C4 wax and long drips, small #FFB45A teardrop flames with pale-yellow cores. No halo or scattered wax dots."
+    }
+  },
+  {
+    "name": "column_intact",
+    "initial": {
+      "name": "column_intact",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-5f1236c4-e025-42da-9c69-b0d7fd0a0271.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. Match the large intact fluted columns in the reference, including green-black shaft, chipped vertical olive-lit flutes, square laurel-carved dark base and restrained gold collar bands.3.2m tall,0.7m shaft diameter,1x1m plinth0.45m tall, simple square capital. One complete column with nothing attached beside it."
+    },
+    "selected": {
+      "name": "column_intact",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-5f1236c4-e025-42da-9c69-b0d7fd0a0271.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. Match the large intact fluted columns in the reference, including green-black shaft, chipped vertical olive-lit flutes, square laurel-carved dark base and restrained gold collar bands.3.2m tall,0.7m shaft diameter,1x1m plinth0.45m tall, simple square capital. One complete column with nothing attached beside it."
+    }
+  },
+  {
+    "name": "column_broken",
+    "initial": {
+      "name": "column_broken",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-cbf4da62-dbef-4a74-bf67-5856417c6f3d.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. Match the reference's broken foreground fluted column: olive and green-black fluted shaft, dark square plinth0.9x0.9x0.35m, simple worn gold collar at base, jagged snapped top at1.8m above plinth.0.6m shaft width. Two small fallen shaft pieces tucked beside base. Use pale weathered #6B6A58 only sparingly; column should read green-black like reference, not white marble."
+    },
+    "selected": {
+      "name": "column_broken",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-cbf4da62-dbef-4a74-bf67-5856417c6f3d.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. Match the reference's broken foreground fluted column: olive and green-black fluted shaft, dark square plinth0.9x0.9x0.35m, simple worn gold collar at base, jagged snapped top at1.8m above plinth.0.6m shaft width. Two small fallen shaft pieces tucked beside base. Use pale weathered #6B6A58 only sparingly; column should read green-black like reference, not white marble."
+    }
+  },
+  {
+    "name": "soul_brazier",
+    "initial": {
+      "name": "soul_brazier",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-1af576b8-b02c-474f-9708-3be4712ec74f.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. A simple shallow bronze #5C3F1E bowl with worn gold Greek-key rim on3 lion-paw legs,1.1m overall including0.6m green flames. Match reference green soul-fire pointed shapes and simple dark metals, no added elaborate ornament. Flame cores #E8FFE0 body #6AF59A edge #1FAE5C. No halo, bloom, sparks or floating particles."
+    },
+    "selected": {
+      "name": "soul_brazier",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-1af576b8-b02c-474f-9708-3be4712ec74f.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. A simple shallow bronze #5C3F1E bowl with worn gold Greek-key rim on3 lion-paw legs,1.1m overall including0.6m green flames. Match reference green soul-fire pointed shapes and simple dark metals, no added elaborate ornament. Flame cores #E8FFE0 body #6AF59A edge #1FAE5C. No halo, bloom, sparks or floating particles."
+    }
+  },
+  {
+    "name": "fire_urn",
+    "initial": {
+      "name": "fire_urn",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-fdd51284-908a-4c8c-b481-4252ac729c7e.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. Squat1.1m high explosive ceramic urn, dark glaze #2A1414/#141012 and restrained black-figure bands matching the reference pottery style. Cracked sealed lid,3–4 thin molten orange #FF8A1F/#FFD36A cracks, one small orange flame under lid. No red, pink, fancy lion handles, jewelry or external glow."
+    },
+    "selected": {
+      "name": "fire_urn",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-b1c3f381-2832-4bcf-ba40-03bad8958787.png",
+      "prompt": "Color correction ONLY: replace ALL bright red, reddish-orange and saturated scarlet pixels in this image's flame and glowing cracks with WARM AMBER #FFB45A and pale GOLD #FFD36A. No red component-only hot pixels: any bright warm pixel must have plenty of green, amber/yellow rather than red. Preserve exact shapes, framing, size, pixel locations, background and every other detail. Do not change geometry or add anything. Keep transparent PNG alpha."
+    }
+  },
+  {
+    "name": "chest_closed",
+    "initial": {
+      "name": "chest_closed",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-10831808-dfb3-4a40-abe2-28b87dfa9466.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. A CLOSED treasure chest1.2x0.7x0.7m in the reference's angular inked dark temple style. Dark #3A2414 wood, bronze bands, worn gold corner caps and simple laurel medallion lock, two short green-black stone feet. No skull crown, glow or coins outside. Leave ample empty alpha space above lid for matching open state later."
+    },
+    "selected": {
+      "name": "chest_closed",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-10831808-dfb3-4a40-abe2-28b87dfa9466.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. A CLOSED treasure chest1.2x0.7x0.7m in the reference's angular inked dark temple style. Dark #3A2414 wood, bronze bands, worn gold corner caps and simple laurel medallion lock, two short green-black stone feet. No skull crown, glow or coins outside. Leave ample empty alpha space above lid for matching open state later."
+    }
+  },
+  {
+    "name": "rubble_heap",
+    "initial": {
+      "name": "rubble_heap",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-87e5dafe-5ba2-496a-9db3-9cbcf6a76702.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. A low heap of green-black #2B3F32/#252A27 ashlar blocks and broken fluted column drums, with ONE fragment of reference gold meander frieze.2x2m footprint forming4:3 diamond, at most0.9m high. Small subdued chips at edges, no lion faces or extra ornaments. No ground plane, diamond frame or ground shadow."
+    },
+    "selected": {
+      "name": "rubble_heap",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-e95c138c-0d0d-4c4d-9ec4-7286c367947e.png",
+      "prompt": "Remove the green flame ENTIRELY from this rubble prop and replace its area with ordinary non-glowing broken green-black masonry. Remove bright green rim spill near it. Keep remaining heap, palette, ink style, canvas, camera and placement unchanged. Rubble must be fully non-emissive. Keep transparent alpha, no ground plane or cast shadow."
+    }
+  },
+  {
+    "name": "candelabra",
+    "initial": {
+      "name": "candelabra",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-7a3cf42c-c339-4da3-9be6-a82aaf8aaaea.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. One plain bronze standing temple candelabrum1.3m tall on a compact0.6m tripod foot,3 thick melting #E8E0C4 wax candles with #FFB45A small teardrop flames, restrained gold collar. Match reference's simple thick silhouette and wax drips. No halo or particles."
+    },
+    "selected": {
+      "name": "candelabra",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-7a3cf42c-c339-4da3-9be6-a82aaf8aaaea.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. One plain bronze standing temple candelabrum1.3m tall on a compact0.6m tripod foot,3 thick melting #E8E0C4 wax candles with #FFB45A small teardrop flames, restrained gold collar. Match reference's simple thick silhouette and wax drips. No halo or particles."
+    }
+  },
+  {
+    "name": "broken_statue",
+    "initial": {
+      "name": "broken_statue",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-c872e398-f9da-4159-a7dd-f3ab2f88c7ba.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. One low broken temple statue prop1.5m tall on0.9x0.9m dark plinth: a hooded stone bust, face concealed in carved darkness, matching the hooded relief in reference. One broken shoulder, simple angular folds, gold laurel relief on plinth. This is a stone architectural sculpture, not a living character; no eyes, glowing body, weapons, aura or scenery."
+    },
+    "selected": {
+      "name": "broken_statue",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-c872e398-f9da-4159-a7dd-f3ab2f88c7ba.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. One low broken temple statue prop1.5m tall on0.9x0.9m dark plinth: a hooded stone bust, face concealed in carved darkness, matching the hooded relief in reference. One broken shoulder, simple angular folds, gold laurel relief on plinth. This is a stone architectural sculpture, not a living character; no eyes, glowing body, weapons, aura or scenery."
+    }
+  },
+  {
+    "name": "bone_nest_empty",
+    "initial": {
+      "name": "bone_nest_empty",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-6ef1ee58-1060-42da-a946-778d0d1294a3.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. One EMPTY underworld bone nest environmental prop,1.3x1.1m footprint and0.45m high. Low irregular tangle of dull old #B8AE92 bone fragments, dark stone and dead roots around a dark shallow hollow; no creature, eggs, skull faces with eyes, glow, rings, dots or sparks. Match reference's inked olive/green-black environmental style. Keep muted for floor readability."
+    },
+    "selected": {
+      "name": "bone_nest_empty",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-6ef1ee58-1060-42da-a946-778d0d1294a3.png",
+      "prompt": "DREAD Soul-Fire Temple ISOMETRIC GAME SPRITE. Attached image is the DIRECT visual reference; reproduce its environmental material treatment, shapes, palette, angular brushwork, bold ink contours and restrained flat cel shading as closely as possible. One isolated environmental prop only, or one cohesive cluster as specified; centered on fully TRANSPARENT PNG alpha, generous empty margin, nothing cropped. NO floor plane or scene, cast shadows, glow haze, UI, text, labels, numbers, watermarks, characters, enemies, projectiles or sparkles. No bright red/pink/magenta. Orthographic yaw45 pitch48.6deg down: ground square is4:3 diamond, edges36.9deg from horizontal, vertical edges vertical, parallel edges parallel. Thick #0B0A0C outer ink, thinner internal lines, three crisp cel bands with upper-left key, faint cool green-teal rear rim, painterly brush texture inside bands, no airbrush gradients or glossy3D look. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A; gold #C08C3A #E8B85A #6E4A1C; terracotta #9A4A22 #141012 black bands; green flames only #E8FFE0 #6AF59A #1FAE5C. Specific additional requested colors allowed below. High-resolution master; later game-scale target90.51px/m ground59.87px/m vertical. Emphasize simple chunky reference shapes readable at small sizes; do not add arbitrary ornaments. One EMPTY underworld bone nest environmental prop,1.3x1.1m footprint and0.45m high. Low irregular tangle of dull old #B8AE92 bone fragments, dark stone and dead roots around a dark shallow hollow; no creature, eggs, skull faces with eyes, glow, rings, dots or sparks. Match reference's inked olive/green-black environmental style. Keep muted for floor readability."
+    }
+  },
+  {
+    "name": "wall_frieze_column",
+    "initial": {
+      "name": "wall_frieze_column",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-7ecdf4c2-0427-40ba-8aa7-9fa6ae3e15c6.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-tall wall module. Match reference back wall ashlar face, projecting shallow fluted pilaster at one end, broad gold Greek-key upper frieze and dark plinth, olive-lit edges. No free floor outside wall base."
+    },
+    "selected": {
+      "name": "wall_frieze_column",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-7ecdf4c2-0427-40ba-8aa7-9fa6ae3e15c6.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-tall wall module. Match reference back wall ashlar face, projecting shallow fluted pilaster at one end, broad gold Greek-key upper frieze and dark plinth, olive-lit edges. No free floor outside wall base."
+    }
+  },
+  {
+    "name": "wall_hooded_relief",
+    "initial": {
+      "name": "wall_hooded_relief",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-6d8a818c-b8ca-4e20-82ee-749fffc0253d.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-tall wall module. Reproduce reference's large hooded faceless stone figure architectural bas-relief centered between two gold laurel branches on green-black stone, gold Greek-key strip above and below. Face is carved shadow, no glowing eyes. No flames."
+    },
+    "selected": {
+      "name": "wall_hooded_relief",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-6d8a818c-b8ca-4e20-82ee-749fffc0253d.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-tall wall module. Reproduce reference's large hooded faceless stone figure architectural bas-relief centered between two gold laurel branches on green-black stone, gold Greek-key strip above and below. Face is carved shadow, no glowing eyes. No flames."
+    }
+  },
+  {
+    "name": "wall_soul_alcove",
+    "initial": {
+      "name": "wall_soul_alcove",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-9366a403-343c-40ee-b303-e53a0b71f7a5.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-tall wall module. One tall arched alcove in green-black ashlar with simple gold Greek-key frieze, bright pointed green soul-fire tongues contained inside dark recess. No glow halo outside object, detached embers or living figures."
+    },
+    "selected": {
+      "name": "wall_soul_alcove",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-9366a403-343c-40ee-b303-e53a0b71f7a5.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-tall wall module. One tall arched alcove in green-black ashlar with simple gold Greek-key frieze, bright pointed green soul-fire tongues contained inside dark recess. No glow halo outside object, detached embers or living figures."
+    }
+  },
+  {
+    "name": "wall_banner_torch",
+    "initial": {
+      "name": "wall_banner_torch",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-374e2b9f-a6eb-4acc-89cb-618b7a5b5f78.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-tall wall module. Green-black ashlar gold frieze, one dark crimson #8E1A1E hanging banner with muted gold laurel ornament, one small bronze wall torch with simple warm #FFB45A flame. Keep crimson dark, no red glow or letters."
+    },
+    "selected": {
+      "name": "wall_banner_torch",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-374e2b9f-a6eb-4acc-89cb-618b7a5b5f78.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-tall wall module. Green-black ashlar gold frieze, one dark crimson #8E1A1E hanging banner with muted gold laurel ornament, one small bronze wall torch with simple warm #FFB45A flame. Keep crimson dark, no red glow or letters."
+    }
+  },
+  {
+    "name": "wall_rock",
+    "initial": {
+      "name": "wall_rock",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-b9fded84-49ed-4dfc-a179-552a18ddc28d.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.7m-deep3m-high rough green-black natural rock wall chunk, sparse broad faceted angular splits and faint dull moss. Reference-style strong silhouette ink, flat dark planes, no gold trim, crystals, lava, glowing dots or scenery."
+    },
+    "selected": {
+      "name": "wall_rock",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-b9fded84-49ed-4dfc-a179-552a18ddc28d.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.7m-deep3m-high rough green-black natural rock wall chunk, sparse broad faceted angular splits and faint dull moss. Reference-style strong silhouette ink, flat dark planes, no gold trim, crystals, lava, glowing dots or scenery."
+    }
+  },
+  {
+    "name": "wall_cracked_secret",
+    "initial": {
+      "name": "wall_cracked_secret",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-3a406d39-3760-4aa6-8f71-4c9afeca39a2.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-high green-black ashlar wall module, same Greek-key frieze as regular wall. One large block fractured by clear dark branching cracks and small missing corner, plausible breakable secret wall. No target symbol, light leaks or glow."
+    },
+    "selected": {
+      "name": "wall_cracked_secret",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-3a406d39-3760-4aa6-8f71-4c9afeca39a2.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.45m-deep3m-high green-black ashlar wall module, same Greek-key frieze as regular wall. One large block fractured by clear dark branching cracks and small missing corner, plausible breakable secret wall. No target symbol, light leaks or glow."
+    }
+  },
+  {
+    "name": "door_arch",
+    "initial": {
+      "name": "door_arch",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-6e6b73ae-f821-4d3e-b551-38a153d143da.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One freestanding EMPTY temple doorway frame,2m-clear opening width and2.6m opening height, total width2.8m total height3.2m depth0.5m. Chunky ashlar jambs with gold meander lintel and subtle laurel caps. Interior opening fully transparent, no door leaf, portal glow, floor, people or scene."
+    },
+    "selected": {
+      "name": "door_arch",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-6e6b73ae-f821-4d3e-b551-38a153d143da.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One freestanding EMPTY temple doorway frame,2m-clear opening width and2.6m opening height, total width2.8m total height3.2m depth0.5m. Chunky ashlar jambs with gold meander lintel and subtle laurel caps. Interior opening fully transparent, no door leaf, portal glow, floor, people or scene."
+    }
+  },
+  {
+    "name": "bridge_gold_walkway",
+    "initial": {
+      "name": "bridge_gold_walkway",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-a03edcbf-cf86-41ae-9fcd-d754f0e3faa1.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2x2m stone walkway/floor module,0.35m thick. Flat top an exact4:3 ground diamond, subdued small olive-grey paving. Gold Greek-key inlay runs on TWO opposite long edges in the same ground-axis direction, reference's small worn square sunburst end plate. Show dark side fascia below. No railings, supports, ground plane beneath, fire, chasm background or marks."
+    },
+    "selected": {
+      "name": "bridge_gold_walkway",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-a03edcbf-cf86-41ae-9fcd-d754f0e3faa1.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2x2m stone walkway/floor module,0.35m thick. Flat top an exact4:3 ground diamond, subdued small olive-grey paving. Gold Greek-key inlay runs on TWO opposite long edges in the same ground-axis direction, reference's small worn square sunburst end plate. Show dark side fascia below. No railings, supports, ground plane beneath, fire, chasm background or marks."
+    }
+  },
+  {
+    "name": "pit_balustrade",
+    "initial": {
+      "name": "pit_balustrade",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-02ae4a23-a9f7-4144-80ab-0837d0538671.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One LOW2m-long0.3m-deep0.7m-high pit balustrade, matching reference simple dark green-black stone curb with three squat squared posts and worn gold cap strip. No tall fence, no flames, ground plane or chasm background. Footprint stays narrow, bullets can pass visually above it."
+    },
+    "selected": {
+      "name": "pit_balustrade",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-02ae4a23-a9f7-4144-80ab-0837d0538671.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One LOW2m-long0.3m-deep0.7m-high pit balustrade, matching reference simple dark green-black stone curb with three squat squared posts and worn gold cap strip. No tall fence, no flames, ground plane or chasm background. Footprint stays narrow, bullets can pass visually above it."
+    }
+  },
+  {
+    "name": "chasm_edge",
+    "initial": {
+      "name": "chasm_edge",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-c135802c-db8e-4e12-8b00-65d244003af0.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.5m-deep1m-high chasm fascia module matching reference pit sides: thin olive-grey paved lip above stacked dark green-black retaining stone dropping downward. Green soul-fire tongues lick up the face ONLY below the top lip, no fire above walkway. Isolated module, no floor beyond narrow lip, no outside background or global glow."
+    },
+    "selected": {
+      "name": "chasm_edge",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-c135802c-db8e-4e12-8b00-65d244003af0.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One2m-long0.5m-deep1m-high chasm fascia module matching reference pit sides: thin olive-grey paved lip above stacked dark green-black retaining stone dropping downward. Green soul-fire tongues lick up the face ONLY below the top lip, no fire above walkway. Isolated module, no floor beyond narrow lip, no outside background or global glow."
+    }
+  },
+  {
+    "name": "altar_low",
+    "initial": {
+      "name": "altar_low",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-7580277f-0c04-4f82-a156-f8a131329fdb.png",
+      "prompt": "DREAD Soul-Fire Temple modular ISOMETRIC GAME SPRITE. Closely copy the environmental DESIGN LANGUAGE of attached reference: green-black ashlar, chunky angular chips, bold dark ink edges, restrained worn gold Greek-key trim, broad painterly cel-shaded regions. ONE isolated architecture module centered on TRANSPARENT alpha, full silhouette visible with generous margin, no scenery/floor backdrop/cast shadow. No people, living creatures, UI, text, numbers, logos, projectiles, red/pink/magenta, sparkles, glowing dots or ground warning marks. Sculptural hooded reliefs are carved stone, not living people. Orthographic yaw45 pitch48.6 down,4:3 diamond ground footprint,36.9deg ground edges, parallel edges remain parallel and verticals vertical. Key upper-left,3 crisp cel bands, #0B0A0C thick silhouette outline and finer inner cracks, soft brush texture, no 3D gloss or smooth airbrushed gradients. Palette stone #5F5841 #484539 #2B3F32 #252A27 #181E1A, void #07180F #040503, gold #C08C3A #E8B85A #6E4A1C, moss #596E45 #33563D. Only actual flame sources use green #E8FFE0 #6AF59A #1FAE5C or warm #FFB45A. Match reference silhouettes and simple ornament instead of inventing extra details. One low temple altar2m-long1m-deep0.8m-high. Green-black chunky rectangular stone plinth, broad worn #C08C3A gold Greek-key band and small architectural skull-and-laurel emblem on front, chipped corners. Calm flat top, no candles, offerings, people, glow or floor plane."
+    },
+    "selected": {
+      "name": "altar_low",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-10721117-3df3-4785-98ba-ad6579bcbb40.png",
+      "prompt": "Clean up this exact altar sprite's transparency. REMOVE every white or grey foggy pixel, background strip or haze above and outside the solid stone altar. Outside the altar silhouette must be fully transparent alpha. Keep the stone altar itself, gold Greek-key band, skull-laurel emblem, camera, scale, position and all painted details unchanged. No ground, backdrop, shadows, white border, fog or glow anywhere outside the object."
+    }
+  },
+  {
+    "name": "crack_network",
+    "initial": {
+      "name": "crack_network",
+      "category": "decals",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-62713f35-0d1c-4935-bcb6-008d66e51868.png",
+      "prompt": "DREAD top-down floor DECAL, isolated on truly transparent alpha. Match attached reference's restrained painterly ink style and dark olive-green stone world. Straight from above, flat, no perspective/depth/lighting/shadows. About1.5m across, organic irregular edge. No floor background, frame, circle, targeting marks, text, people, particles or glow. No bright red, pink, magenta or white. Empty areas MUST be transparent, no cloudy haze. Visible pixels only in specified dark colors. Thin #0B0A0C dark ink lines branch irregularly from an offset point, taper to fine ends. No grey halos, glow, pale lines or stone background. Transparent gaps."
+    },
+    "selected": {
+      "name": "crack_network",
+      "category": "decals",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-768f8c45-ffc9-4dae-8e71-f0ae208a792f.png",
+      "prompt": "Draw ONLY a sparse branching network of very thin near-black #0B0A0C ink cracks on fully TRANSPARENT PNG alpha, large transparent gaps between lines. Straight top-down flat game floor decal with subtle painted line irregularity. Thin dark lines taper to zero, about1.5m wide. No fill plane, outline highlights, moss, green edges, halos, haze, background, glow, light, depth, shadow, emblem, text, UI or watermarks."
+    }
+  },
+  {
+    "name": "moss_patch",
+    "initial": {
+      "name": "moss_patch",
+      "category": "decals",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-9f5ec89f-88dd-402b-aad4-e9ef8d4d6a03.png",
+      "prompt": "DREAD top-down floor DECAL, isolated on truly transparent alpha. Match attached reference's restrained painterly ink style and dark olive-green stone world. Straight from above, flat, no perspective/depth/lighting/shadows. About1.5m across, organic irregular edge. No floor background, frame, circle, targeting marks, text, people, particles or glow. No bright red, pink, magenta or white. Empty areas MUST be transparent, no cloudy haze. Visible pixels only in specified dark colors. Dull matte soft #596E45/#33563D moss along an irregular patch, hand-painted broken edges, subdued texture, absolutely no light-green glow or haze."
+    },
+    "selected": {
+      "name": "moss_patch",
+      "category": "decals",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-9f5ec89f-88dd-402b-aad4-e9ef8d4d6a03.png",
+      "prompt": "DREAD top-down floor DECAL, isolated on truly transparent alpha. Match attached reference's restrained painterly ink style and dark olive-green stone world. Straight from above, flat, no perspective/depth/lighting/shadows. About1.5m across, organic irregular edge. No floor background, frame, circle, targeting marks, text, people, particles or glow. No bright red, pink, magenta or white. Empty areas MUST be transparent, no cloudy haze. Visible pixels only in specified dark colors. Dull matte soft #596E45/#33563D moss along an irregular patch, hand-painted broken edges, subdued texture, absolutely no light-green glow or haze."
+    }
+  },
+  {
+    "name": "rubble_chips",
+    "initial": {
+      "name": "rubble_chips",
+      "category": "decals",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-532ffdf0-f5e6-4e50-971d-b14df1daf312.png",
+      "prompt": "DREAD top-down floor DECAL, isolated on truly transparent alpha. Match attached reference's restrained painterly ink style and dark olive-green stone world. Straight from above, flat, no perspective/depth/lighting/shadows. About1.5m across, organic irregular edge. No floor background, frame, circle, targeting marks, text, people, particles or glow. No bright red, pink, magenta or white. Empty areas MUST be transparent, no cloudy haze. Visible pixels only in specified dark colors. 10–20 small flat scattered stone chips #484539/#2B3F32, thin dark ink outlines, low contrast, no highlights, shadows or haze. Transparent gaps."
+    },
+    "selected": {
+      "name": "rubble_chips",
+      "category": "decals",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-81ae7d48-df82-4590-9293-f148558c1df5.png",
+      "prompt": "Draw ONLY14 small flat irregular stone chips scattered loosely over a fully TRANSPARENT canvas, with generous clear space between them. Dark muted olive-grey #484539 and green-black #2B3F32 with fine #0B0A0C ink outlines. Straight top-down painted game decal, soft brush texture within each chip, subdued low contrast. No central object, emblem, skull, laurel, gold, moss, floor patch, background, shadows, light, glow or fog. Nothing except separate little stone chips. No text, UI or watermarks."
+    }
+  },
+  {
+    "name": "old_scorch",
+    "initial": {
+      "name": "old_scorch",
+      "category": "decals",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-e0740b98-db5e-48ff-8736-1b2dffdc167c.png",
+      "prompt": "DREAD top-down floor DECAL, isolated on truly transparent alpha. Match attached reference's restrained painterly ink style and dark olive-green stone world. Straight from above, flat, no perspective/depth/lighting/shadows. About1.5m across, organic irregular edge. No floor background, frame, circle, targeting marks, text, people, particles or glow. No bright red, pink, magenta or white. Empty areas MUST be transparent, no cloudy haze. Visible pixels only in specified dark colors. An irregular soft soot-black #181E1A stain only, alpha fades organically to transparent at broad brush edges, no white/grey haze or glowing center."
+    },
+    "selected": {
+      "name": "old_scorch",
+      "category": "decals",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-504656bc-f4a4-4adf-bc81-2619275f7a59.png",
+      "prompt": "Draw ONLY one soft dark soot stain #181E1A on fully TRANSPARENT PNG alpha. All visible pigment exactly dark green-black, no pale or light pixels. Organic asymmetrical smudged patch with irregular brush-edge opacity fading into transparency, no hard frame/circle. Straight top-down flat painted floor decal. No flames, smoke, green moss, green glow, haze, light, shadow, ground surface, text, symbols, UI or watermarks."
+    }
+  },
+  {
+    "name": "chest_open",
+    "initial": {
+      "name": "chest_open",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-6174653d-6be6-4664-a0a4-8754eb41b505.png",
+      "prompt": "Edit this chest to matching OPEN state. Preserve exact canvas dimensions, camera, scale, base position, feet, body and every unchanged detail. Rotate lid upward about rear hinge into existing empty space above; reveal a few #C08C3A gold coins and restrained #E8B85A soft light inside only. No coins outside, halo or particles. Same inked cel-shaded brushwork, alpha transparency. Do not trim or recenter."
+    },
+    "selected": {
+      "name": "chest_open",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-6174653d-6be6-4664-a0a4-8754eb41b505.png",
+      "prompt": "Edit this chest to matching OPEN state. Preserve exact canvas dimensions, camera, scale, base position, feet, body and every unchanged detail. Rotate lid upward about rear hinge into existing empty space above; reveal a few #C08C3A gold coins and restrained #E8B85A soft light inside only. No coins outside, halo or particles. Same inked cel-shaded brushwork, alpha transparency. Do not trim or recenter."
+    }
+  },
+  {
+    "name": "bone_nest_active",
+    "initial": {
+      "name": "bone_nest_active",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-e220e8c1-2a28-45e3-a94b-86c0b92e994e.png",
+      "prompt": "Create ACTIVE state of this EXACT empty bone nest. Same canvas, camera, position, bones, stones and silhouette unchanged except a few stylized green soul-fire tongues rising from inside hollow, #E8FFE0/#6AF59A/#1FAE5C. Keep flames confined to nest hollow, no detached dots or sparks, no external glow halo. No eggs, animals, characters, eyes or living creatures. Alpha transparency."
+    },
+    "selected": {
+      "name": "bone_nest_active",
+      "category": "sprites",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-e220e8c1-2a28-45e3-a94b-86c0b92e994e.png",
+      "prompt": "Create ACTIVE state of this EXACT empty bone nest. Same canvas, camera, position, bones, stones and silhouette unchanged except a few stylized green soul-fire tongues rising from inside hollow, #E8FFE0/#6AF59A/#1FAE5C. Keep flames confined to nest hollow, no detached dots or sparks, no external glow halo. No eggs, animals, characters, eyes or living creatures. Alpha transparency."
+    }
+  },
+  {
+    "name": "wall_frieze_plain",
+    "initial": {
+      "name": "wall_frieze_plain",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-7084d414-4587-40f6-a967-2f6bb069b93e.png",
+      "prompt": "Make a PLAIN frieze-and-pilaster wall variant. Keep exact wall silhouette, camera, gold upper Greek-key band, side fluted pilaster, plinth and palette. Remove the central hooded figure, laurels and arched recess ENTIRELY, replace with plain continuous green-black ashlar masonry. No symbols, fire or extra ornament. Same cel shading, brushwork and alpha."
+    },
+    "selected": {
+      "name": "wall_frieze_plain",
+      "category": "modules",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-7084d414-4587-40f6-a967-2f6bb069b93e.png",
+      "prompt": "Make a PLAIN frieze-and-pilaster wall variant. Keep exact wall silhouette, camera, gold upper Greek-key band, side fluted pilaster, plinth and palette. Remove the central hooded figure, laurels and arched recess ENTIRELY, replace with plain continuous green-black ashlar masonry. No symbols, fire or extra ornament. Same cel shading, brushwork and alpha."
+    }
+  },
+  {
+    "name": "candles_emission",
+    "initial": {
+      "name": "candles_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-0141862f-675b-44e3-a1bb-a1dbdecf72b6.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the warm candle flames only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "sprites/candle_cluster.png"
+    },
+    "selected": {
+      "name": "candles_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-0141862f-675b-44e3-a1bb-a1dbdecf72b6.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the warm candle flames only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "sprites/candle_cluster.png"
+    }
+  },
+  {
+    "name": "brazier_emission",
+    "initial": {
+      "name": "brazier_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-bedfff17-e3a9-4d48-af54-d59bc3e28e70.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the green soul-fire tongues only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "sprites/soul_brazier.png"
+    },
+    "selected": {
+      "name": "brazier_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-bedfff17-e3a9-4d48-af54-d59bc3e28e70.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the green soul-fire tongues only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "sprites/soul_brazier.png"
+    }
+  },
+  {
+    "name": "fire_urn_emission",
+    "initial": {
+      "name": "fire_urn_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-19345e11-a09f-49a4-97e1-8d3de774979f.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the orange lid cracks and orange flame only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "sprites/fire_urn.png"
+    },
+    "selected": {
+      "name": "fire_urn_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-e9ff4843-ad2c-40ef-87a3-f3564a4b9d12.png",
+      "prompt": "Color correction ONLY: replace ALL bright red, reddish-orange and saturated scarlet pixels in this image's flame and glowing cracks with WARM AMBER #FFB45A and pale GOLD #FFD36A. No red component-only hot pixels: any bright warm pixel must have plenty of green, amber/yellow rather than red. Preserve exact shapes, framing, size, pixel locations, background and every other detail. Do not change geometry or add anything. Keep pure opaque black background and every non-emissive pixel black."
+    }
+  },
+  {
+    "name": "candelabra_emission",
+    "initial": {
+      "name": "candelabra_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-c4951aa1-feac-4029-9813-332a8d6e7203.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the three small warm flames only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "sprites/candelabra.png"
+    },
+    "selected": {
+      "name": "candelabra_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-c4951aa1-feac-4029-9813-332a8d6e7203.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the three small warm flames only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "sprites/candelabra.png"
+    }
+  },
+  {
+    "name": "bone_nest_emission",
+    "initial": {
+      "name": "bone_nest_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-adc21b42-1b8b-4930-a835-27d58f550165.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the green flame tongues inside the nest only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "sprites/bone_nest_active.png"
+    },
+    "selected": {
+      "name": "bone_nest_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-adc21b42-1b8b-4930-a835-27d58f550165.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the green flame tongues inside the nest only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "sprites/bone_nest_active.png"
+    }
+  },
+  {
+    "name": "alcove_emission",
+    "initial": {
+      "name": "alcove_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-9d427397-aec5-4176-b6ce-2d081c9811f9.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the green flame tongues inside the arch only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "modules/wall_soul_alcove.png"
+    },
+    "selected": {
+      "name": "alcove_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-9d427397-aec5-4176-b6ce-2d081c9811f9.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the green flame tongues inside the arch only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "modules/wall_soul_alcove.png"
+    }
+  },
+  {
+    "name": "wall_torch_emission",
+    "initial": {
+      "name": "wall_torch_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-d396a508-2362-4fcb-bada-8c8f012e85ae.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the small warm wall-torch flame only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "modules/wall_banner_torch.png"
+    },
+    "selected": {
+      "name": "wall_torch_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-d396a508-2362-4fcb-bada-8c8f012e85ae.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the small warm wall-torch flame only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "modules/wall_banner_torch.png"
+    }
+  },
+  {
+    "name": "chasm_emission",
+    "initial": {
+      "name": "chasm_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-d7bc21e0-6cfa-4388-b997-adf8551ce879.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the green flame tongues in the three recesses only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "modules/chasm_edge.png"
+    },
+    "selected": {
+      "name": "chasm_emission",
+      "category": "emission_drafts",
+      "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-d7bc21e0-6cfa-4388-b997-adf8551ce879.png",
+      "prompt": "Make a matching EMISSION MASK for the exact source image attached. Preserve exact source canvas size, framing and pixel positions. Everything opaque pure black #000000 except the green flame tongues in the three recesses only. Those light-emitting regions keep original bright colors at precisely original locations, unchanged shape and no outline. Delete all non-emissive material including reflected/rim light, masonry, wood, gold, bronze, bones and wax to pure black. No halo, bloom, haze, particle, extra detail, scale change or movement. This is a technical aligned mask, not a new illustration.",
+      "target": "modules/chasm_edge.png"
+    }
+  }
+]
