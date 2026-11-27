@@ -1,0 +1,17 @@
+[
+  {
+    "name": "floor_worn",
+    "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-6b45afc2-8f4a-4f5a-b4d2-94f8d9a6c275.png",
+    "prompt": "Edit this DREAD temple paving texture to change STONE SCALE dramatically. This square represents exactly2x2 metres. Replace the many small stones with ONLY ABOUT3 LARGE SLABS ACROSS and3 LARGE SLABS DOWN, roughly9–12 broad flagstones total including cropped edge fragments. Each slab50–90cm across, not20–45cm. Large broad irregular RECTANGULAR hand-cut slabs in loose staggered courses, roughly square and oblong, no tiny cobbles. Preserve the source's subdued warm olive-grey and green-black painted palette #5F5841 #484539 #2B3F32, soft restrained brushwork and dark ink seams #181E1A. Narrow1cm grout, visually much quieter than source, few subtle chipped corners and at most2 hairline cracks. Floor must be calm, low contrast and small value range. Output a perfectly FLAT TOP-DOWN SQUARE ALBEDO map edge to edge, seamless both left-right and top-bottom; no border, symbols, gold, fire, moss, bones, perspective, bevel lighting, directional highlights, cast shadows, AO, characters, text, UI or watermark. Large square resolution2048x2048 if available. The key change is MUCH BIGGER stone slabs and far fewer joints."
+  },
+  {
+    "name": "floor_damaged",
+    "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-c27eb7d2-780e-473a-82d6-091bea5507ab.png",
+    "prompt": "Create a DAMAGED VARIANT of this exact large-slab DREAD floor texture. Preserve identical slab layout and scale, about3 broad slabs across and3 down,50–90cm slabs in a2x2m square. Do not subdivide or add joints. Add fine dark tapered branching cracks to ONLY2 slabs, and a SMALL chipped-out corner filled with flat dark earth #181E1A at one existing junction; a few tiny non-glowing stone chips sit there. Keep warm olive-grey #5F5841/#484539 and green-black #2B3F32, low contrast and quiet narrow grout. Same soft brush texture. FLAT top-down albedo, no directional lighting, bevels, depth, shadows or AO. Seamless both axes, edge-to-edge square. No gold, symbols, borders, fire, glow, moss, people, UI, text or watermark."
+  },
+  {
+    "name": "floor_moss_bones",
+    "source": "/workspace/scratch/39a36f1c9a66/generated_images/exec-11eac9bf-6cb6-40e4-83ca-eb5778bdfbae.png",
+    "prompt": "Create a MOSS VARIANT of this exact large-slab DREAD floor texture. Preserve identical layout, about3 broad slabs across and3 down,50–90cm slabs in2x2m square. Do not subdivide or add joints. Add very sparse dull matte moss #596E45/#33563D creeping along ONLY2–3 grout segments and barely over their slab edges. Add at most2 tiny old dull #B8AE92 bone fragments half buried there, each less than a hand, no shine. Keep same low-contrast warm olive-grey #5F5841/#484539 and green-black #2B3F32, brush texture, narrow calm grout. Perfectly flat top-down albedo, seamless both axes, square edge-to-edge. No gold, symbols, border, flames, glow, light, perspective, bevel shading, depth, shadows, people, text, UI or watermark."
+  }
+]

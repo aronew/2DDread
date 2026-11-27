@@ -209,11 +209,20 @@ models are made from primitives in code, then rendered through a custom stylizer
     light such as flames.
   - `build_env.py → PAINTED` says which file each floor/wall kind uses. A missing file
     falls back to the modelled look, so the kit still runs without textures.
-  - Current set: `floor_flag`, `floor_cracked`, `floor_moss` (lifted ×1.3 in the
-    material), `floor_border_meander`, `floor_emblem_skull`, `wall_ashlar` (made from
-    `wall_ashlar_v1` with the gold band moved lower; replace it with a regenerated one),
-    `soulfire_flames` (fire-alcove niches). `column_wrap_v1` is unused: painted flutes
-    don't read at game size, so the column keeps its modelled flutes.
+  - Current set: floors are large 50–90 cm slabs (`slab_worn`, `slab_damaged`,
+    `slab_moss_bones`, lifted ×1.3 in the material; `flag2` uses the same slabs turned
+    90°). `tools/blender/prep_textures.py` makes them from the kit originals in
+    `textures/kit_2026-11-27/textures_large_slabs/`: it evens out slab-to-slab colour
+    (otherwise the 2 m repeat reads as a checkerboard) and blends the edges so the image
+    repeats seamlessly. Also `floor_border_meander`, `floor_emblem_skull`,
+    `floor_emblem_sun` (sunburst plate), `wall_ashlar` (gold band moved lower), and
+    `soulfire_flames` (fire-alcove niches). Older textures (`floor_flag`, `floor_cracked`,
+    `floor_moss`, `column_wrap_v1`) are kept but unused.
+  - `textures/kit_2026-11-27/` holds the owner's full generated kit (textures, props,
+    wall modules, decals, glow masks) with its own README and prompts.
+- **Sheet edges:** `SheetWriter.save()` runs `bleed_alpha()` on colour sheets. Without it
+  the stylizer leaves faint white semi-transparent pixels at silhouettes, and texture
+  filtering turns them into light fringes and dotted seams between floor tiles.
 - **Output** goes to `assets/sprites/<category>/<name>_c.png` (colour), `_n.png`
   (normal), `_e.png` (emission) and `.json` (frame size, origin = feet/tile centre,
   rows = directions). See `docs/ASSETS.md`.

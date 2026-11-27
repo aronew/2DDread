@@ -725,6 +725,28 @@ def yaw_for_ground_angle(phi):
     return math.pi / 4 - phi
 
 
+def bleed_alpha(arr, solid=200, rings=3):
+    """Give semi-transparent and nearby transparent pixels the colour of the solid pixels
+    next to them (alpha unchanged). Texture filtering mixes neighbouring pixels' RGB, so
+    edge pixels that keep a stray colour (the stylizer leaves faint white ones) show up as
+    light fringes and dotted seams between tiles."""
+    out = arr.copy()
+    rgb = arr[..., :3].astype(np.float32)
+    filled = arr[..., 3] >= solid
+    for _ in range(rings):
+        acc = np.zeros_like(rgb)
+        cnt = np.zeros(filled.shape, np.float32)
+        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            m = np.roll(filled, (dy, dx), (0, 1))
+            acc += np.roll(rgb, (dy, dx), (0, 1)) * m[..., None]
+            cnt += m
+        grow = (~filled) & (cnt > 0)
+        rgb[grow] = acc[grow] / cnt[grow][:, None]
+        filled = filled | grow
+    out[..., :3] = np.where((arr[..., 3] < solid)[..., None] & filled[..., None], rgb, arr[..., :3]).astype(np.uint8)
+    return out
+
+
 class SheetWriter:
     """Packs frames into rows (directions) x cols (frames) for each pass."""
 
@@ -750,6 +772,8 @@ class SheetWriter:
         suffix = {"color": "c", "normal": "n", "emit": "e", "shadow": "s"}
         files = {}
         for p, arr in self.sheets.items():
+            if p == "color":
+                arr = bleed_alpha(arr)
             if p == "emit":
                 # skip empty emission sheets
                 if arr[..., :3].max() < 8:

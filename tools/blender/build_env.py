@@ -55,14 +55,19 @@ def materials():
 # optional: when its file is missing, the kit falls back to the modelled look.
 PAINTED = {
     # key: (file, metres per repeat along object X, Y, Z, extra options)
-    # floors are painted ~25% darker than the mockup's lit stone, so lift them in the material
-    "t_floor": ("floor_flag.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
-    "t_cracked": ("floor_cracked.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
-    "t_moss": ("floor_moss.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    # large 50-90 cm slabs (slab_* are made by prep_textures.py from the kit's large-slab
+    # floors). They are painted darker than the mockup's lit stone, so lift them here.
+    # flag2 uses the same slabs turned 90 degrees so the 2 m repeat doesn't line up.
+    "t_floor": ("slab_worn.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_floor2": ("slab_worn.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3, "tex_rot": math.pi / 2}),
+    "t_cracked": ("slab_damaged.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_moss": ("slab_moss_bones.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
     "t_border": ("floor_border_meander.png", (CELL, CELL / 2.96, CELL), {"tex_proj": "FLAT"}),  # strip ~2.96:1
     # turned 45 degrees so the skull stands upright on screen; edges clamp to plain stone
     "t_emblem": ("floor_emblem_skull.png", (1.7, 1.7, 1.7),
                  {"tex_proj": "FLAT", "tex_rot": -math.pi / 4, "tex_extension": "EXTEND"}),
+    "t_sun": ("floor_emblem_sun.png", (1.7, 1.7, 1.7),
+              {"tex_proj": "FLAT", "tex_rot": -math.pi / 4, "tex_extension": "EXTEND"}),
     "t_wall": ("wall_ashlar.png", (CELL, CELL, 3.0), {}),
     "t_flames": ("soulfire_flames.png", (1.0, 3.24, 1.62),
                  {"tex_emit": True, "emit": (1.0, 1.0, 1.0), "emit_strength": 6.0}),
@@ -97,13 +102,21 @@ def stone(M, rng):
 
 def slab(M, size=CELL * 1.012):
     root = C.empty("slab")
+
+    # edge pieces sit flush with the slab's side (3 mm proud), never past the floor's top
+    # edge, or they peek through as a dotted line where neighbouring tiles overlap
+    def inset(d):
+        k = 1.0 - d / (size / 2)
+        return Vector((k, k, 1.0))
+
     C.box((size, size, 0.5), (0, 0, -0.25), M["grout"], root, bevel=0.01)
     # ledge blocks + gold lip on the two camera-facing sides (only seen at platform edges)
     for (dx, dy, rz) in ((size / 2, 0, 0), (0, -size / 2, math.pi / 2)):
         for k in (-0.5, 0.5):
             off = Vector((0, k, 0)) if rz == 0 else Vector((k, 0, 0))
-            C.box((0.04, size * 0.48, 0.42), Vector((dx, dy, -0.26)) + off, M["wall2"], root, bevel=0.02, rot=(0, 0, rz))
-        C.box((0.05, size, 0.06), (dx, dy, -0.05), M["gold"], root, bevel=0.01, rot=(0, 0, rz))
+            C.box((0.04, size * 0.48, 0.42), Vector((dx, dy, -0.26)) * inset(0.017) + off, M["wall2"], root, bevel=0.02,
+                  rot=(0, 0, rz))
+        C.box((0.05, size, 0.06), Vector((dx, dy, -0.05)) * inset(0.022), M["gold"], root, bevel=0.01, rot=(0, 0, rz))
     return root
 
 
@@ -155,7 +168,8 @@ def floor_top(M, r, rng, key="t_floor", rows=3):
     The painted top is 1.2% larger than the cell, like the slab, so neighbouring tiles
     overlap; the texture repeats every CELL, so the overlap shows matching stone."""
     if key in M:
-        C.box((CELL * 1.012, CELL * 1.012, 0.04), (0, 0, -0.01), M[key], r, bevel=0.0)
+        # paper-thin, so no lit side edge shows where neighbouring tiles overlap
+        C.box((CELL * 1.012, CELL * 1.012, 0.004), (0, 0, 0.008), M[key], r, bevel=0.0)
         return True
     flagstones(M, r, rng, rows=rows)
     return False
@@ -167,7 +181,7 @@ def floor_variant(M, kind, rng):
     if kind == "flag":
         floor_top(M, r, rng, rows=3)
     elif kind == "flag2":
-        floor_top(M, r, rng, rows=2)
+        floor_top(M, r, rng, key="t_floor2" if "t_floor2" in M else "t_floor", rows=2)
     elif kind == "grate":
         floor_top(M, r, rng, rows=3)
         C.box((1.3, 1.3, 0.1), (0, 0, -0.02), M["grout"], r, bevel=0.0)
@@ -186,6 +200,9 @@ def floor_variant(M, kind, rng):
             meander(M, r, (0, 0.45, 0.03), Vector((1, 0, 0)), Vector((0, 1, 0)), up, CELL * 0.95, 0.3, offset=0.0)
     elif kind == "sun":
         floor_top(M, r, rng, rows=2)
+        if "t_sun" in M:  # painted sunburst inlay on a raised plate, like the emblem
+            C.box((1.7, 1.7, 0.03), (0, 0, 0.012), M["t_sun"], r, bevel=0.01)
+            return r
         C.cyl(0.24, 0.05, (0, 0, 0.02), M["gold"], r, verts=24)
         for i in range(12):
             a = i * math.pi / 6
