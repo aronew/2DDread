@@ -45,12 +45,15 @@ def materials():
         "wax": C.mat("v_wax", (0.92, 0.88, 0.75), rough=0.5),
         "rock": C.mat("v_rock", (0.12, 0.14, 0.13), rough=0.9, noise=0.6, noise_scale=4, noise_color=(0.06, 0.07, 0.07)),
         "marble": C.mat("v_marble", (0.4, 0.42, 0.38), rough=0.5, noise=0.3, noise_scale=6),
-        "pillar": C.mat("v_pillar", (0.24, 0.31, 0.27), rough=0.7, noise=0.35, noise_scale=6,
-                        noise_color=(0.13, 0.18, 0.15)),
+        "pillar": C.mat("v_pillar", (0.2, 0.28, 0.18), rough=0.8, noise=0.4, noise_scale=6,
+                        noise_color=(0.11, 0.16, 0.1)),
+        "relief": C.mat("v_relief", (0.2, 0.32, 0.25), rough=0.85, noise=0.35, noise_scale=7,
+                        noise_color=(0.11, 0.19, 0.14)),
         **painted_materials(),
     }
 
 
+RELIEF_H = 2.48       # the mural panel's height on a relief wall (between plinth and cornice)
 BRIDGE_BAND = 0.6     # width of each gold Greek-key band along a bridge's sides (m)
 BRIDGE_PLATE = 0.8    # the sunburst medallion at a bridge's ends (fills the centre strip)
 BRIDGE_FASCIA = 0.3   # deck thickness: the dark stone face seen over the pit
@@ -77,9 +80,11 @@ PAINTED = {
     # the gold Greek-key strip as a band on vertical faces (box projection: along the wall x height)
     "t_band": ("floor_border_meander.png", (CELL, CELL, 0.6), {}),
     "t_flames": ("soulfire_flames.png", (1.0, 3.24, 1.62),
-                 {"tex_emit": True, "emit": (1.0, 1.0, 1.0), "emit_strength": 6.0}),
+                 {"tex_emit": True, "emit": (1.0, 1.0, 1.0), "emit_strength": 3.0}),
     # pit capstones: the floor's slab paint, lighter, like the owner's pit pack coping
-    "t_coping": ("slab_worn_cool.png", (1.3, 1.3, 1.3), {"tex_gain": 1.6}),
+    "t_coping": ("slab_worn_cool_plain.png", (1.3, 1.3, 1.3), {"tex_gain": 1.6}),
+    # the kit's hooded-figure mural, unprojected flat by prep_textures.py (one panel per face)
+    "t_hooded": ("wall_hooded_panel.png", (1.0, CELL, RELIEF_H), {"tex_extension": "EXTEND", "tex_gain": 1.15}),
     # bridges: the Greek-key strip running along a bridge's length (axis j = Blender -Y),
     # and a small sunburst medallion for the ends
     "t_band_j": ("floor_border_meander.png", (BRIDGE_BAND, CELL, CELL), {"tex_proj": "FLAT", "tex_rot": math.pi / 2}),
@@ -398,13 +403,13 @@ def wall_variant(M, kind, rng):
     elif kind == "column":
         r = wall_base(M, rng, "wall2")
         c = Vector((CELL / 2, -CELL / 2, 0))
-        C.cyl(0.34, 2.4, c + UP * 1.5, M["marble"], r, verts=20, bevel=0.0)
+        C.cyl(0.34, 2.4, c + UP * 1.5, M["pillar"], r, verts=20, bevel=0.0)
         for i in range(10):  # flutes
             a = i * 2 * math.pi / 10
             C.box((0.04, 0.04, 2.3), c + Vector((0.34 * math.cos(a), 0.34 * math.sin(a), 1.5)), M["wall2"], r, bevel=0.0,
                   rot=(0, 0, a))
         for z in (0.3, 2.72):
-            C.cyl(0.44, 0.2, c + UP * z, M["marble"], r, verts=20, bevel=0.03)
+            C.cyl(0.44, 0.2, c + UP * z, M["pillar"], r, verts=20, bevel=0.03)
             C.torus(0.38, 0.03, c + UP * (z + 0.12 if z > 1 else z + 0.12), M["gold"], r, seg=24, mseg=6)
     elif kind == "firealcove":
         r = wall_base(M, rng)
@@ -421,22 +426,26 @@ def wall_variant(M, kind, rng):
                     k = -0.27 + i * 0.18
                     flame(M, r, o + n * 0.14 + a * k + UP * 0.4, rng.uniform(0.7, 1.2), rng, i % 2 == 0)
             C.box((0.14, 1.12, 0.06), o + n * 0.06 + UP * 0.34, M["gold"], r, rot=rot, bevel=0.01)
-            C.torus(0.52, 0.03, o + n * 0.09 + UP * 2.2, M["gold"], r, rot=(math.pi / 2, 0, rot[2] + math.pi / 2), seg=32, mseg=6)
         _face_items(face)
     elif kind == "relief":
         r = wall_base(M, rng, "wall2")
 
         def face(o, a, n):
             rot = _rot_for_normal(n)
-            C.box((0.08, 1.3, 1.5), o + n * 0.02 + UP * 1.55, M["wall"], r, rot=rot, bevel=0.06)
-            C.box((0.09, 1.36, 0.05), o + n * 0.05 + UP * 2.32, M["gold"], r, rot=rot, bevel=0.01)
-            C.box((0.09, 1.36, 0.05), o + n * 0.05 + UP * 0.78, M["gold"], r, rot=rot, bevel=0.01)
+            if "t_hooded" in M:   # the owner's painted mural: hooded figure, laurels, Greek-key bands
+                C.box((0.03, CELL, RELIEF_H), o + n * 0.012 + UP * (0.31 + RELIEF_H / 2), M["t_hooded"], r, rot=rot,
+                      bevel=0.0)
+                return
+            # modelled fallback: a hooded bust in green stone between gold laurel branches
+            C.box((0.05, 1.56, 2.0), o + n * 0.01 + UP * 1.45, M["wall_dk"], r, rot=rot, bevel=0.02)
+            C.sphere(0.5, o + n * 0.05 + UP * 1.0, M["relief"], r, rot=rot, scale=(0.2, 1.2, 1.0), segs=20)
+            C.sphere(0.5, o + n * 0.07 + UP * 1.72, M["relief"], r, rot=rot, scale=(0.3, 0.62, 0.86), segs=20)
+            C.sphere(0.5, o + n * 0.2 + UP * 1.64, M["black"], r, rot=rot, scale=(0.1, 0.36, 0.52), segs=16)
             for s in (-1, 1):
-                for i in range(6):  # laurel branch
-                    ang = -1.1 + i * 0.4
-                    p = o + n * 0.08 + a * (s * (0.32 + 0.18 * math.cos(ang))) + UP * (1.55 + 0.42 * math.sin(ang))
-                    C.sphere(0.07, p, M["gold"], r, scale=(0.4, 1.4, 0.5), rot=(s * (ang + 1.2), 0, rot[2]))
-            C.sphere(0.2, o + n * 0.08 + UP * 1.6, M["marble"], r, scale=(0.4, 0.8, 1.0))
+                for i in range(8):  # laurel branch curving up beside the figure
+                    ang = -1.25 + i * 0.32
+                    p = o + n * 0.06 + a * (s * (0.48 + 0.22 * math.cos(ang))) + UP * (1.45 + 0.62 * math.sin(ang))
+                    C.sphere(0.08, p, M["gold"], r, scale=(0.4, 1.5, 0.55), rot=(s * (ang + 1.3), 0, rot[2]))
         _face_items(face)
     elif kind == "banner":
         r = wall_base(M, rng, "wall_dk")
@@ -503,6 +512,14 @@ def pillar(M, r, rng, broken=False):
     """Freestanding fluted temple pillar on a plinth (the mockup's columns); broken = snapped stump."""
     C.box((1.5, 1.5, 0.35), (0, 0, 0.175), M["wall_dk"], r, bevel=0.04)
     C.box((1.56, 1.56, 0.045), (0, 0, 0.31), M["gold"], r, bevel=0.01)   # gold rim just under the plinth top
+    for n in (Vector((1, 0, 0)), Vector((0, -1, 0))):   # the mockup's gold diamond and laurel on the plinth
+        o = n * 0.76 + UP * 0.16
+        side = Vector((-n.y, n.x, 0))
+        C.box((0.03, 0.13, 0.13), o, M["gold"], r, rot=(math.pi / 4, 0, math.atan2(n.y, n.x)), bevel=0.005)
+        for sgn in (-1, 1):
+            for i in range(3):
+                C.sphere(0.035, o + side * sgn * (0.13 + i * 0.07) + UP * (0.02 * i - 0.02), M["gold"], r,
+                         scale=(0.4, 1.5, 0.6), rot=(sgn * 0.5, 0, math.atan2(n.y, n.x)))
     C.cyl(0.66, 0.2, (0, 0, 0.45), M["pillar"], r, verts=32, bevel=0.04)
     C.torus(0.6, 0.035, (0, 0, 0.62), M["gold"], r, seg=32, mseg=6)
     top = 1.85 if broken else 3.5

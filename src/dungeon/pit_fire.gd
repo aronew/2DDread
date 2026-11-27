@@ -139,7 +139,7 @@ func setup(pits: Array, d: Dungeon) -> void:
 	for c in cells:
 		if (c.x + c.y) % 2 == 0:
 			# high enough to light the capstones' tops evenly instead of glinting off their bevels
-			d.add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 20), LIGHT, 0.9, 4.0, 130.0, 1)
+			d.add_light(Iso.to_screen(Iso.cell_center(c)) - Vector2(0, 20), LIGHT, 1.25, 5.0, 130.0, 1)
 
 
 ## One coping piece per grid corner that touches both pit and floor.
