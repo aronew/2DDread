@@ -40,7 +40,7 @@ const FLAME_SCALE := 1.3                 # flames stand this much taller than th
 
 var cells: Array = []
 var _pit := {}
-var walls: Array = []         # [p0 screen, p1 screen (floor level), along m, lit]
+var walls: Array = []         # [p0 screen, p1 screen (floor level), along m, lit, open]
 var _holes: Array = []        # [PackedVector2Array diamond, Rect2] per pit cell, screen space
 
 
@@ -95,11 +95,15 @@ func setup(pits: Array, d: Dungeon) -> void:
 		_holes.append([poly, r])
 	# far walls: the -i and -j sides of a pit cell face the camera when the cell beyond
 	# them isn't pit (-j faces turn toward the key light, -i faces away)
+	# Under a bridge deck the side is "open": the deck has its own stone face, and below
+	# it you look under the bridge into the fire, so no masonry, only glow and flames.
 	for c in cells:
-		if not _pit.has(c + Vector2i(-1, 0)):
-			walls.append([_screen(Vector2(c.x, c.y)), _screen(Vector2(c.x, c.y + 1)), c.y * 2.0 + c.x * 3.1, false])
-		if not _pit.has(c + Vector2i(0, -1)):
-			walls.append([_screen(Vector2(c.x, c.y)), _screen(Vector2(c.x + 1, c.y)), c.x * 2.0 + c.y * 3.7, true])
+		var ni: Vector2i = c + Vector2i(-1, 0)
+		var nj: Vector2i = c + Vector2i(0, -1)
+		if not _pit.has(ni):
+			walls.append([_screen(Vector2(c.x, c.y)), _screen(Vector2(c.x, c.y + 1)), c.y * 2.0 + c.x * 3.1, false, d.is_bridge(ni)])
+		if not _pit.has(nj):
+			walls.append([_screen(Vector2(c.x, c.y)), _screen(Vector2(c.x + 1, c.y)), c.x * 2.0 + c.y * 3.7, true, d.is_bridge(nj)])
 	var interior := Interior.new()
 	interior.fire = self
 	interior.z_index = -8                 # hazards are z -11: this lands just above the floor (-20)
@@ -203,6 +207,13 @@ class Interior extends Node2D:
 			var along: float = w[2]
 			var k: float = 1.0 if w[3] else PitFire.SHADE
 			var a := p1 - p0
+			if w[4]:
+				# under a bridge: dark beneath the deck, brightening toward the fire
+				fire.clip_quad(self, p0 + Vector2(0, Iso.h(0.25)), a, Vector2(0, Iso.h(PitFire.WALL_M - 0.25)),
+					Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Color(0.01, 0.05, 0.03), PitFire.BED, null)
+				fire.clip_quad(self, p0 + Vector2(0, Iso.h(PitFire.WALL_M - 0.02)), a, Vector2(0, Iso.h(PitFire.BED_M)),
+					Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, PitFire.BED, PitFire.BED_DEEP, null)
+				continue
 			var u0 := along / PitFire.WALL_TEX_M.x
 			var du := Vector2(2.0 / PitFire.WALL_TEX_M.x, 0.0)
 			# two bands, so the tint can fall dark in the middle and catch the fire below
@@ -243,6 +254,8 @@ class Rays extends Node2D:
 			var p0: Vector2 = w[0]
 			var p1: Vector2 = w[1]
 			var a := p1 - p0
+			if w[4]:
+				continue
 			var seed_i := int(w[2] * 7.0)
 			var n := 3
 			for i in n:

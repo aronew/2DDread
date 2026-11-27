@@ -19,6 +19,10 @@ const PROP_CHAR := {"b": "barrel", "k": "crate", "n": "canisters", "C": "chest",
 const NEIGH8 := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
 	Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)]
 const CHUNK := 4  # small chunks keep per-item 2D light counts under the renderer limit
+## Bridge decks in the floor sheet: bridge_i_{single,start,end,mid}, then bridge_j_*.
+## Layouts mark bridge cells with B; the axis and the part are worked out from the
+## neighbours (see _orient_bridges).
+const BRIDGE_KIND0 := 11
 
 var floor_kind := {}      # Vector2i -> floor tile index
 var block := {}           # Vector2i -> Block
@@ -29,6 +33,7 @@ var props: Array = []
 var door_cells: Array = []
 var shock_cells: Array = []
 var breakables := {}      # Vector2i -> hp
+var bridges := {}         # Vector2i -> true: floor cells drawn as bridge decks over a pit
 var start_cell := Vector2i.ZERO
 var exit_cell := Vector2i(-1, -1)
 var flow := {}
@@ -80,6 +85,8 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 			elif PROP_CHAR.has(ch):
 				pending_props.append([c, PROP_CHAR[ch]])
 			match ch:
+				"B":
+					bridges[c] = true
 				"S":
 					start_cell = c
 				"D":
@@ -89,6 +96,7 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 				"z":
 					shock_cells.append(c)
 	_cut_near_walls()
+	_orient_bridges()
 	_build_floor()
 	_build_blocks()
 	_build_ao()
@@ -112,6 +120,28 @@ func _cut_near_walls() -> void:
 			continue
 		if back.any(func(o): return is_floor(c + o)):
 			block_kind[c] = CUT_KIND
+
+
+## A bridge runs along whichever axis its neighbouring bridge cells lie on (a lone cell:
+## across the void on its sides). Its end cells, where it meets land, get the medallions.
+func _orient_bridges() -> void:
+	for c in bridges:
+		var along_j: bool
+		if bridges.has(c + Vector2i(0, 1)) or bridges.has(c + Vector2i(0, -1)):
+			along_j = true
+		elif bridges.has(c + Vector2i(1, 0)) or bridges.has(c + Vector2i(-1, 0)):
+			along_j = false
+		else:
+			along_j = not floor_kind.has(c + Vector2i(1, 0)) and not floor_kind.has(c + Vector2i(-1, 0))
+		var d := Vector2i(0, 1) if along_j else Vector2i(1, 0)
+		var lo := not bridges.has(c - d)
+		var hi := not bridges.has(c + d)
+		var part := 0 if (lo and hi) else (1 if lo else (2 if hi else 3))
+		floor_kind[c] = BRIDGE_KIND0 + (4 if along_j else 0) + part
+
+
+func is_bridge(c: Vector2i) -> bool:
+	return bridges.has(c)
 
 
 func _auto_floor(rng: RandomNumberGenerator) -> int:
@@ -439,6 +469,8 @@ func _build_floor() -> void:
 	add_child(_floor_root)
 	var chunks := {}
 	for c in floor_kind:
+		if bridges.has(c):
+			continue
 		var k := Vector2i(floori(float(c.x) / CHUNK), floori(float(c.y) / CHUNK))
 		if not chunks.has(k):
 			chunks[k] = []
@@ -461,6 +493,19 @@ func _build_floor() -> void:
 			ce.modulate = Color(1.8, 1.8, 1.8)
 			ce.z_index = 1
 			_floor_root.add_child(ce)
+	if not bridges.is_empty():
+		# decks sit above the pits' interiors and coping (PitFire: z -19 / -18), so their
+		# stone face shows over the pit and the fire shows under them
+		var cells: Array = bridges.keys()
+		cells.sort_custom(func(a, b): return a.x + a.y < b.x + b.y or (a.x + a.y == b.x + b.y and a.x < b.x))
+		var tiles: Array = []
+		for c in cells:
+			tiles.append([Iso.to_screen(Iso.cell_center(c)), sheet.region(0, floor_kind[c])])
+		var bc := TileChunk.new()
+		bc.name = "Bridges"
+		bc.setup(sheet.tex, sheet, tiles)
+		bc.z_index = -17
+		add_child(bc)
 
 
 class TileChunk extends Node2D:

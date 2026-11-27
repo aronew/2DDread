@@ -7,7 +7,7 @@
   70
  ],
  "rows": 1,
- "cols": 11,
+ "cols": 19,
  "files": {
   "color": "floor_tiles_c.png",
   "normal": "floor_tiles_n.png",
@@ -24,6 +24,14 @@
   "moss",
   "emblem",
   "runes",
-  "rockfloor"
+  "rockfloor",
+  "bridge_i_single",
+  "bridge_i_start",
+  "bridge_i_end",
+  "bridge_i_mid",
+  "bridge_j_single",
+  "bridge_j_start",
+  "bridge_j_end",
+  "bridge_j_mid"
  ]
 }

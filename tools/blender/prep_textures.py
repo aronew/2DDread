@@ -4,6 +4,9 @@ in tools/blender/textures/; the sources stay untouched.
 
     python tools/blender/prep_textures.py
 
+cool() makes greyer copies of the worn and damaged slabs (slab_*_cool.png) for the
+temple floor, which the soul-fire mockup paints as grey stone rather than olive.
+
 Large-slab floors: each 2 m square holds the same 3x3 slabs, so the light/dark slabs
 repeat as a checkerboard across a room. calm_slabs() keeps the painting, grout and
 cracks but pulls every slab's average colour and brightness toward the floor's mean,
@@ -52,8 +55,26 @@ def calm_slabs(src, dst, keep=0.15, blur=60):
     print("wrote", os.path.relpath(dst, HERE))
 
 
+def cool(src, dst, sat=0.5, tint=(0.97, 1.0, 1.06)):
+    """The mockup's floor is grey stone with a hint of green, where the kit's slabs are
+    yellow-olive: keep the paint, halve its saturation and cool it slightly."""
+    a = np.asarray(Image.open(src).convert("RGB")).astype(np.float32)
+    lum = (a * np.array([0.3, 0.59, 0.11])).sum(-1, keepdims=True)
+    out = (lum + (a - lum) * sat) * np.array(tint)
+    Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(dst)
+    print("wrote", os.path.relpath(dst, HERE))
+
+
 if __name__ == "__main__":
     for name in ("floor_worn", "floor_damaged", "floor_moss_bones"):
         src = os.path.join(SLABS, name + ".png")
         if os.path.exists(src):
             calm_slabs(src, os.path.join(TEX, "slab_" + name.replace("floor_", "") + ".png"))
+    for name in ("worn", "damaged"):
+        src = os.path.join(TEX, "slab_%s.png" % name)
+        if os.path.exists(src):
+            cool(src, os.path.join(TEX, "slab_%s_cool.png" % name))
+    # moss stays green, but loses the yellow cast that made it read as a warm patch
+    src = os.path.join(TEX, "slab_moss_bones.png")
+    if os.path.exists(src):
+        cool(src, os.path.join(TEX, "slab_moss_bones_cool.png"), sat=0.75, tint=(0.9, 1.0, 0.96))

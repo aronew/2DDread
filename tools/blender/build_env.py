@@ -51,6 +51,10 @@ def materials():
     }
 
 
+BRIDGE_BAND = 0.6     # width of each gold Greek-key band along a bridge's sides (m)
+BRIDGE_PLATE = 0.8    # the sunburst medallion at a bridge's ends (fills the centre strip)
+BRIDGE_FASCIA = 0.3   # deck thickness: the dark stone face seen over the pit
+
 # Painted textures (tools/blender/textures, made with docs' prompt book). Each one is
 # optional: when its file is missing, the kit falls back to the modelled look.
 PAINTED = {
@@ -58,10 +62,11 @@ PAINTED = {
     # large 50-90 cm slabs (slab_* are made by prep_textures.py from the kit's large-slab
     # floors). They are painted darker than the mockup's lit stone, so lift them here.
     # flag2 uses the same slabs turned 90 degrees so the 2 m repeat doesn't line up.
-    "t_floor": ("slab_worn.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
-    "t_floor2": ("slab_worn.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3, "tex_rot": math.pi / 2}),
-    "t_cracked": ("slab_damaged.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
-    "t_moss": ("slab_moss_bones.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    # *_cool are greyer copies (prep_textures.py cool()), like the mockup's grey stone
+    "t_floor": ("slab_worn_cool.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_floor2": ("slab_worn_cool.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3, "tex_rot": math.pi / 2}),
+    "t_cracked": ("slab_damaged_cool.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_moss": ("slab_moss_bones_cool.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
     "t_border": ("floor_border_meander.png", (CELL, CELL / 2.96, CELL), {"tex_proj": "FLAT"}),  # strip ~2.96:1
     # turned 45 degrees so the skull stands upright on screen; edges clamp to plain stone
     "t_emblem": ("floor_emblem_skull.png", (1.7, 1.7, 1.7),
@@ -74,7 +79,13 @@ PAINTED = {
     "t_flames": ("soulfire_flames.png", (1.0, 3.24, 1.62),
                  {"tex_emit": True, "emit": (1.0, 1.0, 1.0), "emit_strength": 6.0}),
     # pit capstones: the floor's slab paint, lighter, like the owner's pit pack coping
-    "t_coping": ("slab_worn.png", (1.3, 1.3, 1.3), {"tex_gain": 1.55}),
+    "t_coping": ("slab_worn_cool.png", (1.3, 1.3, 1.3), {"tex_gain": 1.6}),
+    # bridges: the Greek-key strip running along a bridge's length (axis j = Blender -Y),
+    # and a small sunburst medallion for the ends
+    "t_band_j": ("floor_border_meander.png", (BRIDGE_BAND, CELL, CELL), {"tex_proj": "FLAT", "tex_rot": math.pi / 2}),
+    "t_band_i": ("floor_border_meander.png", (CELL, BRIDGE_BAND, CELL), {"tex_proj": "FLAT"}),
+    "t_sun_small": ("floor_emblem_sun.png", (BRIDGE_PLATE, BRIDGE_PLATE, BRIDGE_PLATE),
+                    {"tex_proj": "FLAT", "tex_rot": -math.pi / 4, "tex_extension": "EXTEND"}),
 }
 
 
@@ -114,13 +125,14 @@ def slab(M, size=CELL * 1.012):
         return Vector((k, k, 1.0))
 
     C.box((size, size, 0.5), (0, 0, -0.25), M["grout"], root, bevel=0.01)
-    # ledge blocks + gold lip on the two camera-facing sides (only seen at platform edges)
+    # ledge blocks on the two camera-facing sides (only seen at platform edges). No gold
+    # lip: neighbouring tiles overlap, and a bright lip peeked through every tile's soft
+    # edge as a dotted line across the whole floor.
     for (dx, dy, rz) in ((size / 2, 0, 0), (0, -size / 2, math.pi / 2)):
         for k in (-0.5, 0.5):
             off = Vector((0, k, 0)) if rz == 0 else Vector((k, 0, 0))
             C.box((0.04, size * 0.48, 0.42), Vector((dx, dy, -0.26)) * inset(0.017) + off, M["wall2"], root, bevel=0.02,
                   rot=(0, 0, rz))
-        C.box((0.05, size, 0.06), Vector((dx, dy, -0.05)) * inset(0.022), M["gold"], root, bevel=0.01, rot=(0, 0, rz))
     return root
 
 
@@ -262,8 +274,56 @@ def floor_variant(M, kind, rng):
     return r
 
 
+def bridge_variant(M, axis, part, rng):
+    """A bridge deck cell over a soul-fire pit, after the owner's bridge_crossing piece:
+    gold Greek-key bands along both sides, paving down the middle, a sunburst medallion
+    at each end that meets land, and a dark stone face on the camera side. axis "i" runs
+    along Blender X, "j" along -Y. part: "start" (land at the -axis end), "end" (land at
+    +axis), "single" (both) or "mid". No face at the ends: there the deck meets land or
+    the next deck cell, and a face would paint over them."""
+    r = C.empty("bridge")
+    along = Vector((1, 0, 0)) if axis == "i" else Vector((0, -1, 0))
+    side = Vector((0, -1, 0)) if axis == "i" else Vector((1, 0, 0))   # the camera-facing long side
+    top = 0.035
+
+    def place(a_mid, a_len, s_mid, s_len, h, z, mat, bevel=0.0):
+        size = along * a_len + side * s_len
+        loc = along * a_mid + side * s_mid
+        C.box((abs(size.x) or s_len, abs(size.y) or s_len, h), (loc.x, loc.y, z), mat, r, bevel=bevel)
+
+    centre = CELL - 2 * BRIDGE_BAND
+    place(0, CELL * 1.012, 0, centre + 0.01, 0.02, top - 0.012, M.get("t_floor", M["stone"][0]))
+    band = M.get("t_band_" + axis, M["gold"])
+    for sgn in (-1, 1):
+        place(0, CELL * 1.012, sgn * (CELL - BRIDGE_BAND) / 2, BRIDGE_BAND, 0.03, top - 0.01, band)
+    # medallions at the ends that meet land
+    ends = {"start": [-1], "end": [1], "single": [-1, 1], "mid": []}[part]
+    for e in ends:
+        a_mid = e * (CELL / 2 - BRIDGE_PLATE / 2 - 0.05)
+        place(a_mid, BRIDGE_PLATE, 0, BRIDGE_PLATE, 0.03, top + 0.004, M.get("t_sun_small", M["gold"]), bevel=0.008)
+    # the deck's face over the pit: blocks of dark stone, so it reads as built masonry
+    x = -CELL / 2
+    while x < CELL / 2 - 0.01:
+        w = min(rng.uniform(0.45, 0.7), CELL / 2 - x)
+        if CELL / 2 - (x + w) < 0.25:
+            w = CELL / 2 - x
+        loc = along * (x + w / 2) + side * (CELL / 2 - 0.05)
+        size = along * (w - 0.015) + side * 0.1
+        C.box((abs(size.x), abs(size.y), BRIDGE_FASCIA), (loc.x, loc.y, top - 0.03 - BRIDGE_FASCIA / 2), M["wall2"], r,
+              bevel=0.015)
+        x += w
+    # a thin gold lip along the deck's camera-facing edge, like the reference
+    loc = side * (CELL / 2 - 0.02)
+    size = along * CELL + side * 0.05
+    C.box((abs(size.x), abs(size.y), 0.04), (loc.x, loc.y, top - 0.02), M["gold"], r, bevel=0.005)
+    return r
+
+
 FLOOR_KINDS = ["flag", "flag2", "grate", "meander", "sun", "drain", "cracked", "moss", "emblem", "runes",
-               "rockfloor"]
+               "rockfloor",
+               # bridge decks (Dungeon picks the part from the layout's B cells)
+               "bridge_i_single", "bridge_i_start", "bridge_i_end", "bridge_i_mid",
+               "bridge_j_single", "bridge_j_start", "bridge_j_end", "bridge_j_mid"]
 
 
 def render_floors():
@@ -276,7 +336,11 @@ def render_floors():
     rng = random.Random(7)
     for i, k in enumerate(FLOOR_KINDS):
         C.clear_scene_objects()
-        floor_variant(M, k, rng)
+        if k.startswith("bridge_"):
+            _, axis, part = k.split("_")
+            bridge_variant(M, axis, part, rng)
+        else:
+            floor_variant(M, k, rng)
         sw.put(0, i, C.render_stylized(FLOOR_STYLE))
     sw.save()
 

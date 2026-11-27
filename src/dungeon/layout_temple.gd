@@ -3,7 +3,8 @@ extends RefCounted
 ## Look-test level (run with --level=temple): one room composed like the owner's
 ## soul-fire temple mockup (docs/concept/mockup_01_soul_fire_temple.webp), to judge
 ## how close room composition and camera framing get us before changing anything
-## bigger. Same legend as LayoutTest, plus O pillar, Q broken pillar and : plain floor.
+## bigger. Same legend as LayoutTest, plus O pillar, Q broken pillar, : plain floor and
+## B bridge deck (over a pit; Dungeon works out its axis and end pieces).
 ## Composed like the mockup, running left to right: the back wall is a V. The mural wall
 ## (reliefs, fire alcoves) comes down from the upper left to a pillar at the inside
 ## corner, and a waist-high meander wall rises from it to the upper right. A soul-fire
@@ -19,10 +20,10 @@ const MAP := [
 	"         U::::::::::::: ",
 	"         U::::::o:::::: ",
 	"MWRWMWPWMP:::::::::::p: ",
-	":n:l::k::l:O::::::::::: ",
-	":  h     h   :::::::::: ",
-	":  h     h   :w::::w::: ",
-	":::l:::::l:::::::::::*: ",
+	":n:::::k:::O::::::::::: ",
+	":  B     B   :::::::::: ",
+	":  B     B   :w::::w::: ",
+	":::::::::::::::::::::*: ",
 	"::::::::::S:::::::::::: ",
 	"::Q::::,::::::::kQ::::  ",
 	"::::::::::::::::::n:::  ",
