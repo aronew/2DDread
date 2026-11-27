@@ -97,6 +97,7 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 					door_cells.append(c)
 				"X":
 					exit_cell = c
+					floor_kind[c] = 0   # plain stone under the portal
 				"z":
 					shock_cells.append(c)
 	_cut_near_walls()
@@ -744,7 +745,8 @@ func _process(dt: float) -> void:
 	var pl = Game.player
 	if pl == null:
 		return
-	_fade_occluders(pl, dt)
+	if not (Game.world and Game.world.has_meta("paint_guide")):   # guides show every wall solid
+		_fade_occluders(pl, dt)
 	var pc := Iso.cell_of(pl.gpos)
 	if pc != _last_visit_cell:
 		_last_visit_cell = pc

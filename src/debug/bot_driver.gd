@@ -55,7 +55,9 @@ func _ready() -> void:
 	if start != "" and _route.has(start):
 		_route_i = _route.find(start)
 	elif start != "":
-		_route = [start, "exit"]   # another level (e.g. --level=temple): fight there
+		# another level (e.g. --level=temple): its rooms in layout order from the start room
+		var ids: Array = Game.world.director.rooms.map(func(r): return r.id)
+		_route = (ids.slice(ids.find(start)) if ids.has(start) else [start]) + ["exit"]
 	if enabled:
 		Game.bot_mode = true
 		Game.player.input_override = self

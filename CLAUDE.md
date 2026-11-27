@@ -12,8 +12,20 @@ produced, how the code is organised and how to test changes. Deeper docs:
 everything from `ccr-4c0e7f51-x2cob7`; `main` is older). Work from there.
 
 **The owner's goal:** a whole dungeon that looks like mockup 01 (Hades-style soul-fire
-temple), built room by room. The temple room (`--level=temple`) is the first finished
-room. **The art comes from the owner's image generator, SOL**, painted over frames the
+temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple.gd`
+(`--level=temple`):
+
+| # | Room (`ROOMS` id) | Map columns | State |
+|---|---|---|---|
+| 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`) |
+| 2 | THE HOODED SANCTUM (`sanctum`) | 26-37 | laid out, guide `sanctum_01` rendered, **waiting for the owner's SOL painting** |
+
+Room 1's right edge has a gold bridge (row 3) across the abyss to room 2; room 2 holds
+the exit portal, which descends to the next depth (the same rooms, harder). New rooms
+go further right in the **same map**: only ever add columns to the right or rows at the
+bottom, never insert any before existing ones, or every painting's camera stops
+matching its room. Keep a gap of abyss (4+ cells) between rooms, bridged, so each
+room's back walls stay tall. **The art comes from the owner's image generator, SOL**, painted over frames the
 game renders ("paint guides"). Recipe for every new room:
 
 1. **Lay out the room** in a layout file (copy `src/dungeon/layout_temple.gd`). Rules:
@@ -21,9 +33,13 @@ game renders ("paint guides"). Recipe for every new room:
      down-right, +j down-left). They render 6 m tall automatically. Never put walls
      along the bottom rows or right columns: they would stand in front of the room.
    - Legend: `W` mural wall, `M` soul-fire niche, `P` frieze wall, `O` column, `Q` broken
-     column, `:` plain floor, `B` bridge over a pit, a space inside the floor = a soul-fire
-     pit (enclosed void), `k` urns, `n` candles, `w` laurel-skull plate, `S` start. Full
-     legend in `src/dungeon/dungeon.gd` (`FLOOR_CHAR`, `WALL_CHAR`, `PROP_CHAR`).
+     column, `:` plain floor, `B` bridge (over a pit or across the abyss), a space inside
+     the floor = a soul-fire pit (enclosed void), `k` urns, `n` candles, `p` candelabra,
+     `*` soul brazier, `o` laurel-skull plate, `w` cracked slabs, `,` mossy slabs, `S`
+     start, `X` exit portal. Full legend in `src/dungeon/dungeon.gd` (`FLOOR_CHAR`,
+     `WALL_CHAR`, `PROP_CHAR`).
+   - Check on the guide that nothing tall stands right in front of a feature on screen:
+     cells with the same `i - j` line up vertically, the nearer one in front.
    - The path runs left to right like the mockup; keep one room within about one
      screen so one painting covers it.
    - Hook the layout up in `World._layout()` (as `--level=temple` is) and add `ROOMS`
@@ -35,7 +51,9 @@ game renders ("paint guides"). Recipe for every new room:
    python3 tools/rooms/guide_lines.py docs/paint_guides/ROOM_guide.png
    ```
    `--look=X,Y` is the tile point the camera centres on; zoom 0.8 is the framing SOL
-   handled best. Look at the guide before handing it over.
+   handled best (the sanctum used 0.72 to fit the whole room). Look at the guide before
+   handing it over. Guides show every wall solid (no fading around the hidden player)
+   and hide the dormant exit portal.
 3. **The owner paints it in SOL**: attach `ROOM_lines.png` + the mockup (+ `ROOM_guide.png`
    if SOL takes a third image), with the prompt in `docs/paint_guides/README.md` (edit the
    "What things are" list for the room). Ask for the result **as a PNG file**, not pasted

@@ -373,6 +373,8 @@ func _parse_args() -> void:
 		# the room exactly. Use with --look and --shots.
 		hud.visible = false
 		player.visible = false
+		if portal:
+			portal.visible = false   # the dormant portal ring is an effect, not architecture
 		set_meta("paint_guide", true)   # BotDriver writes the camera next to each shot
 	if opts.has("gfx"):
 		Game.set_preset(opts["gfx"], false)

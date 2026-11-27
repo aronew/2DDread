@@ -16,27 +16,38 @@ extends RefCounted
 ##   with candles between them), crossed by two gold bridges (B) to the lower floor.
 ## * The player starts just above the bridges; the open arena spreads to the right with
 ##   the laurel-skull emblem, a broken column and urns. The near edges break off into the
-##   abyss.
+##   abyss, except for a gold bridge (B, row 3) across the abyss to the next room.
+##
+## Room 2, THE HOODED SANCTUM (columns 26-37): a compact nave, about one screen, so one
+## painting covers it (paint guide sanctum_01). Its back wall (top row) is the hooded
+## mural with soul-fire niches and columns, with a short frieze return down its left
+## column; the bridge arrives below that. A soul-fire moat (two cells wide) splits the
+## nave front to back, crossed by one short bridge in the middle and by the narrow ledges
+## behind and in front of it. Columns and broken columns flank the moat; the descent
+## portal (X) waits on the far side between two braziers, with a laurel-skull plate in
+## front of it.
+## Fight: Hex Witches hold the far bank and shoot across the moat while hounds come over
+## the bridge; a Legionnaire's charge stops dead at the moat's edge.
 
 const MAP := [
-	"OPPPPMPPPOPPPPMPPPPO    ",
-	"W::::::O:::::::O:::::   ",
-	"M:::::::::::::::::::::  ",
-	"W::::::::::::::::k::::  ",
-	"M::::::::o:::::::::p::  ",
-	"W:::k:::::::::::::::::  ",
-	"O::::::::::Q::::::::*:  ",
-	"W:::::::::::::::::::n:  ",
-	"M::::S::::::::::::::::  ",
-	"Wn  B  B    ::::w:::::  ",
-	"M:  B  B    :::::::::   ",
-	"W:::::::::::::::::::k:  ",
-	"M::Q::,::::::::::::::   ",
-	"W:n:::::::::::w::::n    ",
-	" :::Q:::::,:::::::::    ",
-	"   ::::::::::::::::     ",
-	"      ::::::::::        ",
-	"                        ",
+	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO",
+	"W::::::O:::::::O:::::     Pn::k:::k:p:",
+	"M:::::::::::::::::::::    P::O:  ::O*:",
+	"W::::::::::::::::k::::BBBB:::::  :::::",
+	"M::::::::o:::::::::p::    :::::BB:::X:",
+	"W:::k:::::::::::::::::    :::Q:  ::Q:o",
+	"O::::::::::Q::::::::*:    :n::,  :::*:",
+	"W:::::::::::::::::::n:     :::::::n::",
+	"M::::S::::::::::::::::      ::::::",
+	"Wn  B  B    ::::w:::::",
+	"M:  B  B    :::::::::",
+	"W:::::::::::::::::::k:",
+	"M::Q::,::::::::::::::",
+	"W:n:::::::::::w::::n",
+	" :::Q:::::,:::::::::",
+	"   ::::::::::::::::",
+	"      ::::::::::",
+	"",
 ]
 
 ## Room paintings laid over the layout (RoomPaint; docs/paint_guides/README.md).
@@ -52,5 +63,13 @@ const ROOMS := [
 			{"trigger": "enter_delay", "delay": 1.0, "spawn": [["mite", 6], ["spitter", 2], ["bloater", 2]], "far": true},
 			{"trigger": {"remaining": 3}, "spawn": [["brute", 1], ["mite", 5], ["spitter", 2]]},
 		],
+	},
+	{
+		"id": "sanctum", "name": "THE HOODED SANCTUM", "rect": [26, 1, 37, 8], "lock": false,
+		"beats": [
+			{"trigger": "enter", "spawn": [["spitter", 2], ["mite", 4]], "far": true},
+			{"trigger": {"remaining": 2}, "spawn": [["brute", 1], ["mite", 3], ["bloater", 1]], "far": true},
+		],
+		"exit": true,
 	},
 ]
