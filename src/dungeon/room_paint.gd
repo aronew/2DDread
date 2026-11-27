@@ -22,6 +22,7 @@ const FLOOR_SHADER := preload("res://src/vfx/shaders/room_paint.gdshader")
 const EDGE_PX := 56.0            # the painting's outer edge fades over this many px
 const KEEP_OWN := ["eggs"]       # prop kinds drawn with their own sprites inside a painting
 
+var paints_walls := false      # painted with the ENCLOSE walls (import ... walls)
 var w2i := Transform2D.IDENTITY  # world -> painting pixel
 var size_px := Vector2.ZERO
 var _mask := PackedByteArray()   # coarse floor mask, 0..15 per cell
@@ -50,10 +51,11 @@ static func apply(paths: Array, d: Dungeon) -> Array:
 		d.set_painted_cells(painted)
 	# walls, columns and props draw the painting that shows at their base: where paintings
 	# overlap (room 4's upper and lower halves), the topmost one with something painted there
+	var with_walls := out.filter(func(r): return r.paints_walls)
 	for c in d.block_nodes:
-		if d.auto_walls.has(c):
-			continue   # added around the room, not in the painting: they keep their own art
-		var rp := _pick(out, d.block_nodes[c].position)
+		# walls the game added around rooms (ENCLOSE) only draw paintings made with them;
+		# older paintings show abyss there, so those walls keep their own art
+		var rp := _pick(with_walls if d.auto_walls.has(c) else out, d.block_nodes[c].position)
 		if rp:
 			rp._cut(d.block_nodes[c])
 	for pr in d.props:
@@ -78,6 +80,7 @@ static func _pick(paints: Array, world: Vector2) -> RoomPaint:
 
 func setup(tex: Texture2D, info: Dictionary) -> void:
 	texture = tex
+	paints_walls = info.get("walls", false)
 	centered = false
 	var m: Array = info["world_to_image"]
 	w2i = Transform2D(Vector2(m[0], m[1]), Vector2(m[2], m[3]), Vector2(m[4], m[5]))

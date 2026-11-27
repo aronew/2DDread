@@ -34,6 +34,7 @@ shake = 0.02
 muzzle_color = Color(0.55, 0.85, 1, 1)
 muzzle_scale = 0.6
 muzzle_light = 1.8
+muzzle_fx = "arc"
 sound_fire = "arc_fire"
 impact_style = "energy"
 icon_color = Color(0.65, 0.55, 1, 1)

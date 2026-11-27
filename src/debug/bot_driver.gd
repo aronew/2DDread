@@ -158,7 +158,7 @@ func _log() -> void:
 		var left: Array = []
 		for e in Game.enemies:
 			if is_instance_valid(e) and e.alive:
-				left.append("%s@%s" % [e.data.id, Iso.cell_of(e.gpos)])
+				left.append("%s@%s:%s" % [e.data.id, Iso.cell_of(e.gpos), Enemy.S.keys()[e.state]])
 		print("[bot]   left: ", ", ".join(left))
 
 

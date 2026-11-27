@@ -62,6 +62,9 @@ extends Resource
 @export var muzzle_scale := 1.0
 @export var muzzle_wide := false
 @export var muzzle_light := 1.6
+## Extra muzzle effect (VFX.muzzle_fx): "sparks" (hot flecks), "blast" (fire cone,
+## embers, shockwave), "arc" (electric crackle), "rail" (shockwave), "" (flash only)
+@export var muzzle_fx := ""
 @export var sound_fire := "rifle_fire"
 @export var impact_style := "metal"
 @export var icon_color := Color(0.7, 0.9, 1.0)

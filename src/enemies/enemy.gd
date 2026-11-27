@@ -250,6 +250,7 @@ func _integrate(dt: float) -> void:
 	var motion := (vel + knock) * dt + sep * Iso.m(5.0) * dt
 	var before := gpos
 	gpos = Game.dungeon.move_circle(gpos, motion, radius, data.flying)
+	gpos = Game.dungeon.unstick(gpos, data.flying)
 	if knock.length() > 1.0 and (gpos - before).length() < (knock * dt).length() * 0.3:
 		on_wall_impact(knock)
 		knock *= 0.2
@@ -544,6 +545,9 @@ func die(info: DamageInfo) -> void:
 	VFX.gore(gpos, blood_color, size, info.direction)
 	VFX.light_flash(Iso.lift(gpos, hit_height), blood_color, 1.6 if not big else 3.0, 2.0 + size, 0.3)
 	Audio.play("enemy_death_big" if big else "enemy_death", gpos)
+	VFX.souls(gpos, hit_height, clampf(0.25 * size, 0.2, 1.0))
+	if big and VFX.post:
+		VFX.post.shockwave(Iso.lift(gpos, hit_height * 0.5), 170.0 * size, 0.4, 0.9)
 	if big:
 		VFX.shake(0.4)
 		Game.hit_stop(0.09 if is_elite else 0.06, 0.05, is_elite)

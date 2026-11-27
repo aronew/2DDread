@@ -1,11 +1,14 @@
 """Import a generated painting of a room (made from a paint guide, see
 docs/paint_guides/README.md) so the game can lay it back over that room.
 
-    python3 tools/rooms/import_room_paint.py PAINTING GUIDE_JSON NAME
+    python3 tools/rooms/import_room_paint.py PAINTING GUIDE_JSON NAME [walls]
 
 PAINTING    the image the generator returned (any size; resized to the guide's)
 GUIDE_JSON  the guide's camera file (world_to_image), written by --paint-guide
 NAME        output name: assets/rooms/NAME.png and assets/rooms/NAME.json
+walls       the painting includes the walls the game adds around rooms (ENCLOSE): those
+            walls then draw it; without it they keep their own art (older paintings
+            show abyss where they stand)
 
 What it does:
 - The black abyss around the floor is made transparent, so the game's animated
@@ -43,7 +46,7 @@ def key_abyss(rgb):
     return 1.0 - np.asarray(soft).astype(np.float32) / 255.0
 
 
-def main(painting, guide_json, name):
+def main(painting, guide_json, name, walls=False):
     guide = json.load(open(guide_json))
     w, h = guide["size"]
     im = Image.open(painting).convert("RGB")
@@ -61,12 +64,12 @@ def main(painting, guide_json, name):
     with open(os.path.join(d, name + ".json"), "w") as f:
         json.dump({"size": [w, h], "world_to_image": guide["world_to_image"],
                    "mask": {"step": MASK_STEP, "w": mw, "h": mh, "data": mask},
-                   "source": os.path.relpath(painting, ROOT)}, f, indent=1)
+                   "walls": bool(walls), "source": os.path.relpath(painting, ROOT)}, f, indent=1)
     print("wrote assets/rooms/%s.png (%dx%d) and .json" % (name, w, h))
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    if len(sys.argv) not in (4, 5) or (len(sys.argv) == 5 and sys.argv[4] != "walls"):
         print(__doc__)
         sys.exit(1)
-    main(*sys.argv[1:])
+    main(*sys.argv[1:4], walls=len(sys.argv) == 5)

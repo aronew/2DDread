@@ -67,7 +67,7 @@ func _draw() -> void:
 		var half := (r_out - r_in) * 0.5 * taper
 		outer_pts.append(_pt(a, mid + half))
 		inner_pts.append(_pt(a, mid - half * 0.6))
-		cols.append(outer.lerp(core, u * u) * Color(1, 1, 1, (0.25 + 0.75 * u) * life))
+		cols.append(outer.lerp(core, u * u) * Color(1, 1, 1, (0.18 + 0.52 * u) * life))
 	# a strip of quads (one big polygon fails to triangulate where the tail pinches)
 	for i in n - 1:
 		var q := PackedVector2Array([outer_pts[i], outer_pts[i + 1], inner_pts[i + 1], inner_pts[i]])

@@ -8,8 +8,10 @@ extends Ability
 ##            last one, and presses are buffered.
 ##   Thrust   RMB during or right after a dash turns it into a piercing dash-slash that
 ##            carries you on through the whole line.
-##   Execute  any swing that connects with a staggered (or nearly dead) enemy finishes
-##            it in a burst of health and ammo.
+##   Execute  any swing that connects with a staggered (or nearly dead) regular enemy
+##            finishes it in a burst of health and ammo. Heavies only once they're under
+##            30% health. Elites and bosses are never executed: a staggered one takes a
+##            PUNISH hit instead (1.6x, a guaranteed crit), so they still have to be fought.
 ##   Rewards  every sword kill spills ammo and a health orb: the DOOM loop, so diving
 ##            in is how you refill.
 ##   Deflect  enemy shots inside the slash are cut out of the air.
@@ -22,7 +24,7 @@ const SWINGS := [
 	{"dmg": 58.0, "arc": 230.0, "reach": 3.0, "stagger": 90.0, "kb": 10.0, "lunge": 2.0, "time": 0.36, "heavy": true},
 ]
 const HIT_AT := 0.045          # the blade lands this long into a swing (heavy: x1.6)
-const CANCEL_AT := 0.62        # fraction of a swing after which the next one can start
+const CANCEL_AT := 0.78        # fraction of a swing after which the next one can start
 const COMBO_WINDOW := 0.45     # after a swing ends, the next press continues the chain
 const BUFFER_T := 0.2          # a press this early is remembered
 const LUNGE_T := 0.09
@@ -35,6 +37,10 @@ const THRUST_DMG := 48.0
 const KILL_AMMO := 0.05        # fraction of every ammo pool a sword kill spills
 const KILL_HEAL := 6.0
 const EXEC_HEAL := 3           # health orbs (10 hp each) from an execution
+const HEAVY_MASS := 3.0        # heavier than this: executable only when nearly dead
+const HEAVY_EXEC_HP := 0.3
+const PUNISH_MULT := 1.6       # a swing on a staggered elite / boss / healthy heavy
+const ELITE_STAGGER := 0.5     # sword stagger against elites and bosses
 
 var swinging := false
 var stats := {"swing": 0, "heavy": 0, "thrust": 0, "hits": 0, "kills": 0, "execute": 0, "deflect": 0}
@@ -220,8 +226,8 @@ func _start_thrust(p) -> void:
 	_after_t = 0.0
 	p.grant_iframes(THRUST_T + 0.1)
 	Audio.play("sword_thrust", p.gpos)
-	SlashFX.spawn(p.gpos + dir * Iso.m(THRUST_M * 0.5), 1.0, _aim_a + PI * 0.5, _aim_a - PI * 0.5,
-		0.05, THRUST_M * 0.5 + 0.4, 0.05, 0.22, Color(1.9, 1.15, 0.55), Color(1.5, 0.3, 0.06))
+	SlashFX.spawn(p.gpos + dir * Iso.m(THRUST_M * 0.5), 1.0, _aim_a + PI * 0.18, _aim_a - PI * 0.18,
+		THRUST_M * 0.3, THRUST_M * 0.5 + 0.3, 0.05, 0.2, Color(1.9, 1.15, 0.55), Color(1.5, 0.3, 0.06))
 	VFX.burst_sprite(VFX.T.spark, Iso.lift(p.gpos + dir * Iso.m(THRUST_M * 0.5), 1.0), Color(2.6, 1.6, 0.7, 0.8),
 		Vector2(0.6, 0.12), Vector2(Iso.m(THRUST_M) / 40.0, 0.18), 0.18, true, Iso.to_screen(dir).angle())
 
@@ -251,13 +257,23 @@ func _hit(p, e, dmg: float, stagger: float, kb_m: float, dir: Vector2, heavy: bo
 	if _executable(e):
 		_execute(p, e, dir)
 		return 1
-	var d := DamageInfo.make(dmg * power(p), DamageInfo.Type.PHYSICAL, p)
+	var tough: bool = e.is_elite or e.data.boss
+	var punish: bool = e.staggered()
+	var d := DamageInfo.make(dmg * power(p) * (PUNISH_MULT if punish else 1.0), DamageInfo.Type.PHYSICAL, p)
 	d.is_melee = true
 	d.direction = dir
 	d.knockback = Iso.m(kb_m)
-	d.stagger = stagger
+	d.stagger = stagger * (ELITE_STAGGER if tough else 1.0)
 	d.hit_pos = at
-	Combat.roll_crit(d, p.build.stat("crit_chance") + 0.05, 1.75)
+	if punish:
+		d.crit = true
+		d.crit_mult = 1.5
+		d.amount *= 1.5
+		VFX.popup(at, 2.2, "PUNISH", Color(1.0, 0.6, 0.25), 24)
+		if VFX.post:
+			VFX.post.shockwave(Iso.lift(at, 0.6), 160.0, 0.3, 0.6)
+	else:
+		Combat.roll_crit(d, p.build.stat("crit_chance") + 0.05, 1.75)
 	VFX.impact(at, e.hit_height, -dir, "flesh", e.blood_color)
 	VFX.burst_sprite(VFX.T.slash, Iso.lift(at, e.hit_height), Color(3.0, 1.8, 0.8, 0.9),
 		Vector2(0.18, 0.08), Vector2(0.55, 0.22), 0.1, true, Iso.to_screen(dir).angle() + PI * 0.5)
@@ -269,7 +285,11 @@ func _hit(p, e, dmg: float, stagger: float, kb_m: float, dir: Vector2, heavy: bo
 
 
 func _executable(e) -> bool:
-	return e.alive and not e.data.boss and (e.staggered() or (e.hp / e.max_hp < 0.15 and not e.is_elite))
+	if not e.alive or e.data.boss or e.is_elite:
+		return false
+	if e.data.mass >= HEAVY_MASS and e.hp / e.max_hp > HEAVY_EXEC_HP:
+		return false
+	return e.staggered() or e.hp / e.max_hp < 0.15
 
 
 func _execute(p, e, dir: Vector2) -> void:
@@ -286,6 +306,9 @@ func _execute(p, e, dir: Vector2) -> void:
 	VFX.popup(at, 2.0, "EXECUTED", Color(1.0, 0.75, 0.3), 32)
 	VFX.screen_flash(Color(1.0, 0.55, 0.2, 0.14), 0.1)
 	VFX.light_flash(Iso.lift(at, 1.0), Color(1.0, 0.6, 0.3), 2.2, 4.0, 0.2)
+	VFX.souls(at, e.hit_height, 0.8)
+	if VFX.post:
+		VFX.post.shockwave(Iso.lift(at, 0.6), 200.0, 0.35, 1.0)
 	Combat.hit_enemy(e, d)
 	stats["execute"] += 1
 	for i in EXEC_HEAL:
@@ -323,6 +346,8 @@ func _feedback(p, hits: int, kills: int, heavy: bool) -> void:
 	if hits <= 0:
 		return
 	Audio.play("sword_hit", p.gpos, 0.0, randf_range(0.9, 1.1))
+	if heavy and VFX.post:
+		VFX.post.shockwave(Iso.lift(p.gpos + Vector2.from_angle(_aim_a) * Iso.m(1.6), 0.6), 130.0, 0.25, 0.7)
 	VFX.shake(0.1 + 0.04 * hits + (0.12 if heavy else 0.0))
 	VFX.kick(Iso.to_screen(Vector2.from_angle(_aim_a)).normalized(), 6.0 if heavy else 3.5)
 	# a tiny freeze on contact sells the weight; budgeted by Game.hit_stop's cooldown

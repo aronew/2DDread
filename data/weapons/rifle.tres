@@ -34,6 +34,7 @@ shake = 0.05
 muzzle_color = Color(1, 0.72, 0.3, 1)
 muzzle_scale = 0.75
 muzzle_light = 1.4
+muzzle_fx = "sparks"
 sound_fire = "rifle_fire"
 impact_style = "metal"
 icon_color = Color(1, 0.78, 0.35, 1)

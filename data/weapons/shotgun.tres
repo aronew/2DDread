@@ -37,6 +37,7 @@ muzzle_color = Color(1, 0.62, 0.25, 1)
 muzzle_scale = 1.45
 muzzle_wide = true
 muzzle_light = 2.6
+muzzle_fx = "blast"
 sound_fire = "shotgun_fire"
 impact_style = "metal"
 icon_color = Color(1, 0.62, 0.25, 1)

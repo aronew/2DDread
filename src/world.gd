@@ -175,7 +175,8 @@ func build_level() -> void:
 func _layout() -> Dictionary:
 	if OS.get_cmdline_user_args().has("--level=test"):
 		return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
-	return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS, "paints": LayoutTemple.PAINTS,
+	var paints: Array = LayoutTemple.PAINTS_V3 if OS.get_cmdline_user_args().has("--paint-set=v3") else LayoutTemple.PAINTS
+	return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS, "paints": paints,
 		"terraces": LayoutTemple.TERRACES, "enclose": LayoutTemple.ENCLOSE}
 
 
