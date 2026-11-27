@@ -101,9 +101,19 @@ const MAP := [
 ## them are enclosed on all sides, near walls fading out around the player.
 const ENCLOSE := true
 
+## The jade set (2026-11-27): the owner's repaint of every room with a new jade/teal palette
+## and more irregular stone, rooms 2-5 painted from the round-2 guides with their new
+## walls. Each was clipped to its room's band of columns (tools/rooms/band_clip.py; room 4's
+## two halves also split along the terrace edge) so neighbours never paint over each other.
+## Room 1's right half is listed first so the closer west painting stays on top.
+const PAINTS: Array = ["res://assets/rooms/temple_east_jade", "res://assets/rooms/temple_jade",
+	"res://assets/rooms/sanctum_jade", "res://assets/rooms/altar_jade", "res://assets/rooms/stair_jade",
+	"res://assets/rooms/undercroft_jade", "res://assets/rooms/shades_jade"]
+
+## The previous set (v3 ink on green-grey stone), still selectable with --paint-set=v3.
 ## temple_east_01 (room 1's right half, painted with its new walls; listed first so the
 ## closer temple_01 stays on top where they overlap) joined on 2026-11-27.
-const PAINTS: Array = ["res://assets/rooms/temple_east_01", "res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01", "res://assets/rooms/altar_01",
+const PAINTS_V3: Array = ["res://assets/rooms/temple_east_01", "res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01", "res://assets/rooms/altar_01",
 	"res://assets/rooms/stair_01", "res://assets/rooms/undercroft_01",
 	"res://assets/rooms/shades_01"]
 

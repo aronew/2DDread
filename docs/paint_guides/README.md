@@ -54,6 +54,17 @@ Room 1's right half came back painted (`temple_east_01_painted_sol.webp`, import
 with `walls`): SOL painted the camera-side walls as solid blocks with Greek-key bands and
 followed the guide closely. Use that phrasing for the next rooms.
 
+### The jade set (in the game since 2026-11-27)
+
+The owner repainted all seven paintings with a jade/teal palette and more irregular
+stone (`*_painted_sol_jade.webp`: room 1 west from `temple_01`, room 1 east from
+`temple_east_01`, rooms 2-5 from the `_02` guides below). Matching each to its guide was
+automatic: edge correlation against every guide's line art picked the right one with a
+clear margin. Each was clipped to its room with `tools/rooms/band_clip.py PAINTING
+GUIDE_JSON OUT I0 I1` (bands in CLAUDE.md section 0), room 4's two halves also with the
+terrace-edge `clip_paint.py` polygons above, then imported with `walls` (except room 1
+west) as `assets/rooms/<room>_jade`. `--paint-set=v3` shows the previous set.
+
 ### Round 2: rooms 2-5 with their new walls (guides rendered 2026-11-27)
 
 Same cameras as the `_01` guides (checked: identical `world_to_image`), so the floors,

@@ -24,9 +24,15 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 | 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | painted in two halves (`assets/rooms/stair_01` = the gallery, `undercroft_01` = everything below the terrace's top edge; each was masked to its half with `clip_paint.py` so they meet along that edge). SOL painted the gallery only to column 76; the painted right end was shifted out one cell to cover column 77 (see the paint guide README). L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
 | 5 | THE HALL OF SHADES (`shades`) | 84-99, rows 4-16 | painted (`assets/rooms/shades_01`, one painting for the whole hall, guide `--look=90.55,9.05 --zoom=0.525`; the Undercroft corner of the frame was clipped out). A big square hall after the Undercroft (bridge from its right edge at row 14, entering through a doorway in the left wall), modelled on a Hades chamber the owner shared: four hooded shrine blocks around an open central field between gold bands, emblem plates, niche-and-mural walls; three waves ending with a frenzied elite; drops a chest and holds the exit portal |
 
-**Repaint in progress:** rooms 2-5 have new paint guides with their enclosing walls
-(`docs/paint_guides/*_02_*`, same cameras as `_01`; see "Round 2" in that README). Until
-they come back, those rooms use their `_01` paintings with the new walls in kit art.
+**Jade set (2026-11-27, current):** the owner repainted every room in a jade/teal palette
+with more irregular stone; rooms 2-5 from the round-2 guides (`docs/paint_guides/*_02_*`),
+with their enclosing walls. In the game as `assets/rooms/*_jade` (`LayoutTemple.PAINTS`);
+the previous set is `PAINTS_V3`, shown with `--paint-set=v3`. Each painting was clipped to
+its room's band of map columns with `tools/rooms/band_clip.py` (room 1: i < 24, room 2:
+24-40, room 3: 40-57, room 4: 57-82, room 5: 82+, cut mid-corridor; walls and props on the
+band keep their painted height) so neighbours never paint over each other; room 4's halves
+were also split along the terrace edge as before. Room 1's west painting has no enclosing
+walls, so its camera-side walls are still kit art.
 
 Rooms are joined by 3-wide stone corridors (map rows 2-4, and rows 13-15 into room 5;
 they were gold bridges until 2026-11-27), and `ENCLOSE` walls in every open floor edge
