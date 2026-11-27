@@ -6,6 +6,59 @@ produced, how the code is organised and how to test changes. Deeper docs:
 [`docs/ASSETS.md`](docs/ASSETS.md) covers the sprite/audio contract, and
 [`README.md`](README.md) covers controls and dev flags.
 
+## 0. Where we are and how a room gets made (read this first)
+
+**Latest work is on branch `claude/practical-clarke-pigy57`** (it already contains
+everything from `ccr-4c0e7f51-x2cob7`; `main` is older). Work from there.
+
+**The owner's goal:** a whole dungeon that looks like mockup 01 (Hades-style soul-fire
+temple), built room by room. The temple room (`--level=temple`) is the first finished
+room. **The art comes from the owner's image generator, SOL**, painted over frames the
+game renders ("paint guides"). Recipe for every new room:
+
+1. **Lay out the room** in a layout file (copy `src/dungeon/layout_temple.gd`). Rules:
+   - The map's **top row and left column are the back walls** (on screen +i is
+     down-right, +j down-left). They render 6 m tall automatically. Never put walls
+     along the bottom rows or right columns: they would stand in front of the room.
+   - Legend: `W` mural wall, `M` soul-fire niche, `P` frieze wall, `O` column, `Q` broken
+     column, `:` plain floor, `B` bridge over a pit, a space inside the floor = a soul-fire
+     pit (enclosed void), `k` urns, `n` candles, `w` laurel-skull plate, `S` start. Full
+     legend in `src/dungeon/dungeon.gd` (`FLOOR_CHAR`, `WALL_CHAR`, `PROP_CHAR`).
+   - The path runs left to right like the mockup; keep one room within about one
+     screen so one painting covers it.
+   - Hook the layout up in `World._layout()` (as `--level=temple` is) and add `ROOMS`
+     beats for its fights.
+2. **Render the paint guide** (no HUD, no player, camera saved next to it), then its line art:
+   ```bash
+   VK_ICD_FILENAMES=/opt/lavapipe/lvp_icd.json xvfb-run -a -s "-screen 0 1536x1024x24" godot --path . --resolution 1536x1024 --fixed-fps 30 --audio-driver Dummy -- --level=temple --look=5.2,8.3 --zoom=0.8 --paint-guide --shots=/tmp/guide --shot-every=5 --quit-after=2.2
+   cp /tmp/guide/shot_000.png docs/paint_guides/ROOM_guide.png; cp /tmp/guide/shot_000.json docs/paint_guides/ROOM_guide.json
+   python3 tools/rooms/guide_lines.py docs/paint_guides/ROOM_guide.png
+   ```
+   `--look=X,Y` is the tile point the camera centres on; zoom 0.8 is the framing SOL
+   handled best. Look at the guide before handing it over.
+3. **The owner paints it in SOL**: attach `ROOM_lines.png` + the mockup (+ `ROOM_guide.png`
+   if SOL takes a third image), with the prompt in `docs/paint_guides/README.md` (edit the
+   "What things are" list for the room). Ask for the result **as a PNG file**, not pasted
+   inline, and with **pure black** outside the floor.
+4. **Check alignment**: `python3 tools/rooms/check_paint.py PAINTING docs/paint_guides/ROOM_lines.png /tmp/check.png`
+   and look at it: pits, bridges, columns and props must sit on the red lines. (SOL
+   once followed an older guide's framing: try each guide's lines and use the one that fits.)
+5. **Import** with the matching guide's camera, then list it in the layout's `PAINTS`:
+   ```bash
+   cp PAINTING docs/paint_guides/ROOM_painted_sol.webp
+   python3 tools/rooms/import_room_paint.py docs/paint_guides/ROOM_painted_sol.webp docs/paint_guides/ROOM_guide.json ROOM
+   godot --headless --path . --import
+   ```
+6. **Test and look**: `check_scripts.tscn`, a bot run in the room
+   (`-- --bot --level=... --start=<room id> --quit-after=50`), and a rendered screenshot
+   (`--look=... --shots=...`, section 6). If the room layout changes later, the painting no
+   longer matches: render a new guide and repaint.
+
+How it works: `src/dungeon/room_paint.gd` (painting = floor layer; walls/props draw it
+through `paint_cutout.gdshader` so they still hide actors behind them; tiles stay where
+the painting has no floor). Gameplay (collision, pits, enemies) always comes from the
+layout. Details and limits: `docs/paint_guides/README.md`.
+
 ## 1. What we're making
 
 **Genre:** a **2D isometric action-RPG twin-stick shooter**: fast, aggressive, loot-driven

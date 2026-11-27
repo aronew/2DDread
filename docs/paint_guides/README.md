@@ -14,6 +14,10 @@ the architecture where it is.
 | `temple_02_guide.json` | where the frame looks: `world_to_image` maps game positions to image pixels |
 | `temple_01_*` | the first guide (closer framing). `temple_01_painted_sol.webp` is the first SOL painting (low walls); **`temple_01_painted_sol_v2_tall.webp` is the one in the game**: tall walls, painted at this guide's framing (the floor layout didn't change when the walls grew, so this guide's camera still fits) |
 
+The step-by-step recipe for a new room is section 0 of `CLAUDE.md`. Helpers:
+`tools/rooms/guide_lines.py` (line art from a guide), `tools/rooms/check_paint.py`
+(overlay a painting on a guide's lines), `tools/rooms/import_room_paint.py`.
+
 Make a new guide (any room, any framing):
 
 ```bash
