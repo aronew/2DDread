@@ -374,6 +374,23 @@ func random_floor_in(rect: Rect2i, avoid_g: Vector2, min_dist: float, rng: Rando
 
 # ------------------------------------------------------------------ flow field
 
+## Cells into which stepping costs more: a standing prop (amphora, brazier, urn...) blocks
+## most of its cell, so the flow leads around it, but still through it when it is the only
+## way (enemies pushed into a brazier from the far side used to stay stuck behind it).
+const PROP_FLOW_COST := 4
+
+
+func _prop_blocks(c: Vector2i) -> bool:
+	if not props_by_cell.has(c):
+		return false
+	for p in props_by_cell[c]:
+		if p.alive and p.blocks_movement:
+			return true
+	return false
+
+
+## Distance field toward target (Dial's algorithm: steps cost 1, PROP_FLOW_COST into a cell
+## with a prop), out to about 48 steps.
 func update_flow(target: Vector2i) -> void:
 	if target == _flow_target:
 		return
@@ -381,23 +398,27 @@ func update_flow(target: Vector2i) -> void:
 	flow.clear()
 	if walk_blocked(target):
 		return
-	var q: Array[Vector2i] = [target]
+	var buckets: Array = [[target]]
 	flow[target] = 0
-	var head := 0
-	while head < q.size():
-		var c: Vector2i = q[head]
-		head += 1
-		var d: int = flow[c]
-		if d > 48:
-			continue
-		for o in NEIGH8:
-			var n: Vector2i = c + o
-			if flow.has(n) or walk_blocked(n):
-				continue
-			if o.x != 0 and o.y != 0 and (walk_blocked(Vector2i(c.x + o.x, c.y)) or walk_blocked(Vector2i(c.x, c.y + o.y))):
-				continue
-			flow[n] = d + 1
-			q.append(n)
+	var d := 0
+	while d < buckets.size():
+		for c in buckets[d]:
+			if flow.get(c, -1) != d or d > 48:
+				continue   # a shorter way reached it already, or out of range
+			for o in NEIGH8:
+				var n: Vector2i = c + o
+				if walk_blocked(n):
+					continue
+				if o.x != 0 and o.y != 0 and (walk_blocked(Vector2i(c.x + o.x, c.y)) or walk_blocked(Vector2i(c.x, c.y + o.y))):
+					continue
+				var nd: int = d + (PROP_FLOW_COST if _prop_blocks(n) else 1)
+				if flow.has(n) and flow[n] <= nd:
+					continue
+				flow[n] = nd
+				while buckets.size() <= nd:
+					buckets.append([])
+				buckets[nd].append(n)
+		d += 1
 
 
 func invalidate_flow() -> void:
@@ -477,6 +498,7 @@ func remove_prop(p: Prop) -> void:
 		if props_by_cell[c].is_empty():
 			props_by_cell.erase(c)
 	props.erase(p)
+	invalidate_flow()   # the way through its cell is open now
 
 
 # ------------------------------------------------------------------ visuals

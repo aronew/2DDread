@@ -153,6 +153,13 @@ func _log() -> void:
 		_elapsed(), Engine.get_frames_per_second(), pl.hp, pl.max_hp, pl.level, Game.living_enemies(),
 		Game.projectiles.list.size(), room.id if room else "-", _route[mini(_route_i, _route.size() - 1)],
 		Iso.cell_of(pl.gpos), stats])
+	# the last few enemies and where they are: a stalled room usually means one is stuck
+	if Game.living_enemies() > 0 and Game.living_enemies() <= 3:
+		var left: Array = []
+		for e in Game.enemies:
+			if is_instance_valid(e) and e.alive:
+				left.append("%s@%s" % [e.data.id, Iso.cell_of(e.gpos)])
+		print("[bot]   left: ", ", ".join(left))
 
 
 # ------------------------------------------------------------------ brain

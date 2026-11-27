@@ -57,26 +57,37 @@ extends RefCounted
 ## Witches shoot down from the gallery, then a molten elite. Two paint guides (stair_01,
 ## undercroft_01) overlap at the stair.
 
+## Room 5, THE HALL OF SHADES (columns 84-99, rows 4-16): the biggest single hall, one
+## painting (paint guide shades_01). A bridge from the Undercroft's right edge (row 14)
+## enters through a doorway at the front of its left wall. Tall walls of murals (W),
+## soul-fire niches (M) and columns enclose the back and left; four hooded shrine blocks
+## (W, freestanding 3 m) stand around an open central field between two gold Greek-key
+## bands, with a laurel-skull plate in the middle and three more along the front. The exit
+## portal waits in the back-right corner between two braziers. Props stay off the walls'
+## corners so nothing spawns in a pocket. Fight: three waves (hounds and witches; a
+## Legionnaire, skulls and witches; a frenzied elite Legionnaire with hounds), then a
+## chest and the portal.
+
 const MAP := [
 	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OPPPOPWPOPPPO    OPMPOPWPOWMWOPWPOMO",
 	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:    P:::::k:::::::k::::",
 	"M:::::::::::::::::::::    P::O:  ::O::    P::O:::::O:::    P::::::::::::::::::",
 	"W::::::::::::::::k::::BBBB:::::  :::::BBBB:hhhh:=l:::::BBBB:hhhhhhh:l:::::::::",
-	"M::::::::o:::::::::p::    :::::BB:::::    ::::::=::::::    :::o:::::::::::n:::",
-	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b",
-	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::",
-	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::",
-	"M::::S::::::::::::::::      ::::::           ::::::::           _____///______",
-	"Wn  B  B    ::::w:::::                                           _____///______",
-	"M:  B  B    :::::::::                                              P:k::::k:::::",
-	"W:::::::::::::::::::k:                                             M::::::::::::",
-	"M::Q::,::::::::::::::                                              P::::o:::::::",
-	"W:n:::::::::::w::::n                                               M::O:::::O:::",
-	" :::Q:::::,:::::::::                                               W:::::=::::::",
-	"   ::::::::::::::::                                                Ok::::=::::::",
-	"      ::::::::::                                                   W::O:::::O:::",
+	"M::::::::o:::::::::p::    :::::BB:::::    ::::::=::::::    :::o:::::::::::n:::      OMWMOPWPOMWMOPWO",
+	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b      W:k:::n:::n:k:::",
+	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::      M:::::::::::*X*:",
+	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::      O::hhhhhhhhhhh::",
+	"M::::S::::::::::::::::      ::::::           ::::::::           _____///______      W:::W:n:::::W:::",
+	"Wn  B  B    ::::w:::::                                           _____///______     Mb::::::::::::::",
+	"M:  B  B    :::::::::                                              P:k::::k:::::    W:::::::o:::::::",
+	"W:::::::::::::::::::k:                                             M::::::::::::    O:::::::::::::b:",
+	"M::Q::,::::::::::::::                                              P::::o:::::::    M:::::::::::::::",
+	"W:n:::::::::::w::::n                                               M::O:::::O:::    W:::W:::::n:W:=:",
+	" :::Q:::::,:::::::::                                               W:::::=::::::BBBB:::hhhhhhhhhhh::",
+	"   ::::::::::::::::                                                Ok::::=::::::    ::::o:::o:::o:k:",
+	"      ::::::::::                                                   W::O:::::O:::    ::::::::::::::::",
 	"                                                                   M:b:::::::k::",
-	"                                                                   P:::::X:::n::",
+	"                                                                   P:::::::::n::",
 	"                                                                   O::,:::::::::",
 ]
 
@@ -125,6 +136,15 @@ const ROOMS := [
 		"beats": [
 			{"trigger": "enter", "spawn": [["brute", 1], ["mite", 4], ["spitter", 2, {"area": [73, 1, 77, 7]}]], "far": true},
 			{"trigger": {"remaining": 2}, "spawn": [["brute", 1, {"elite": ["molten"]}], ["bloater", 2], ["spitter", 1, {"area": [60, 1, 66, 7]}]], "far": true},
+		],
+		"reward": "chest",
+	},
+	{
+		"id": "shades", "name": "THE HALL OF SHADES", "rect": [85, 5, 99, 16], "lock": false,
+		"beats": [
+			{"trigger": "enter", "spawn": [["mite", 5], ["spitter", 2]], "far": true},
+			{"trigger": {"remaining": 3}, "spawn": [["brute", 1], ["bloater", 2], ["spitter", 2]], "far": true},
+			{"trigger": {"remaining": 2}, "spawn": [["brute", 1, {"elite": ["frenzied"]}], ["mite", 4], ["bloater", 1]], "far": true},
 		],
 		"reward": "chest",
 		"exit": true,

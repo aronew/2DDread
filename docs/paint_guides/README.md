@@ -12,6 +12,7 @@ the architecture where it is.
 | `temple_02_guide.png` | **current** 1536×1024 frame of the temple room (`--level=temple`), tall back walls, no HUD, no player |
 | `temple_02_lines.png` | the same frame as line art, for generators that follow outlines more strictly |
 | `temple_02_guide.json` | where the frame looks: `world_to_image` maps game positions to image pixels |
+| `shades_01_guide.png` / `_lines.png` / `_guide.json` | **room 5, THE HALL OF SHADES**, waiting for its SOL painting (`--look=90.55,9.05 --zoom=0.525`, the whole hall in one frame). Prompt below |
 | `stair_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, upper half: THE GREAT STAIR** (the gallery and the stair down; `--look=65.94,2.44 --zoom=0.62`). `stair_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/stair_01` (gallery only). It stops at column 76; before import its painted right end (columns 75-76 and the edge lip) was copied one cell further along +i, so the floor reaches column 77 |
 | `undercroft_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, lower half: THE UNDERCROFT** (the hall two levels down; `--look=71.94,12.98 --zoom=0.66`). `undercroft_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/undercroft_01` (everything below the terrace's top edge) |
 | `altar_01_guide.png` / `_lines.png` / `_guide.json` | **room 3, THE BONE ALTAR** (`--look=46.1,1.8 --zoom=0.72`). `altar_01_painted_sol.webp` is the owner's SOL painting of it, in the game as `assets/rooms/altar_01` |
@@ -231,6 +232,41 @@ python3 tools/rooms/import_room_paint.py /tmp/under.png docs/paint_guides/underc
 few pixels were patched with the step beside them.) Both are in `LayoutTemple.PAINTS`,
 the lower one last. A repainted `stair_01` that includes the gallery's right end
 (columns 76-77: amphorae by the back wall, a fire urn near the edge) would finish the room.
+
+## Prompt for SOL: room 5, the Hall of Shades
+
+Attach `shades_01_lines.png` (image 1), the mockup (image 2), `shades_01_guide.png`
+(image 3) and one of the v3 room paintings, e.g. `altar_01_painted_sol.webp` (image 4), so
+it comes out in the same style. Use the temple prompt above, with "Paint image 1 ... in the
+exact style of image 4 (image 2 is the overall mood)" and this list:
+
+> What things are:
+> - A big square temple hall, the Hall of Shades. The two long walls at the back (left
+>   and top) are towering temple walls, about three times a person's height: hooded-figure
+>   murals with gold laurel branches, arched niches with green soul-fire, gold Greek-key
+>   bands, dark stone blocks up to a heavy cornice, with tall fluted stone columns against
+>   them.
+> - The narrow strip at the far left, edged in gold, is a stone bridge over the black
+>   abyss; it enters the hall through a doorway at the front end of the left wall. Paint
+>   the room at the top-left corner of the frame pure black.
+> - The four square blocks standing in the hall are shrine pillars, chest-to-head high:
+>   a hooded figure carved on each face between gold laurels, a gold Greek-key base,
+>   green soul-fire glow at their feet.
+> - The two long gold lines across the floor are bands of gold Greek-key inlay framing
+>   the open central field; the round gold shapes are laurel-and-skull floor plates.
+> - The vase pairs are red-orange Greek amphorae, the lidded urns are sealed fire urns,
+>   the small clusters are lit candles, the low box at the front right is a stone table,
+>   and the two bronze tripod bowls with green flames in the back-right corner are soul
+>   braziers. Keep the floor between those two braziers plain stone: a portal glows there.
+> - The front and right edges of the floor break off into black abyss.
+>
+> Light: dim green from the niches and braziers, warm pools around the candles, dark
+> corners.
+
+Then check alignment with `shades_01_lines.png`, black out the Undercroft corner at the
+top left (`clip_paint.py ... "80,-100 80,100 -200,100 -200,-100"`), import with
+`shades_01_guide.json` as `shades_01`, and add `"res://assets/rooms/shades_01"` to
+`LayoutTemple.PAINTS`.
 
 ## Importing a painting
 
