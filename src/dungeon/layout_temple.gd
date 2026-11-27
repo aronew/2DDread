@@ -1,8 +1,8 @@
 class_name LayoutTemple
 extends RefCounted
-## Look-test level (run with --level=temple): one room composed like the owner's
-## soul-fire temple mockup (docs/concept/mockup_01_soul_fire_temple.webp), the first
-## room of the temple dungeon. Same legend as LayoutTest, plus O pillar, Q broken
+## The temple dungeon, the game's default level (--level=test opens the original test
+## level). Room 1 was composed like the owner's soul-fire temple mockup
+## (docs/concept/mockup_01_soul_fire_temple.webp). Same legend as LayoutTest, plus O pillar, Q broken
 ## pillar, : plain floor and B bridge deck (over a pit; Dungeon works out its axis and
 ## end pieces).
 ##

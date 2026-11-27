@@ -13,7 +13,7 @@ everything from `ccr-4c0e7f51-x2cob7`; `main` is older). Work from there.
 
 **The owner's goal:** a whole dungeon that looks like mockup 01 (Hades-style soul-fire
 temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple.gd`
-(`--level=temple`):
+(**the game's default level**; the original test level is `--level=test`):
 
 | # | Room (`ROOMS` id) | Map columns | State |
 |---|---|---|---|
@@ -196,7 +196,8 @@ All of this is playable, and a bot plays the whole route without errors:
   - **Elite affix layer:** frenzied, shielded, volatile, molten.
 - **Loot:** six rarities, stat affixes, behaviour affixes and legendary/mythic perks.
   Also inventory (Tab), XP/levels and four attributes.
-- **Dungeon:** one handcrafted level (`src/dungeon/layout_test.gd`, ASCII):
+- **Dungeon:** the temple dungeon (default, section 0) and the original handcrafted test
+  level (`--level=test`, `src/dungeon/layout_test.gd`, ASCII):
   - Threshold → Bone Corridor → secret Reliquary behind a breakable wall.
   - Locked Kennels arena (nests spawn hounds until destroyed).
   - Stormwalk (shock-plate hazard).
@@ -386,12 +387,15 @@ models are made from primitives in code, then rendered through a custom stylizer
 ```bash
 godot --headless --path . --import                                    # refresh imports + class_name cache (needed after adding class_name scripts)
 godot --headless --path . res://tools/dev/check_scripts.tscn          # compile-check every script/resource
-godot --headless --path . --fixed-fps 60 -- --bot --quit-after=120    # automated playthrough, prints a combat log
+godot --headless --path . --fixed-fps 60 -- --bot --quit-after=240    # automated playthrough of the temple dungeon, prints a combat log
+godot --headless --path . --fixed-fps 60 -- --bot --level=test --quit-after=120   # the same on the original test level
 godot --headless --path . --fixed-fps 60 -- --bot --bot-human --bot-nododge --quit-after=120   # harder difficulty probe
-godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to a room / depth / preset while playing
+godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to a room / depth / preset while playing
 ```
 
-- **Rooms for `--start`:** `landing conduit vault hatchery spine reactor`.
+- **Rooms for `--start`:** temple dungeon (default) `temple sanctum altar gallery
+  undercroft shades`; with `--level=test`: `landing conduit vault hatchery spine reactor`.
+  `--level=temple` is still accepted (it is the default).
 - **Look test:** `--level=temple` builds a single room composed like the temple mockup
   (`layout_temple.gd`), laid out the mockup's way so the path runs left to right with
   nothing in front of it: the map's left column and top row are the back walls (6 m

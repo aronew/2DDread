@@ -168,13 +168,13 @@ func build_level() -> void:
 		camera.snap()
 
 
-## Which hand-authored level to build. --level=temple opens the mockup look-test room.
+## Which hand-authored level to build: the temple dungeon (LayoutTemple, the owner's painted
+## rooms) by default; --level=test opens the original test level (LayoutTest).
 func _layout() -> Dictionary:
-	for a in OS.get_cmdline_user_args():
-		if a == "--level=temple":
-			return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS, "paints": LayoutTemple.PAINTS,
-				"terraces": LayoutTemple.TERRACES}
-	return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
+	if OS.get_cmdline_user_args().has("--level=test"):
+		return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
+	return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS, "paints": LayoutTemple.PAINTS,
+		"terraces": LayoutTemple.TERRACES}
 
 
 func _layer(n: String, z: int) -> Node2D:

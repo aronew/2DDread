@@ -59,7 +59,7 @@ func _ready() -> void:
 	if start != "" and _route.has(start):
 		_route_i = _route.find(start)
 	elif start != "" or not ids.has(_route[0]):
-		# another level (e.g. --level=temple): its rooms in layout order from the start room
+		# another level (the temple dungeon): its rooms in layout order from the start room
 		_route = (ids.slice(ids.find(start)) if ids.has(start) else ([start] if start != "" else ids)) + ["exit"]
 	if enabled:
 		Game.bot_mode = true

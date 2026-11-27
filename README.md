@@ -82,7 +82,18 @@ Every attack is telegraphed on the ground before it lands.
 - **XP and levels:** with four attributes to spend points in.
 
 ### Dungeon
-The slice is one hand-built level:
+The game opens in **the temple dungeon** (`src/dungeon/layout_temple.gd`), five rooms
+painted in the style of the concept art, joined by gold bridges over the abyss:
+
+1. The Soul-Fire Temple: soul-fire pits crossed by gold bridges.
+2. The Hooded Sanctum: a nave split by a soul-fire moat.
+3. The Bone Altar: bone nests spawn hounds until you break them.
+4. The Great Stair and the Undercroft: a gallery, a grand stair down, and a sunken hall
+   where witches shoot down from above.
+5. The Hall of Shades: a big shrine hall with three waves and the descent portal to the
+   next depth, where enemies are stronger.
+
+The original test level is still there with `--level=test`:
 
 1. Landing bay.
 2. Conduit.
@@ -135,13 +146,18 @@ godot --headless --path . --fixed-fps 60 -- --bot --quit-after=120
 godot --headless --path . --fixed-fps 60 -- --bot --bot-human --bot-nododge --quit-after=120
 
 # rendered run with screenshots every 3 s of game time, starting in an arena
-godot --path . --fixed-fps 30 -- --bot --start=hatchery --shots=/tmp/shots --shot-every=3 --quit-after=20
+godot --path . --fixed-fps 30 -- --bot --start=altar --shots=/tmp/shots --shot-every=3 --quit-after=20
 
 # jump straight to a room / depth while playing
-godot --path . -- --start=reactor --depth=2
+godot --path . -- --start=gallery --depth=2
+
+# the original test level
+godot --path . -- --level=test --start=reactor
 ```
 
-Rooms you can pass to `--start`: `landing`, `conduit`, `vault`, `hatchery`, `spine`, `reactor`.
+Rooms you can pass to `--start`: `temple`, `sanctum`, `altar`, `gallery`, `undercroft`,
+`shades` (temple dungeon); with `--level=test`: `landing`, `conduit`, `vault`, `hatchery`,
+`spine`, `reactor`.
 
 ## Performance & graphics presets
 
