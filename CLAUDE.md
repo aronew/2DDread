@@ -8,8 +8,9 @@ produced, how the code is organised and how to test changes. Deeper docs:
 
 ## 0. Where we are and how a room gets made (read this first)
 
-**Latest work is on branch `claude/practical-clarke-pigy57`** (it already contains
-everything from `ccr-4c0e7f51-x2cob7`; `main` is older). Work from there.
+**Work on branch `claude/practical-clarke-pigy57`**; it reaches `main` through pull
+requests (main and the branch were level on 2026-11-27, at PR #2). Before starting, fetch
+and fast-forward it to `origin/main` in case main moved.
 
 **The owner's goal:** a whole dungeon that looks like mockup 01 (Hades-style soul-fire
 temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple.gd`
