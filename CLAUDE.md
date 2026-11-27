@@ -105,6 +105,12 @@ All of this is playable, and a bot plays the whole route without errors:
   - Locked Kennels arena (nests spawn hounds until destroyed).
   - Stormwalk (shock-plate hazard).
   - Hall of the Legion (elite finale) → descent portal to depth N+1, with harder enemies.
+- **Temple look-test room** (`--level=temple`, `layout_temple.gd`), built toward mockup 01:
+  soul-fire pits with capstone lips (the owner's pit pack), gold Greek-key bridges with
+  sunburst medallions, mural walls with the hooded figure and laurels, green fire niches,
+  dark green columns, grey slab floor. **The owner's goal (2026-11-27): make this room
+  match the mockup, then build a whole dungeon from that concept**, so every piece is
+  modular (pits from any void shape, bridges from `B` cells, walls by legend).
 - **Presentation:**
   - Pooled VFX: particles, lights, decals, telegraphs.
   - Hit-stop, trauma shake, HDR glow, post FX.
@@ -119,6 +125,10 @@ All of this is playable, and a bot plays the whole route without errors:
   - F3 overlay.
 
 **Not built yet / next ideas:**
+- Still missing from mockup 01: the broken rock edge and dark broken posts in the
+  foreground, a large laurel-skull floor plate, candles on ledges, skeleton sword-and-shield
+  warriors with green-flame heads, and moodier lighting (darker edges, pools of light).
+- A full dungeon built from the temple pieces (the owner's next step after the room).
 - Forge/lava biome (mockup 02).
 - Basic skeleton swordsman enemy.
 - A boss with phases.
@@ -211,17 +221,31 @@ models are made from primitives in code, then rendered through a custom stylizer
     light such as flames.
   - `build_env.py → PAINTED` says which file each floor/wall kind uses. A missing file
     falls back to the modelled look, so the kit still runs without textures.
-  - Current set: floors are large 50–90 cm slabs (`slab_worn`, `slab_damaged`,
-    `slab_moss_bones`, lifted ×1.3 in the material; `flag2` uses the same slabs turned
-    90°). `tools/blender/prep_textures.py` makes them from the kit originals in
-    `textures/kit_2026-11-27/textures_large_slabs/`: it evens out slab-to-slab colour
-    (otherwise the 2 m repeat reads as a checkerboard) and blends the edges so the image
-    repeats seamlessly. Also `floor_border_meander`, `floor_emblem_skull`,
-    `floor_emblem_sun` (sunburst plate), `wall_ashlar` (gold band moved lower), and
-    `soulfire_flames` (fire-alcove niches). Older textures (`floor_flag`, `floor_cracked`,
-    `floor_moss`, `column_wrap_v1`) are kept but unused.
+  - Current set: floors are large 50–90 cm slabs, lifted ×1.3 in the material (`flag2`
+    uses the same slabs turned 90°). `tools/blender/prep_textures.py` makes them from the
+    kit originals in `textures/kit_2026-11-27/textures_large_slabs/`: it evens out
+    slab-to-slab colour (otherwise the 2 m repeat reads as a checkerboard) and blends the
+    edges so the image repeats (`slab_worn`, `slab_damaged`, `slab_moss_bones`). Its
+    `cool()` then makes the copies the game actually uses (`slab_*_cool`): half the
+    saturation and slightly cooler, because the mockup's floor is grey stone, not olive,
+    and with the slab joints widened and darkened, because the kit's hairline joints
+    vanish at game size. `slab_worn_cool_plain` (no joints) is for the pit capstones.
+    Also `floor_border_meander` (floors, the low `cut` wall and bridge bands),
+    `floor_emblem_skull`, `floor_emblem_sun` (sunburst plate and bridge medallions),
+    `wall_ashlar` (gold band moved lower), `soulfire_flames` (fire-alcove niches) and
+    `wall_hooded_panel`: the kit's painted hooded-figure wall module unprojected flat by
+    `prep_textures.py` (`HOODED` holds the measured corner lines), used as the mural on
+    relief walls (legend `W`). Older textures (`floor_flag`, `floor_cracked`, `floor_moss`,
+    `column_wrap_v1`) are kept but unused.
+  - Unprojecting painted modules: generated modules are drawn at roughly the game angle
+    but not exactly, so they can't be used as tiles directly. Measure the face's corner
+    lines on the image, resample it to a flat rectangle (`unproject_relief()`,
+    `prep_pit_textures.py`), and use the result as a texture or a runtime-drawn surface.
   - `textures/kit_2026-11-27/` holds the owner's full generated kit (textures, props,
     wall modules, decals, glow masks) with its own README and prompts.
+    `textures/kit_2026-11-27_pits/` holds the owner's floor-and-pit pack (pit edges and
+    corners, a whole pit, README, prompts); its bridge and floor images didn't come
+    through as files and aren't stored.
 - **Props are painted, not modelled:** `tools/blender/import_painted_props.py` turns the
   kit's painted prop sprites into the 8 prop sheets (amphorae → `crate`, candles →
   `canisters`, fire urn → `barrel`, chest, soul brazier → `crystals`, candelabra →
@@ -242,10 +266,13 @@ models are made from primitives in code, then rendered through a custom stylizer
   - `build_player.py`: gunslinger legs, 4 torsos, HUD portrait (`-- portrait`); ~10 min.
   - `build_enemies.py`: hound/witch/legion/skull, one sheet per animation; ~20 min per
     pair. Run two processes in parallel.
-  - `build_env.py`: 11 floor kinds, 10 wall kinds (incl. freestanding `pillar` and
-    `pillar_broken`, legend `O`/`Q`, and `cut`, a waist-high wall), 3 low blocks, 8 props;
-    ~1.5 min.
+  - `build_env.py`: 19 floor kinds (11 floors, then 8 bridge decks), 10 wall kinds (incl.
+    freestanding `pillar` and `pillar_broken`, legend `O`/`Q`, and `cut`, a waist-high
+    wall), 3 low blocks, 8 props, and the 16 pit capstone pieces (`-- pits`); ~2 min.
     Index order is fixed because the layout legend maps to it.
+  - `prep_pit_textures.py` (plain python): unprojects the pit pack's painted wall into
+    `assets/sprites/env/pit_wall.png` (one clean masonry course, tiling) and
+    `pit_flames.png` (the painted flames on transparency, tiling along x).
 - **Before full renders:** preview a few frames first (render a contact sheet with
   `render_stylized()` and look at it). That's how every model so far was iterated.
 - **After re-rendering:** run `godot --headless --path . --import`. Sprites import
@@ -265,19 +292,37 @@ godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to 
 - **Look test:** `--level=temple` builds a single room composed like the temple mockup
   (`layout_temple.gd`): a V-shaped back wall running left to right (mural wall down to a
   corner pillar, waist-high meander wall `U` rising to the right), a soul-fire chasm with
-  gold walkways, and near edges breaking off into the abyss. Add `--start=temple` with
+  gold bridges, and near edges breaking off into the abyss. Add `--start=temple` with
   `--bot`. `--zoom=N` multiplies the camera zoom; at the 30° camera the default zoom
-  already matches the mockup's scale.
+  already matches the mockup's scale. `--look=X,Y` makes a still: the player stands on
+  that tile point, no encounters start and the camera has no mouse look-ahead. Use it
+  with `--shots` (the first shot is at 2 s) to compare a room against concept art:
+  `-- --level=temple --look=8,11 --zoom=0.9 --shots=/tmp/s --shot-every=5 --quit-after=2.2`.
 - **Near walls are cut low:** a wall with the room behind it and nothing walkable in front
   (`dungeon._cut_near_walls()`) is drawn with the waist-high `cut` wall sprite so it never
   hides the floor; it still blocks movement and shots like any wall.
 - **Chasms:** void cells enclosed by walkable floor on all four sides become soul-fire
-  pits automatically (`pit_fire.gd`). Their far walls are drawn as stone dropping into a
-  green glow (under the floor, so the near rim hides them), with painted flame strips
-  standing along the walls (`assets/sprites/env/pit_flames.png`, four strips;
-  `pit_flames.gdshader` sways and flickers them by TIME) and tier-1 green lights.
+  pits automatically (`pit_fire.gd`), built after the owner's pit pack: a narrow row of
+  capstones at floor level, plain masonry dropping 1.4 m, and green fire burning low
+  inside so the lip always reads. Three layers:
+  - Interior (z −19, just above the floor): far walls in painted masonry (`pit_wall.png`,
+    dark under the lip, fire-lit at the foot), green light streaks, a glowing bed and two
+    rows of the pack's painted flames (`pit_flames.png`, swayed by
+    `pit_flames.gdshader`). All of it is clipped to the pit openings with
+    `Geometry2D.intersect_polygons`, so the near rim hides what it should at any pit
+    size, and the masonry paints over the floor tiles' own edge inside a pit.
+  - Capstones (z −18): `env/pit_coping`, one piece per grid corner chosen by a 4-bit
+    mask of which of the four cells around it are pit (see `build_env.py`), so straight
+    edges and inner and outer corners all join. Stones facing into the pit drop into it;
+    on the near side only their lip shows.
+  - Tier-1 green lights that tint the stone around the pit.
   Gaps between rooms are enclosed by walls, so they stay plain abyss. `:` in a layout is
   plain flagstone floor (no random variants).
+- **Bridges:** `B` cells in a layout are bridge decks over a pit (gold Greek-key bands
+  along both sides, paving down the middle, a sunburst medallion where they meet land, a
+  dark stone face over the pit). `Dungeon._orient_bridges()` picks the axis and end
+  pieces from the neighbours, and the decks are drawn above the pit layers (z −17) so
+  the fire glows under them. The pit side under a deck is "open": no masonry, just glow.
 - **Other dev flags:** `--shots=DIR --shot-every=S` (screenshots), `--inv-shot`
   (inventory test), `--dmg-mult=N` (forced deaths), `--bench=S` (avg FPS),
   `--g-<setting>=v` (per-setting overrides).

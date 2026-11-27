@@ -89,10 +89,14 @@ that matches Godot's `Light2D.height` model:
 | `env/floor_tiles` | 1 row × N kinds | 264×184 frames, origin (132,70); slab sides hang below the diamond so platform edges form automatically |
 | `env/wall_blocks` | 1 row × N kinds | 260×400 frames, origin (130,318); 3 m tall full-cell blocks. Kind `cut` is a waist-high wall the game uses for near-side walls automatically |
 | `env/low_blocks` | 1 row × N kinds | movement blockers that bullets pass over |
+| `env/pit_coping` | 1 row × 16 pieces | 264×160 frames, origin (132,70) = a tile **vertex**. Column = 4-bit mask of which cells around the vertex are pit (bit 0 = cell (−1,−1), 1 = (0,−1), 2 = (−1,0), 3 = (0,0)); 0 and 15 are empty |
+| `env/pit_wall.png`, `env/pit_flames.png` | single images | not sheets: PitFire draws them at runtime. `pit_wall` tiles both ways (1.5 m × 0.73 m per repeat), `pit_flames` tiles along x (2 m × 0.87 m), flame tips at the top |
 | `props/<name>` | 1 row × frames | chest: frame 1 = open; eggs: frame 1 = swollen |
 
 Wall and floor index order is listed in each JSON's `kinds` array. The ASCII
-legend in `src/dungeon/layout_test.gd` maps characters to those indices.
+legend in `src/dungeon/layout_test.gd` maps characters to those indices. Floor kinds
+11–18 are bridge decks (`bridge_<i|j>_<single|start|end|mid>`); layouts don't name them
+directly, they mark bridge cells `B` and the game picks the piece.
 
 The coiled whip on the left hip is part of the legs sheet. The whip's rope is
 not a sprite: `src/player/whip_visual.gd` draws it live (an ink outline plus a
