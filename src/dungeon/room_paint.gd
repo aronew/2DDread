@@ -51,6 +51,8 @@ static func apply(paths: Array, d: Dungeon) -> Array:
 	# walls, columns and props draw the painting that shows at their base: where paintings
 	# overlap (room 4's upper and lower halves), the topmost one with something painted there
 	for c in d.block_nodes:
+		if d.auto_walls.has(c):
+			continue   # added around the room, not in the painting: they keep their own art
 		var rp := _pick(out, d.block_nodes[c].position)
 		if rp:
 			rp._cut(d.block_nodes[c])

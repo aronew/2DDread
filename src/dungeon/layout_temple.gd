@@ -71,9 +71,9 @@ extends RefCounted
 const MAP := [
 	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OPPPOPWPOPPPO    OPMPOPWPOWMWOPWPOMO",
 	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:    P:::::k:::::::k::::",
-	"M:::::::::::::::::::::    P::O:  ::O::    P::O:::::O:::    P::::::::::::::::::",
-	"W::::::::::::::::k::::BBBB:::::  :::::BBBB:hhhh:=l:::::BBBB:hhhhhhh:l:::::::::",
-	"M::::::::o:::::::::p::    :::::BB:::::    ::::::=::::::    :::o:::::::::::n:::      OMWMOPWPOMWMOPWO",
+	"M:::::::::::::::::::::::::P::O:  ::O::::::P::O:::::O:::::::P::::::::::::::::::",
+	"W::::::::::::::::k:::::::::::::  ::::::::::hhhh:=l::::::::::hhhhhhh:l:::::::::",
+	"M::::::::o:::::::::p:::::::::::BB:::::::::::::::=:::::::::::::o:::::::::::n:::      OMWMOPWPOMWMOPWO",
 	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b      W:k:::n:::n:::k:",
 	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::      Mb::::::::::*X*:",
 	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::      O::hhhhhhhhhhh::",
@@ -82,9 +82,9 @@ const MAP := [
 	"M:  B  B    :::::::::                                              P:k::::k:::::    W:::::::o:::::::",
 	"W:::::::::::::::::::k:                                             M::::::::::::    O:::::::::::::b:",
 	"M::Q::,::::::::::::::                                              P::::o:::::::    M:::::::::::::::",
-	"W:n:::::::::::w::::n                                               M::O:::::O:::    W:::W:::::n:W:=:",
-	" :::Q:::::,:::::::::                                               W:::::=::::::BBBB:::hhhhhhhhhhh::",
-	"   ::::::::::::::::                                                Ok::::=::::::    ::::o:::o:::o:k:",
+	"W:n:::::::::::w::::n                                               M::O:::::O:::::::W:::W:::::n:W:=:",
+	" :::Q:::::,:::::::::                                               W:::::=:::::::::::::hhhhhhhhhhh::",
+	"   ::::::::::::::::                                                Ok::::=::::::::::::::o:::o:::o:k:",
 	"      ::::::::::                                                   W::O:::::O:::    ::::::::::::::::",
 	"                                                                   M:b:::::::k::",
 	"                                                                   P:::::::::n::",
@@ -97,6 +97,10 @@ const MAP := [
 ## temple_01's camera; the floor layout is the same as when that guide was taken.
 ## assets/rooms/sanctum_01: the owner's SOL painting of room 2
 ## (docs/paint_guides/sanctum_01_painted_sol.webp), painted at paint guide sanctum_01.
+## Wall in every open floor edge (Dungeon._enclose_floor): rooms and the corridors between
+## them are enclosed on all sides, near walls fading out around the player.
+const ENCLOSE := true
+
 const PAINTS: Array = ["res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01", "res://assets/rooms/altar_01",
 	"res://assets/rooms/stair_01", "res://assets/rooms/undercroft_01",
 	"res://assets/rooms/shades_01"]

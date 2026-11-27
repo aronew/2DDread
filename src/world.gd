@@ -42,6 +42,7 @@ func _ready() -> void:
 	add_child(_cm)
 	camera = GameCamera.new()
 	add_child(camera)
+	camera.add_child(AmbientMotes.new())
 	player = Player.new()
 	player.name = "Player"
 	var plight := PointLight2D.new()
@@ -95,11 +96,11 @@ func _setup_background() -> void:
 	var rect := ColorRect.new()
 	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rect.color = Color(0.02, 0.09, 0.06)
+	# the world beyond the walls is black (the owner's call; the soul-fire lives in the pits)
+	rect.color = Color(0.0, 0.0, 0.0)
 	_bg_mat = ShaderMaterial.new()
 	_bg_mat.shader = preload("res://src/vfx/shaders/void_bg.gdshader")
 	_bg_mat.set_shader_parameter("noise_tex", preload("res://src/vfx/fog_noise.tres"))
-	rect.material = _bg_mat
 	layer.add_child(rect)
 	_bg_rect = rect
 
@@ -126,6 +127,7 @@ func build_level() -> void:
 	Game.dungeon = dungeon
 	Game.enemies.clear()
 	var layout := _layout()
+	dungeon.enclose = layout.get("enclose", false)
 	dungeon.build(layout["map"], entities, decals)
 	var pits := PitFire.find_pits(dungeon)
 	if not pits.is_empty():
@@ -174,7 +176,7 @@ func _layout() -> Dictionary:
 	if OS.get_cmdline_user_args().has("--level=test"):
 		return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
 	return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS, "paints": LayoutTemple.PAINTS,
-		"terraces": LayoutTemple.TERRACES}
+		"terraces": LayoutTemple.TERRACES, "enclose": LayoutTemple.ENCLOSE}
 
 
 func _layer(n: String, z: int) -> Node2D:
@@ -260,7 +262,7 @@ func apply_graphics() -> void:
 	_env.glow_intensity = 0.7 if full else 0.85
 	_env.glow_bloom = 0.02 if full else 0.0
 	var bg: int = g["bg"]
-	_bg_rect.material = _bg_mat if bg > 0 else null
+	_bg_rect.material = null   # black beyond the walls (void_bg is kept for a later biome)
 	_bg_mat.set_shader_parameter("quality", bg)
 	if post:
 		post.set_full(g["post"])
