@@ -327,6 +327,11 @@ godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to 
   dark stone face over the pit). `Dungeon._orient_bridges()` picks the axis and end
   pieces from the neighbours, and the decks are drawn above the pit layers (z −17) so
   the fire glows under them. The pit side under a deck is "open": no masonry, just glow.
+- **Paint guides (generated art):** the owner's art comes from an image generator
+  (SOL), which takes attached reference images. `--paint-guide` (with `--look` and
+  `--shots`) hides the HUD and player and writes each shot's camera next to it
+  (`world_to_image`), so a room frame can be repainted in the mockup's style and laid
+  back on the same room. Workflow, prompt and limits: `docs/paint_guides/README.md`.
 - **Other dev flags:** `--shots=DIR --shot-every=S` (screenshots), `--inv-shot`
   (inventory test), `--dmg-mult=N` (forced deaths), `--bench=S` (avg FPS),
   `--g-<setting>=v` (per-setting overrides).

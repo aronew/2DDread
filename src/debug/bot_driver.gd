@@ -127,6 +127,17 @@ func _shot() -> void:
 	var img := get_viewport().get_texture().get_image()
 	var path := "%s/shot_%03d.png" % [shots_dir, _shot_n]
 	img.save_png(path)
+	if Game.world.has_meta("paint_guide"):
+		# where this frame looks, so a painting made from it can be laid back on the room
+		var cam := Game.camera
+		var c := cam.get_screen_center_position()
+		# world (Node2D) position -> image pixel: the stretch transform times the camera's
+		var t: Transform2D = get_viewport().get_final_transform() * get_viewport().get_canvas_transform()
+		var info := {"screen_center": [c.x, c.y], "zoom": cam.zoom.x, "size": [img.get_width(), img.get_height()],
+			"world_to_image": [t.x.x, t.x.y, t.y.x, t.y.y, t.origin.x, t.origin.y]}
+		var f := FileAccess.open(path.get_basename() + ".json", FileAccess.WRITE)
+		if f:
+			f.store_string(JSON.stringify(info, " "))
 	_shot_n += 1
 
 

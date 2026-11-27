@@ -362,6 +362,13 @@ func _parse_args() -> void:
 		director.set_process(false)
 		camera.lookahead = 0.0
 		camera.snap()
+	if opts.has("paint-guide"):
+		# dev: a clean frame of the room for an image generator to paint over (no HUD,
+		# no player), plus where the camera was, so the painting can be laid back on
+		# the room exactly. Use with --look and --shots.
+		hud.visible = false
+		player.visible = false
+		set_meta("paint_guide", true)   # BotDriver writes the camera next to each shot
 	if opts.has("gfx"):
 		Game.set_preset(opts["gfx"], false)
 	for k in Game.gfx.keys():
