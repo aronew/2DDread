@@ -98,9 +98,10 @@ legend in `src/dungeon/layout_test.gd` maps characters to those indices. Floor k
 11–18 are bridge decks (`bridge_<i|j>_<single|start|end|mid>`); layouts don't name them
 directly, they mark bridge cells `B` and the game picks the piece.
 
-The coiled whip on the left hip is part of the legs sheet. The whip's rope is
-not a sprite: `src/player/whip_visual.gd` draws it live (an ink outline plus a
-leather gradient with an ember tip), so its reach can change on every crack.
+The saber's slash is not a sprite: `src/vfx/slash_fx.gd` draws a hellfire crescent
+live, so each swing's arc and reach can differ. (The coiled whip still rendered on the
+left hip of the legs sheet is a leftover from the removed whip; drop it on the next
+player re-render.)
 
 The legs and torso split exists so the legs follow movement while the torso
 follows aim. Both layers share the same feet origin. If you author a single

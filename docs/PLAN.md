@@ -30,7 +30,7 @@ core/      Iso math · SheetDB (sprite sheets → CanvasTextures) · IsoSprite �
 player/    Player (movement, dash, aim, weapons, abilities) · PlayerVisual (legs/torso compositing)
 combat/    WeaponData · Weapon · ProjectileSystem · CombatGrid (spatial hash) · Status effects · Perks
 enemies/   EnemyData · Enemy (base FSM) · Mite · Spitter · Brute · Bloater · Elite affixes
-abilities/ Shock Nova · Seeker Swarm · Fury's Lash (whip: crack / yank / execute / whirl)
+abilities/ Shock Nova · Seeker Swarm · Hellfire Saber (RMB: combo / dash-slash / execute)
 loot/      Item generation (6 rarities, affixes, legendary perks) · Pickups · Inventory
 dungeon/   Layout (ASCII, hand-authored) · Dungeon builder · Rooms/encounters · Doors · Props/hazards
 ui/        HUD · Minimap · Inventory screen · Damage numbers
