@@ -16,6 +16,8 @@ What it does:
   flood-filled and keyed out. Dark pixels inside the room (grout, pit shadows, ink) stay.
 - A coarse copy of that abyss mask goes into the JSON (`mask`, one hex digit per 16 px),
   so the game knows where the painting has floor and only drops tiles there.
+- Its average colour (`mean`) is stored too: the game tints walls it doesn't cover
+  (kit art) toward it, so they don't stand out in grey.
 - The guide's camera transform is copied next to it. The game fades the painting's outer
   edge itself (room_paint.gdshader), so it blends into the tiles beyond it.
 """
@@ -64,7 +66,8 @@ def main(painting, guide_json, name, walls=False):
     with open(os.path.join(d, name + ".json"), "w") as f:
         json.dump({"size": [w, h], "world_to_image": guide["world_to_image"],
                    "mask": {"step": MASK_STEP, "w": mw, "h": mh, "data": mask},
-                   "walls": bool(walls), "source": os.path.relpath(painting, ROOT)}, f, indent=1)
+                   "walls": bool(walls), "mean": [round(float(v) / 255.0, 4) for v in rgb[alpha > 0.9].mean(0)],
+                   "source": os.path.relpath(painting, ROOT)}, f, indent=1)
     print("wrote assets/rooms/%s.png (%dx%d) and .json" % (name, w, h))
 
 

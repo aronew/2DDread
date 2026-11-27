@@ -159,6 +159,7 @@ a **hand-inked, cel-shaded mythic Greek underworld**.
 |---|---|
 | ![](docs/concept/mockup_01_soul_fire_temple.webp) `docs/concept/mockup_01_soul_fire_temple.webp` | Dark green-stone temple, gold Greek-key (meander) trim, laurel/skull floor emblems, broken columns, urns, candles, **bright green soul-fire pits**. Gunslinger (hat, red scarf, dual pistols) with dash afterimages and golden tracers. Enemies: shield/sword skeleton warriors with green flame, flaming skulls, magenta enemy projectiles. HUD: portrait in a gold diamond plus a long red health bar (bottom-left), Q/E diamond ability icons (bottom-centre), "WAVE 2/4" plate with diamond pips (top-right), ammo "18/36" with bullet icons (bottom-right). |
 | ![](docs/concept/mockup_02_forge_lava.webp) `docs/concept/mockup_02_forge_lava.webp` | **Second biome (not built yet):** forge/lava: molten channels, gears, chains, red banners, furnace altars, giant statue head. Enemies: floating sorceresses firing red diamond shard spreads, hellhounds, cloaked shield warriors. Same HUD language. |
+| ![](docs/concept/gunslinger_design_armed.webp) `docs/concept/gunslinger_design_armed.webp`, `gunslinger_design_holstered.webp` | **The player character, the owner's own design (2026-11-27):** black double-breasted long coat with gold piping and buttons, sleeves rolled to the elbow (cream cuffs), big red scarf with flowing tails, black flat-brimmed hat with a square crown, red band and gold trim, brown gauntlet gloves, belt with a square gold buckle and two holsters, brown knee boots with gold-edged cuffs, ornate gold flintlock pistols. `build_player.py` models him after it, and the HUD portrait is cut from it (`tools/ui/portrait_from_art.py`). |
 
 **Gameplay/feel references (DreadHunter screenshots):** `docs/concept/ref_dreadhunter_01..05_*.webp`.
 These show camera angle, scale, density, HUD placement and lightning/critical-hit VFX.
@@ -384,7 +385,12 @@ models are made from primitives in code, then rendered through a custom stylizer
   camera. Characters use 16 dirs. The player torso uses 32 aim dirs in a 4×8 grid; the
   legs sheet uses 16 dirs with 8 run frames + 1 idle.
 - **Scripts and render times (4 cores):**
-  - `build_player.py`: gunslinger legs, 4 torsos, HUD portrait (`-- portrait`); ~10 min.
+  - `build_player.py`: gunslinger legs, 4 torsos; ~30 min. The model follows the owner's
+    design (`docs/concept/gunslinger_design_*.webp`): the long coat's skirt is six panels
+    hinged at the belt on the legs layer (front ones kicked by the thighs, the rest
+    streaming behind in the run cycle). The HUD portrait is not rendered any more: it is
+    cut from the design art with `tools/ui/portrait_from_art.py ART CX CY SIZE`
+    (`-- portrait` still renders one from the model).
   - `build_enemies.py`: hound/witch/legion/skull, one sheet per animation; ~20 min per
     pair. Run two processes in parallel.
   - `build_env.py`: 19 floor kinds (11 floors, then 8 bridge decks), 10 wall kinds (incl.
@@ -437,6 +443,16 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
   includes them is imported with `walls` (`import_room_paint.py ... NAME walls`) and then
   draws them too. The background beyond the walls is black. `Dungeon.unstick()` pulls an
   actor whose centre ends up inside a wall (hard knockback into a corner) back out.
+- **Paintings vs live objects:** props are painted into room paintings, so a breaking prop
+  (or an opening chest) patches its painted copy out with floor cloned from beside it
+  (`RoomPaint.patch_prop`, `paint_patch.gdshader`; test with `--break-props=S`). Camera-
+  side walls in paintings made with walls get a backfill of cloned plain floor
+  (`RoomPaint._backfill`), so fading them shows the room, not the painted wall. Kit walls
+  no painting covers are tinted toward the paintings' `mean` colour.
+- **Character style:** `entity.gdshader` (player and enemies) has a style pass so the
+  Blender renders sit in the inked paintings: a thick dark ink outline, inked inner edges,
+  flatter cel shading, cool deep shadows and a little more saturation (`style = 0` turns
+  it off). It narrows the gap; truly matching needs painted character art (section 2).
 - **Feedback VFX:** `PostFX.shockwave(world_pos, radius_px, dur, strength)` bends the
   screen in a ground-flattened ring (full post shader only, i.e. Medium/High presets;
   up to 4 at once). Used by explosions, big deaths, Shock Nova, heavy sword hits, punish

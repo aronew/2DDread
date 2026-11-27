@@ -84,7 +84,7 @@ that matches Godot's `Light2D.height` model:
 |---|---|---|
 | `player/player_legs` | 16 dirs × 9 cols (8 run frames + 1 idle) | meta `bob_m`: 8 pelvis offsets (m) so the torso bobs in sync |
 | `player/player_torso_<rifle\|shotgun\|arc\|rail>` | 32 dirs, grid 4 rows × 8 cols, row-major | meta `muzzle_m`: [forward, left, height] in metres; optional `muzzle2_m` = second barrel (twin revolvers alternate) |
-| `ui/portrait.png` | single image | HUD portrait shown in the gold diamond |
+| `ui/portrait.png` | single image (256×256) | HUD portrait shown in the gold diamond (the inscribed diamond is visible); made from character art with `tools/ui/portrait_from_art.py` |
 | `enemies/<name>_<anim>` | 16 dirs × N frames | names come from `EnemyData.sheet_move` / `sheet_attack` (hound, witch, legion, skull) |
 | `env/floor_tiles` | 1 row × N kinds | 264×184 frames, origin (132,70); slab sides hang below the diamond so platform edges form automatically |
 | `env/wall_blocks` | 1 row × N kinds | 260×400 frames, origin (130,318); 3 m tall full-cell blocks. Kind `cut` is a waist-high wall the game uses for near-side walls automatically |
@@ -99,9 +99,7 @@ legend in `src/dungeon/layout_test.gd` maps characters to those indices. Floor k
 directly, they mark bridge cells `B` and the game picks the piece.
 
 The saber's slash is not a sprite: `src/vfx/slash_fx.gd` draws a hellfire crescent
-live, so each swing's arc and reach can differ. (The coiled whip still rendered on the
-left hip of the legs sheet is a leftover from the removed whip; drop it on the next
-player re-render.)
+live, so each swing's arc and reach can differ.
 
 The legs and torso split exists so the legs follow movement while the torso
 follows aim. Both layers share the same feet origin. If you author a single

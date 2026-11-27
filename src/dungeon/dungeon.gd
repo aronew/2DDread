@@ -36,6 +36,7 @@ var shock_cells: Array = []
 var breakables := {}      # Vector2i -> hp
 var bridges := {}         # Vector2i -> true: floor cells drawn as bridge decks over a pit
 var painted_cells := {}   # Vector2i -> true: covered by a room painting, no tile drawn
+var room_paints: Array = []   # RoomPaint nodes laid over this level
 var drops := {}           # Vector2i -> true: `_` cells, the face of a drop to a lower floor (void, never a pit)
 var stairs := {}          # Vector2i -> true: `/` cells, walkable stairs drawn by Terrace (no tile)
 var tall_walls := {}      # Vector2i -> true: back walls drawn 6 m tall (see _is_back_wall)
@@ -575,7 +576,9 @@ func _build_floor() -> void:
 	add_child(_floor_root)
 	var chunks := {}
 	for c in floor_kind:
-		if bridges.has(c) or painted_cells.has(c) or stairs.has(c):
+		# no tile under walls the game added around rooms: they stand outside the room, and a
+		# tile there peeked out under painted walls and showed through faded ones
+		if bridges.has(c) or painted_cells.has(c) or stairs.has(c) or auto_walls.has(c):
 			continue
 		var k := Vector2i(floori(float(c.x) / CHUNK), floori(float(c.y) / CHUNK))
 		if not chunks.has(k):
@@ -874,7 +877,7 @@ func _fade_occluders(pl, dt: float) -> void:
 			_faded.erase(c)
 			continue
 		var n: Node2D = block_nodes[c]
-		var target := (0.12 if near_walls.has(c) else 0.28) if want.has(c) else 1.0
+		var target := (0.2 if near_walls.has(c) else 0.28) if want.has(c) else 1.0
 		n.modulate.a = move_toward(n.modulate.a, target, dt * 4.0)
 		if target == 1.0 and n.modulate.a >= 1.0:
 			_faded.erase(c)
