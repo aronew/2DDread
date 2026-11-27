@@ -39,6 +39,10 @@ const MAP := [
 	"                        ",
 ]
 
+## Room paintings laid over the layout (RoomPaint; docs/paint_guides/README.md). The
+## first one is the owner's SOL painting of paint guide temple_01.
+const PAINTS := ["res://assets/rooms/temple_01"]
+
 const ROOMS := [
 	{
 		"id": "temple", "name": "THE SOUL-FIRE TEMPLE", "rect": [0, 0, 22, 17], "lock": false,

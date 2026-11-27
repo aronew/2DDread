@@ -133,6 +133,11 @@ func build_level() -> void:
 		pf.name = "PitFire"
 		hazards.add_child(pf)
 		pf.setup(pits, dungeon)
+	# room paintings (generated art laid over the layout); --no-paint shows the bare kit,
+	# and paint guides are always taken without them
+	var args := OS.get_cmdline_user_args()
+	if layout.has("paints") and not args.has("--no-paint") and not args.has("--paint-guide"):
+		RoomPaint.apply(layout["paints"], dungeon)
 	for c in dungeon.door_cells:
 		var df := DoorField.new()
 		df.setup(c, dungeon)
@@ -161,7 +166,7 @@ func build_level() -> void:
 func _layout() -> Dictionary:
 	for a in OS.get_cmdline_user_args():
 		if a == "--level=temple":
-			return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS}
+			return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS, "paints": LayoutTemple.PAINTS}
 	return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
 
 

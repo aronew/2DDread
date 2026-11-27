@@ -34,6 +34,7 @@ var door_cells: Array = []
 var shock_cells: Array = []
 var breakables := {}      # Vector2i -> hp
 var bridges := {}         # Vector2i -> true: floor cells drawn as bridge decks over a pit
+var painted_cells := {}   # Vector2i -> true: covered by a room painting, no tile drawn
 var start_cell := Vector2i.ZERO
 var exit_cell := Vector2i(-1, -1)
 var flow := {}
@@ -461,15 +462,23 @@ func remove_prop(p: Prop) -> void:
 
 # ------------------------------------------------------------------ visuals
 
+## Floor cells a room painting covers (RoomPaint): their tiles are dropped.
+func set_painted_cells(cells: Dictionary) -> void:
+	painted_cells = cells
+	_build_floor()
+
+
 func _build_floor() -> void:
 	var sheet := SheetDB.get_sheet(FLOOR_SHEET)
+	if _floor_root:
+		_floor_root.queue_free()
 	_floor_root = Node2D.new()
 	_floor_root.name = "Floor"
 	_floor_root.z_index = -20
 	add_child(_floor_root)
 	var chunks := {}
 	for c in floor_kind:
-		if bridges.has(c):
+		if bridges.has(c) or painted_cells.has(c):
 			continue
 		var k := Vector2i(floori(float(c.x) / CHUNK), floori(float(c.y) / CHUNK))
 		if not chunks.has(k):
@@ -496,7 +505,7 @@ func _build_floor() -> void:
 	if not bridges.is_empty():
 		# decks sit above the pits' interiors and coping (PitFire: z -19 / -18), so their
 		# stone face shows over the pit and the fire shows under them
-		var cells: Array = bridges.keys()
+		var cells: Array = bridges.keys().filter(func(c): return not painted_cells.has(c))
 		cells.sort_custom(func(a, b): return a.x + a.y < b.x + b.y or (a.x + a.y == b.x + b.y and a.x < b.x))
 		var tiles: Array = []
 		for c in cells:
@@ -504,8 +513,9 @@ func _build_floor() -> void:
 		var bc := TileChunk.new()
 		bc.name = "Bridges"
 		bc.setup(sheet.tex, sheet, tiles)
+		bc.z_as_relative = false   # absolute, though it lives under the floor root
 		bc.z_index = -17
-		add_child(bc)
+		_floor_root.add_child(bc)
 
 
 class TileChunk extends Node2D:
