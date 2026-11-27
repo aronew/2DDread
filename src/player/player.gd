@@ -253,7 +253,7 @@ func _update_move(s: Dictionary, dt: float) -> void:
 	var motion := vel * dt + _extern_motion
 	_extern_motion = Vector2.ZERO
 	var before := gpos
-	gpos = Game.dungeon.move_circle(gpos, motion, radius)
+	gpos = Game.dungeon.unstick(Game.dungeon.move_circle(gpos, motion, radius))
 	if not dashing():
 		_push_from_enemies(dt)
 	if dt > 0.0 and motion.length() > 0.01:
@@ -301,6 +301,8 @@ func _start_dash() -> void:
 	if VFX.camera:
 		VFX.camera.punch(0.012)
 		VFX.kick(sdir, 5.0)
+	if VFX.post:
+		VFX.post.shockwave(feet, 70.0, 0.2, 0.45)
 
 
 func _push_from_enemies(_dt: float) -> void:

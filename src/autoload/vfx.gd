@@ -106,6 +106,9 @@ func setup(fx_: Node2D, lit_: Node2D, decals_: Node2D, overlay_: Node2D) -> void
 	_make_pool("casings", 24, {"amount": 1, "life": 0.55, "tex": T.shard, "spread": 22.0, "v": [170, 280],
 		"grav": 1500.0, "damp": [30, 60], "scale": [0.26, 0.34], "additive": false, "angle": true, "spin": true,
 		"rand_life": 0.1})
+	# souls released when something dies: green motes drifting up
+	_make_pool("souls", 10, {"amount": 14, "life": 1.1, "tex": T.core, "spread": 30.0, "v": [60, 200],
+		"grav": -140.0, "damp": [40, 80], "scale": [0.12, 0.3], "rand_life": 0.4})
 	_make_pool("debris", 8, {"amount": 16, "life": 0.9, "tex": T.shard, "spread": 80.0, "v": [200, 650],
 		"grav": 1700.0, "damp": [40, 90], "scale": [0.6, 1.5], "additive": false, "angle": true, "spin": true})
 	for i in LIGHT_POOL:
@@ -379,6 +382,31 @@ func muzzle(screen_pos: Vector2, gdir: Vector2, style: Dictionary) -> void:
 		emit("sparks", screen_pos, ang, col * 2.5, style["sparks"])
 
 
+## Per-weapon flourish on top of the flash (WeaponData.muzzle_fx).
+func muzzle_fx(kind: String, screen_pos: Vector2, gdir: Vector2, col: Color, charge := 1.0) -> void:
+	var ang := Iso.to_screen(gdir).angle()
+	match kind:
+		"sparks":
+			emit("sparks", screen_pos, ang, col * Color(2.6, 2.0, 1.2), 0.1)
+		"blast":
+			emit("embers", screen_pos, ang, col * Color(3.0, 1.6, 0.6), 0.4)
+			emit("sparks", screen_pos, ang, col * Color(3.0, 2.0, 1.0), 0.5)
+			emit("puff", screen_pos + Iso.to_screen(gdir).normalized() * 30.0, ang, Color(0.5, 0.48, 0.46, 0.45), 1.0)
+			if post:
+				post.shockwave(screen_pos, 110.0, 0.22, 0.5)
+		"arc":
+			emit("electric", screen_pos, ang, Color(1.2, 1.7, 4.0), 0.18)
+		"rail":
+			emit("electric", screen_pos, ang, col * Color(3.0, 1.6, 2.0), 0.6 * charge)
+			if post and charge > 0.5:
+				post.shockwave(screen_pos, 150.0, 0.28, 0.8 * charge)
+
+
+## Souls leaving a body: green motes rising, more for bigger deaths.
+func souls(g: Vector2, h_m: float, amount := 0.4) -> void:
+	emit("souls", Iso.lift(g, h_m), -PI / 2, Color(0.6, 2.4, 1.1), amount)
+
+
 ## A spent casing (or a shotgun shell) kicked out of the gun, to the gun's right.
 func casing(screen_pos: Vector2, gdir: Vector2, shell := false) -> void:
 	var side := Iso.to_screen(-Iso.left_of(gdir)).normalized()
@@ -432,6 +460,8 @@ func explosion(g: Vector2, radius: float, color := Color(1.0, 0.55, 0.2), big :=
 	if big:
 		emit("debris", sp, -PI / 2, Color(0.35, 0.33, 0.32), 0.8)
 	decal(g, T.scorch, Color(0, 0, 0, 0.62), radius * 1.5)
+	if post:
+		post.shockwave(sp, radius * (1.6 if big else 1.2), 0.38 if big else 0.28, 1.0 if big else 0.6)
 	shake(0.42 if big else 0.22)
 	if big and post:
 		post.aberration_kick(0.5)

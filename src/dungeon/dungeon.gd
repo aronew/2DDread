@@ -236,6 +236,28 @@ func shot_blocked(c: Vector2i) -> bool:
 
 
 ## Moves a circle through the grid with sub-stepping; returns the new ground position.
+## Safety net for an actor whose centre ended up inside a blocked cell (a hard knockback
+## into a concave corner can do it): the centre of the nearest open cell, or g if none
+## is near. Rare; without it the actor has no flow field and freezes.
+func unstick(g: Vector2, flying := false) -> Vector2:
+	var c := Iso.cell_of(g)
+	if not walk_blocked(c, flying):
+		return g
+	var best := g
+	var best_d := INF
+	for ox in range(-2, 3):
+		for oy in range(-2, 3):
+			var n := c + Vector2i(ox, oy)
+			if walk_blocked(n, flying):
+				continue
+			var p := Iso.cell_center(n)
+			var d := p.distance_squared_to(g)
+			if d < best_d:
+				best_d = d
+				best = p
+	return best
+
+
 func move_circle(g: Vector2, motion: Vector2, r: float, flying := false) -> Vector2:
 	var steps := clampi(int(ceil(motion.length() / maxf(r * 0.7, 8.0))), 1, 10)
 	var d := motion / steps

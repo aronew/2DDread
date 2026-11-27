@@ -101,7 +101,9 @@ const MAP := [
 ## them are enclosed on all sides, near walls fading out around the player.
 const ENCLOSE := true
 
-const PAINTS: Array = ["res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01", "res://assets/rooms/altar_01",
+## temple_east_01 (room 1's right half, painted with its new walls; listed first so the
+## closer temple_01 stays on top where they overlap) joined on 2026-11-27.
+const PAINTS: Array = ["res://assets/rooms/temple_east_01", "res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01", "res://assets/rooms/altar_01",
 	"res://assets/rooms/stair_01", "res://assets/rooms/undercroft_01",
 	"res://assets/rooms/shades_01"]
 

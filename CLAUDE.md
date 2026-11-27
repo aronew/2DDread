@@ -18,7 +18,7 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 
 | # | Room (`ROOMS` id) | Map columns | State |
 |---|---|---|---|
-| 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`, the inked v3) |
+| 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`, the inked v3, plus `temple_east_01` for the right half, painted with its new enclosing walls) |
 | 2 | THE HOODED SANCTUM (`sanctum`) | 26-37 | painted (`assets/rooms/sanctum_01`); its props were moved to match the painting |
 | 3 | THE BONE ALTAR (`altar`) | 42-54 | painted (`assets/rooms/altar_01`); no pit: a ritual hall with a central altar, three bone nests that spawn hounds until broken, fire urns, then a shielded elite Legionnaire; drops a chest and opens the exit portal. Props follow the painting (its banners became plain frieze, braziers and candles became painted shrubs) |
 | 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | painted in two halves (`assets/rooms/stair_01` = the gallery, `undercroft_01` = everything below the terrace's top edge; each was masked to its half with `clip_paint.py` so they meet along that edge). SOL painted the gallery only to column 76; the painted right end was shifted out one cell to cover column 77 (see the paint guide README). L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
@@ -188,8 +188,11 @@ All of this is playable, and a bot plays the whole route without errors:
   - Tap or hold for slash, back-slash, heavy cleave. Each swing lunges forward and snaps
     onto an enemy in front within 4 m; the next swing can cancel the end of the last.
   - RMB during or right after a dash: a piercing dash-slash.
-  - Any swing on a staggered (or nearly dead) enemy executes it for health and ammo;
-    every sword kill spills ammo and health (the DOOM loop: diving in is how you refill).
+  - Any swing on a staggered (or nearly dead) regular enemy executes it for health and
+    ammo; heavies only below 30% health. Elites and bosses are never executed (the owner
+    saw the sword melt them): a staggered one takes a PUNISH hit (1.6x, guaranteed crit),
+    and the sword builds stagger on them at half rate. Every sword kill spills ammo and
+    health (the DOOM loop: diving in is how you refill).
   - The slash cuts enemy shots out of the air. Drawn by `vfx/slash_fx.gd` (a hellfire
     crescent swept on the ground plane).
 - **Enemies** (internal ids stay `mite/spitter/brute/bloater`; names and art are themed):
@@ -419,9 +422,17 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
   a wide window around the player (`_fade_occluders`), DreadHunter-style, so rooms are
   enclosed on the camera side too without hiding the fight. Paint guides show them solid.
 - **Enclosure:** with `ENCLOSE` in the layout, every empty cell touching walkable floor
-  becomes a wall (`_enclose_floor`; pits and drops excepted). Walls added this way aren't
-  in room paintings, so `RoomPaint` leaves them with their own art; repaint rooms from
-  new guides to get them painted. The background beyond the walls is black.
+  becomes a wall (`_enclose_floor`; pits and drops excepted). Older paintings show abyss
+  where those walls stand, so they keep their own art; a painting made from a guide that
+  includes them is imported with `walls` (`import_room_paint.py ... NAME walls`) and then
+  draws them too. The background beyond the walls is black. `Dungeon.unstick()` pulls an
+  actor whose centre ends up inside a wall (hard knockback into a corner) back out.
+- **Feedback VFX:** `PostFX.shockwave(world_pos, radius_px, dur, strength)` bends the
+  screen in a ground-flattened ring (full post shader only, i.e. Medium/High presets;
+  up to 4 at once). Used by explosions, big deaths, Shock Nova, heavy sword hits, punish
+  and execute, the blunderbuss, the charged rail and the dash. Each gun's extra muzzle
+  effect is `WeaponData.muzzle_fx` (`sparks`, `blast`, `arc`, `rail`); deaths release
+  green souls (`VFX.souls`); guns kick out casings and smoke.
 - **Chasms:** void cells enclosed by walkable floor on all four sides become soul-fire
   pits automatically (`pit_fire.gd`), built after the owner's pit pack: a narrow row of
   capstones at floor level, plain masonry dropping 1.4 m, and green fire burning low

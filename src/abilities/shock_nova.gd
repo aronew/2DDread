@@ -24,6 +24,8 @@ func use(p) -> bool:
 	VFX.light_flash(sp - Vector2(0, 50), Color(0.5, 0.7, 1.0), 4.5, RADIUS_M * 2.2, 0.5, 100.0)
 	VFX.emit("electric", sp - Vector2(0, 40), 0.0, Color(1.5, 2.0, 5.0), 1.0)
 	VFX.screen_flash(Color(0.55, 0.75, 1.0, 0.22), 0.12)
+	if VFX.post:
+		VFX.post.shockwave(sp, Iso.m(RADIUS_M) * 1.2, 0.45, 1.2)
 	VFX.shake(0.5)
 	Audio.play("nova", g)
 	var hits := 0

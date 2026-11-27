@@ -50,6 +50,10 @@ right half of room 1 was never painted. Next guides to paint:
 paint the camera-side walls (the low dark blocks along the bottom edges of the guide) as
 solid temple walls seen from behind, and to keep the area beyond the walls pure black.
 
+Room 1's right half came back painted (`temple_east_01_painted_sol.webp`, imported
+with `walls`): SOL painted the camera-side walls as solid blocks with Greek-key bands and
+followed the guide closely. Use that phrasing for the next rooms.
+
 ## Prompt for SOL
 
 Attach `temple_02_lines.png` (image 1) and `docs/concept/mockup_01_soul_fire_temple.webp`
