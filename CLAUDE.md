@@ -437,6 +437,16 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
   includes them is imported with `walls` (`import_room_paint.py ... NAME walls`) and then
   draws them too. The background beyond the walls is black. `Dungeon.unstick()` pulls an
   actor whose centre ends up inside a wall (hard knockback into a corner) back out.
+- **Paintings vs live objects:** props are painted into room paintings, so a breaking prop
+  (or an opening chest) patches its painted copy out with floor cloned from beside it
+  (`RoomPaint.patch_prop`, `paint_patch.gdshader`; test with `--break-props=S`). Camera-
+  side walls in paintings made with walls get a backfill of cloned plain floor
+  (`RoomPaint._backfill`), so fading them shows the room, not the painted wall. Kit walls
+  no painting covers are tinted toward the paintings' `mean` colour.
+- **Character style:** `entity.gdshader` (player and enemies) has a style pass so the
+  Blender renders sit in the inked paintings: a thick dark ink outline, inked inner edges,
+  flatter cel shading, cool deep shadows and a little more saturation (`style = 0` turns
+  it off). It narrows the gap; truly matching needs painted character art (section 2).
 - **Feedback VFX:** `PostFX.shockwave(world_pos, radius_px, dur, strength)` bends the
   screen in a ground-flattened ring (full post shader only, i.e. Medium/High presets;
   up to 4 at once). Used by explosions, big deaths, Shock Nova, heavy sword hits, punish
