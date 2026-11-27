@@ -18,7 +18,7 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 | # | Room (`ROOMS` id) | Map columns | State |
 |---|---|---|---|
 | 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`) |
-| 2 | THE HOODED SANCTUM (`sanctum`) | 26-37 | laid out, guide `sanctum_01` rendered, **waiting for the owner's SOL painting** |
+| 2 | THE HOODED SANCTUM (`sanctum`) | 26-37 | painted (`assets/rooms/sanctum_01`); its props were moved to match the painting |
 
 Room 1's right edge has a gold bridge (row 3) across the abyss to room 2; room 2 holds
 the exit portal, which descends to the next depth (the same rooms, harder). New rooms
@@ -61,6 +61,10 @@ game renders ("paint guides"). Recipe for every new room:
 4. **Check alignment**: `python3 tools/rooms/check_paint.py PAINTING docs/paint_guides/ROOM_lines.png /tmp/check.png`
    and look at it: pits, bridges, columns and props must sit on the red lines. (SOL
    once followed an older guide's framing: try each guide's lines and use the one that fits.)
+   SOL sometimes swaps or drops small props (the sanctum came back with amphorae for
+   candles, shrubs, and no braziers). Walls and pits must match, but props can follow the
+   painting: change the layout's prop letters to what was painted, because each prop
+   shows the painting through its own outline.
 5. **Import** with the matching guide's camera, then list it in the layout's `PAINTS`:
    ```bash
    cp PAINTING docs/paint_guides/ROOM_painted_sol.webp

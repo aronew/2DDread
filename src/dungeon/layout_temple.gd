@@ -24,20 +24,21 @@ extends RefCounted
 ## column; the bridge arrives below that. A soul-fire moat (two cells wide) splits the
 ## nave front to back, crossed by one short bridge in the middle and by the narrow ledges
 ## behind and in front of it. Columns and broken columns flank the moat; the descent
-## portal (X) waits on the far side between two braziers, with a laurel-skull plate in
-## front of it.
+## portal (X) waits on the far side by a cluster of candles, with a laurel-skull plate in
+## front of it. (Props follow the owner's painting, sanctum_01: amphorae in the back-left
+## corner, candles by the portal; the two dark shrubs on the floor are painted only.)
 ## Fight: Hex Witches hold the far bank and shoot across the moat while hounds come over
 ## the bridge; a Legionnaire's charge stops dead at the moat's edge.
 
 const MAP := [
 	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO",
-	"W::::::O:::::::O:::::     Pn::k:::k:p:",
-	"M:::::::::::::::::::::    P::O:  ::O*:",
+	"W::::::O:::::::O:::::     Pk::k:::::::",
+	"M:::::::::::::::::::::    P::O:  ::O::",
 	"W::::::::::::::::k::::BBBB:::::  :::::",
 	"M::::::::o:::::::::p::    :::::BB:::X:",
 	"W:::k:::::::::::::::::    :::Q:  ::Q:o",
-	"O::::::::::Q::::::::*:    :n::,  :::*:",
-	"W:::::::::::::::::::n:     :::::::n::",
+	"O::::::::::Q::::::::*:    ::::,  :::n:",
+	"W:::::::::::::::::::n:     ::::::::::",
 	"M::::S::::::::::::::::      ::::::",
 	"Wn  B  B    ::::w:::::",
 	"M:  B  B    :::::::::",
@@ -54,7 +55,9 @@ const MAP := [
 ## assets/rooms/temple_01: the owner's SOL painting with the tall back walls
 ## (docs/paint_guides/temple_01_painted_sol_v2_tall.webp), painted at paint guide
 ## temple_01's camera; the floor layout is the same as when that guide was taken.
-const PAINTS: Array = ["res://assets/rooms/temple_01"]
+## assets/rooms/sanctum_01: the owner's SOL painting of room 2
+## (docs/paint_guides/sanctum_01_painted_sol.webp), painted at paint guide sanctum_01.
+const PAINTS: Array = ["res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01"]
 
 const ROOMS := [
 	{
