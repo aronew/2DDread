@@ -1,5 +1,7 @@
 """Player: the gunslinger, rendered as two ink/cel-shaded layers.
 
+Modelled after the owner's character design (docs/concept/gunslinger_design_*.webp).
+
 legs   : 16 movement directions x (8 run frames + 1 idle)  -- drawn first
 torso  : 32 aim directions per weapon (rifle=twin revolvers, shotgun=blunderbuss,
          arc=stormcaller, rail=longshot)                      -- drawn on top
@@ -8,6 +10,7 @@ Both layers share the same origin (feet) so they composite exactly.
 """
 import math
 import common as C  # noqa: E402  (imports bpy, which provides mathutils)
+import bmesh
 from mathutils import Vector
 
 LEG_DIRS = 16
@@ -19,18 +22,27 @@ TORSO_FRAME = (240, 232, (120, 200))
 
 
 def materials():
+    # Palette from the owner's character design (docs/concept/gunslinger_design_*.webp):
+    # black coat with a dark teal sheen and gold piping, red scarf and hatband, cream rolled
+    # sleeves, brown gloves, belt, holsters and boots, gold flintlock pistols.
     return {
-        "coat": C.mat("p_coat", (0.17, 0.055, 0.075), rough=0.75),
-        "lining": C.mat("p_lining", (0.72, 0.05, 0.06), rough=0.6),
-        "scarf": C.mat("p_scarf", (0.82, 0.07, 0.07), rough=0.65),
+        "coat": C.mat("p_coat", (0.024, 0.035, 0.037), rough=0.8),
+        "pants": C.mat("p_pants", (0.02, 0.026, 0.028), rough=0.85),
+        "trim": C.mat("p_trim", (0.84, 0.47, 0.08), metal=1.0, rough=0.3),
+        "scarf": C.mat("p_scarf", (0.72, 0.012, 0.018), rough=0.65),
+        "skin": C.mat("p_skin", (0.64, 0.31, 0.16), rough=0.6),
+        "hair": C.mat("p_hair", (0.022, 0.016, 0.014), rough=0.7),
+        "cuff": C.mat("p_cuff", (0.84, 0.72, 0.52), rough=0.8),
+        "glove": C.mat("p_glove", (0.13, 0.055, 0.035), rough=0.6),
+        "boot": C.mat("p_boot", (0.17, 0.08, 0.052), rough=0.55),
+        "belt": C.mat("p_belt", (0.15, 0.065, 0.032), rough=0.55),
+        "hat": C.mat("p_hat", (0.02, 0.02, 0.024), rough=0.7),
+        "grip": C.mat("p_grip", (0.035, 0.03, 0.032), rough=0.5),
+        # the other guns
         "leather": C.mat("p_leather", (0.34, 0.16, 0.07), rough=0.55),
-        "whip": C.mat("p_whip", (0.3, 0.12, 0.06), rough=0.5),
-        "cloth": C.mat("p_cloth", (0.09, 0.08, 0.11), rough=0.85),
-        "gold": C.mat("p_gold", (0.95, 0.66, 0.22), metal=1.0, rough=0.25),
+        "gold": C.mat("p_gold", (0.84, 0.47, 0.08), metal=1.0, rough=0.3),
         "steel": C.mat("p_steel", (0.5, 0.52, 0.56), metal=0.9, rough=0.3),
         "dark": C.mat("p_dark", (0.09, 0.085, 0.1), metal=0.4, rough=0.45),
-        "skin": C.mat("p_skin", (0.86, 0.63, 0.5), rough=0.6),
-        "hat": C.mat("p_hat", (0.06, 0.045, 0.05), rough=0.7),
         "wood": C.mat("p_wood", (0.38, 0.18, 0.08), rough=0.6),
         "brass": C.mat("p_brass", (0.6, 0.38, 0.13), metal=1.0, rough=0.3),
         "copper": C.mat("p_copper", (0.75, 0.32, 0.14), metal=1.0, rough=0.3),
@@ -39,54 +51,81 @@ def materials():
     }
 
 
+def _strip(pts, sides, widths, mat, parent, thick=0.02, name="strip"):
+    """Flat cloth strip through pts (scarf tails, coat panels): at each point it spans
+    widths[i] along sides[i]; solidified, so it inks like the rest of the model."""
+    bm = bmesh.new()
+    a, b = [], []
+    for p, sd, w in zip(pts, sides, widths):
+        p, sd = Vector(p), Vector(sd).normalized()
+        a.append(bm.verts.new(p + sd * w * 0.5))
+        b.append(bm.verts.new(p - sd * w * 0.5))
+    for i in range(len(pts) - 1):
+        bm.faces.new((a[i], a[i + 1], b[i + 1], b[i]))
+    ob = C._mesh_obj(name, bm, mat, parent, (0, 0, 0), (0, 0, 0), smooth=True)
+    md = ob.modifiers.new("Solid", "SOLIDIFY")
+    md.thickness = thick
+    md.offset = 0.0
+    return ob
+
+
 # ---------------------------------------------------------------- legs
+
+# The long coat's skirt: panels hinged at the belt (x, y, yaw, width, length, kind). Open
+# at the front over the legs, split at the back, longer behind, like the design's coat.
+SKIRT = (
+    (0.1, 0.085, 0.75, 0.16, 0.5, "front"),
+    (0.1, -0.085, -0.75, 0.16, 0.5, "front"),
+    (-0.005, 0.17, 1.62, 0.19, 0.55, "side"),
+    (-0.005, -0.17, -1.62, 0.19, 0.55, "side"),
+    (-0.1, 0.08, 2.55, 0.18, 0.6, "back"),
+    (-0.1, -0.08, -2.55, 0.18, 0.6, "back"),
+)
+
 
 def build_legs(M):
     root = C.empty("legs_root")
     pelvis = C.empty("pelvis", (0, 0, 0.95), root)
-    C.box((0.24, 0.36, 0.2), (0, 0, 0.02), M["cloth"], pelvis, bevel=0.05)
-    C.box((0.27, 0.4, 0.08), (0, 0, 0.12), M["leather"], pelvis, bevel=0.025)  # belt
-    C.box((0.04, 0.12, 0.09), (0.14, 0, 0.12), M["gold"], pelvis, bevel=0.015)  # buckle
-    C.box((0.16, 0.08, 0.2), (0.04, -0.21, -0.06), M["leather"], pelvis, bevel=0.03)  # holster
-    _whip_coil(M, pelvis)
-    # long coat tails: back pair + side flaps, hinged at the belt so they swing
+    C.box((0.24, 0.34, 0.2), (0, 0, 0.02), M["pants"], pelvis, bevel=0.05)
+    C.box((0.27, 0.4, 0.075), (0, 0, 0.1), M["belt"], pelvis, bevel=0.022)  # belt over the coat
+    C.box((0.02, 0.1, 0.075), (0.14, 0, 0.1), M["trim"], pelvis, bevel=0.008)  # square gold buckle
+    C.box((0.022, 0.052, 0.034), (0.143, 0, 0.1), M["belt"], pelvis, bevel=0.004)
+    for y in (0.075, 0.105):
+        C.sphere(0.011, (0.132, y, 0.1), M["trim"], pelvis, segs=8)  # studs
+    for s in (1, -1):  # holsters on both hips, gold scrollwork on the outside
+        hb = C.empty("holster", (0.04, 0.235 * s, 0.04), pelvis, rot=(-0.1 * s, 0.18, 0))
+        C.box((0.12, 0.05, 0.21), (0, 0, -0.08), M["belt"], hb, bevel=0.018)
+        C.box((0.05, 0.01, 0.07), (0.0, 0.027 * s, -0.09), M["trim"], hb, bevel=0.003)
+        C.box((0.13, 0.056, 0.02), (0, 0, 0.02), M["trim"], hb, bevel=0.004)  # gold rim
     tails = []
-    for (x, y, rz, w) in ((-0.12, 0.1, 0.2, 0.22), (-0.12, -0.1, -0.2, 0.22)):
-        h = C.empty("tail", (x, y, 0.1), pelvis)
-        h["base"] = (0.0, 0.0, rz)
-        C.wedge((0.04, w, 0.62), (0, 0, -0.31), M["coat"], h, taper=(1.0, 0.8), bevel=0.012)
-        h.rotation_euler = (0, 0, rz)
+    for (x, y, yaw, w, L, kind) in SKIRT:
+        h = C.empty("skirt_" + kind, (x, y, 0.08), pelvis)
+        o = C.empty("skirt_o", (0, 0, 0), h, rot=(0, 0, yaw))
+        flare = -0.16 if kind == "front" else -0.12
+        p = C.empty("skirt_p", (0, 0, 0), o, rot=(0, flare, 0))
+        C.wedge((0.03, w, L), (0, 0, -L / 2), M["coat"], p, taper=(1.0, 0.72), bevel=0.01)
+        C.box((0.036, w * 1.02, 0.024), (0, 0, -L + 0.012), M["trim"], p, bevel=0.004)  # gold hem
+        if kind == "front":  # gold piping down the front opening
+            ey = -w * 0.5 * (1 if y > 0 else -1)
+            C.box((0.036, 0.022, L), (0, ey * 0.86, -L / 2), M["trim"], p, bevel=0.004)
+        h["kind"] = kind
+        h["side"] = 1 if y > 0 else -1
         tails.append(h)
     legs = {}
     for side, s in (("L", 1), ("R", -1)):
-        hip = C.empty("hip" + side, (0, 0.11 * s, -0.02), pelvis)
-        C.wedge((0.19, 0.17, 0.44), (0, 0, -0.22), M["cloth"], hip, taper=(1.18, 1.12))
+        hip = C.empty("hip" + side, (0, 0.1 * s, -0.02), pelvis)
+        C.wedge((0.18, 0.16, 0.44), (0, 0, -0.22), M["pants"], hip, taper=(1.18, 1.12))
         knee = C.empty("knee" + side, (0, 0, -0.44), hip)
-        C.sphere(0.085, (0.02, 0, 0), M["cloth"], knee, segs=12)
-        C.wedge((0.16, 0.15, 0.4), (0, 0, -0.2), M["cloth"], knee, taper=(1.15, 1.1))
-        C.cyl(0.095, 0.3, (0.0, 0, -0.27), M["leather"], knee, verts=14, bevel=0.01)  # tall boot
-        C.cyl(0.1, 0.05, (0.0, 0, -0.12), M["leather"], knee, verts=14, bevel=0.01, r2=0.11)  # boot cuff
-        C.box((0.03, 0.06, 0.04), (0.09, 0, -0.22), M["gold"], knee, bevel=0.008)  # buckle
+        C.sphere(0.08, (0.02, 0, 0), M["pants"], knee, segs=12)
+        C.wedge((0.12, 0.11, 0.4), (0, 0, -0.2), M["pants"], knee, taper=(1.15, 1.1))
+        C.cyl(0.088, 0.3, (0.0, 0, -0.28), M["boot"], knee, verts=14, bevel=0.01)  # knee-high boot
+        C.cyl(0.104, 0.085, (0.01, 0, -0.1), M["boot"], knee, verts=14, bevel=0.012, r2=0.112)  # folded cuff
+        C.torus(0.111, 0.011, (0.01, 0, -0.058), M["trim"], knee, seg=20, mseg=6)  # gold cuff edge
         ankle = C.empty("ankle" + side, (0, 0, -0.42), knee)
-        C.box((0.3, 0.14, 0.1), (0.05, 0, -0.04), M["leather"], ankle, bevel=0.035)
-        C.box((0.12, 0.15, 0.05), (-0.06, 0, -0.08), M["dark"], ankle, bevel=0.015)  # heel
+        C.box((0.29, 0.13, 0.1), (0.05, 0, -0.04), M["boot"], ankle, bevel=0.035)
+        C.box((0.1, 0.135, 0.05), (-0.06, 0, -0.08), M["grip"], ankle, bevel=0.015)  # heel
         legs[side] = (hip, knee, ankle)
     return root, pelvis, legs, tails
-
-
-def _whip_coil(M, pelvis):
-    """Fury's Lash, coiled on the left hip opposite the holster (the rope itself is drawn live in-game)."""
-    y = 0.235
-    for i, (r, dy, tilt) in enumerate(((0.125, -0.02, 0.0), (0.115, -0.003, 0.22), (0.12, 0.014, -0.18),
-                                       (0.11, 0.03, 0.4))):
-        C.torus(r, 0.021, (0.02 + i * 0.01, y + dy, -0.12 - i * 0.014), M["whip"], pelvis,
-                rot=(math.pi / 2, tilt, 0), seg=24, mseg=8)
-    # handle tucked behind the belt, gold-capped
-    C.tube_between((0.05, y + 0.02, -0.03), (0.1, y + 0.02, 0.13), 0.022, M["wood"], pelvis, verts=10)
-    C.cyl(0.026, 0.02, (0.055, y + 0.02, -0.02), M["gold"], pelvis, rot=(0, -0.3, 0), verts=10)
-    C.sphere(0.028, (0.102, y + 0.02, 0.14), M["gold"], pelvis, segs=10)
-    # loose tail hanging from the coil
-    C.tube_between((-0.05, y + 0.02, -0.21), (-0.1, y + 0.03, -0.38), 0.013, M["whip"], pelvis, verts=8, r2=0.006)
 
 
 def pose_legs(pelvis, legs, phase, idle=False, tails=()):
@@ -101,9 +140,10 @@ def pose_legs(pelvis, legs, phase, idle=False, tails=()):
         pelvis.location.z = 0.93
         pelvis.rotation_euler = (0, 0.03, 0)
         for t in tails:
-            t.rotation_euler = t["base"]
+            t.rotation_euler = (0.06 * t["side"] if t["kind"] == "front" else 0.0, 0.03, 0)
         return -0.02
     bob = 0.035 * math.cos(2 * p)
+    swing_of = {}
     for side, (hip, knee, ankle) in legs.items():
         q = p if side == "L" else p + math.pi
         swing = 0.66 * math.sin(q)
@@ -111,13 +151,20 @@ def pose_legs(pelvis, legs, phase, idle=False, tails=()):
         hip.rotation_euler = (0, -swing, 0)
         knee.rotation_euler = (0, kb, 0)
         ankle.rotation_euler = (0, -(kb - swing) * 0.55 + 0.05, 0)
+        swing_of[1 if side == "L" else -1] = swing
     pelvis.location.z = 0.93 + bob
     pelvis.rotation_euler = (0, 0.12, 0.06 * math.sin(p))
-    # coat tails stream behind and flap with the stride
+    # the skirt: front panels are kicked forward by their thigh, the rest streams behind
     for i, t in enumerate(tails):
-        b = t["base"]
-        flap = 0.12 * math.sin(p * 2 + i)
-        t.rotation_euler = (b[0] + flap * (1 if i % 2 else -1) * 0.4, 0.35 + flap, b[2])
+        s = t["side"]
+        sw = swing_of[s]
+        flap = 0.1 * math.sin(p * 2 + i * 1.3)
+        if t["kind"] == "front":
+            t.rotation_euler = (0.12 * s, -0.95 * max(0.0, sw) + 0.22, 0)
+        elif t["kind"] == "side":
+            t.rotation_euler = (0.08 * s + flap * 0.4, 0.2 - 0.3 * max(0.0, sw) + flap * 0.7, 0)
+        else:
+            t.rotation_euler = (0.06 * s + flap * 0.5, 0.32 + flap * 0.7, 0)
     return bob
 
 
@@ -127,64 +174,83 @@ def build_torso(M):
     root = C.empty("torso_root")
     t = C.empty("torso", (0, 0, 1.0), root)
     C.wedge((0.24, 0.32, 0.26), (0, 0, 0.12), M["coat"], t, taper=(1.12, 1.2))
-    C.wedge((0.32, 0.48, 0.4), (0.0, 0, 0.42), M["coat"], t, taper=(0.85, 0.82), bevel=0.05)
-    # lapels (red lining) + waistcoat
-    for s in (-1, 1):
-        C.box((0.03, 0.12, 0.34), (0.155, 0.08 * s, 0.42), M["lining"], t, bevel=0.01, rot=(0.25 * s, 0.12, 0))
-    C.box((0.02, 0.12, 0.3), (0.16, 0, 0.36), M["cloth"], t, bevel=0.01)
-    for z in (0.28, 0.36, 0.44):
-        C.sphere(0.018, (0.175, 0, z), M["gold"], t, segs=8)
-    # left pauldron (leather + gold rim)
-    C.sphere(0.14, (0.0, 0.27, 0.6), M["leather"], t, scale=(1.15, 1.0, 0.7))
-    C.torus(0.12, 0.014, (0.0, 0.27, 0.6), M["gold"], t, rot=(0.3, 0, 0), seg=20, mseg=6)
-    C.sphere(0.11, (0.0, -0.27, 0.58), M["coat"], t, scale=(1.1, 1.0, 0.8))
-    # scarf wrap + tails flowing back
-    C.torus(0.12, 0.05, (0.0, 0, 0.66), M["scarf"], t, seg=20, mseg=8)
-    C.box((0.08, 0.16, 0.1), (0.1, 0, 0.62), M["scarf"], t, bevel=0.03)
-    for i, y in enumerate((0.05, -0.05)):
-        pts = [Vector((-0.08, y, 0.66)), Vector((-0.2, y * 1.6, 0.58)), Vector((-0.32, y * 2.4, 0.46 - i * 0.04)),
-               Vector((-0.42, y * 3.2, 0.3 - i * 0.08))]
-        _ribbon(pts, 0.1 - i * 0.015, M["scarf"], t)
-    # head: masked by the scarf, eyes in the hat's shadow
-    h = C.empty("head", (0.03, 0, 0.82), t)
-    C.sphere(0.12, (0, 0, 0), M["skin"], h, scale=(1.05, 0.95, 1.1))
-    C.box((0.16, 0.2, 0.1), (0.04, 0, -0.06), M["scarf"], h, bevel=0.04)  # face mask
-    C.box((0.02, 0.15, 0.025), (0.12, 0, 0.03), M["dark"], h, bevel=0.0)  # eye shadow line
-    # wide-brim hat
-    hat = C.empty("hat", (0.0, 0, 0.1), h, rot=(0, 0.12, 0))
-    C.cyl(0.32, 0.03, (0, 0, 0), M["hat"], hat, verts=28, bevel=0.012)
-    C.cyl(0.14, 0.16, (0, 0, 0.09), M["hat"], hat, verts=20, r2=0.12, bevel=0.02)
-    C.cyl(0.143, 0.04, (0, 0, 0.04), M["lining"], hat, verts=20, bevel=0.0)
-    C.sphere(0.03, (0.13, 0.05, 0.05), M["gold"], hat, segs=8)
+    C.wedge((0.3, 0.46, 0.4), (0.0, 0, 0.42), M["coat"], t, taper=(0.85, 0.85), bevel=0.05)
+    for s in (-1, 1):  # sloped shoulders
+        C.sphere(0.088, (0.0, 0.21 * s, 0.57), M["coat"], t, scale=(1.15, 0.95, 0.62))
+    # double-breasted front: the overlap edge piped in gold from the collar to the belt,
+    # the other lapel's piping, two gold buttons
+    pts = [Vector((0.135, 0.11, 0.62)), Vector((0.158, 0.055, 0.4)), Vector((0.142, 0.012, 0.16)),
+           Vector((0.13, 0.0, 0.0))]
+    for a, b in zip(pts[:-1], pts[1:]):
+        C.tube_between(a, b, 0.011, M["trim"], t, verts=8)
+    C.tube_between((0.135, -0.11, 0.62), (0.152, -0.045, 0.47), 0.011, M["trim"], t, verts=8)
+    C.tube_between((0.152, -0.045, 0.47), (0.158, -0.02, 0.44), 0.011, M["trim"], t, verts=8)
+    for z in (0.38, 0.28):
+        C.sphere(0.017, (0.16, -0.06, z), M["trim"], t, segs=8)
+    # scarf: a thick bunched wrap up to the chin, a fold on the chest, long tails streaming behind
+    C.torus(0.112, 0.058, (0.0, 0, 0.67), M["scarf"], t, seg=20, mseg=8)
+    C.sphere(0.075, (0.07, 0.06, 0.65), M["scarf"], t, scale=(1.0, 1.15, 0.8), segs=12)
+    C.sphere(0.07, (0.075, -0.06, 0.68), M["scarf"], t, scale=(1.0, 1.15, 0.75), segs=12)
+    C.sphere(0.07, (-0.05, 0.0, 0.7), M["scarf"], t, scale=(1.0, 1.4, 0.7), segs=12)
+    _strip([(0.12, 0.09, 0.62), (0.15, 0.1, 0.52), (0.155, 0.13, 0.43)],
+           [(0, 1, 0.3), (0, 1, 0.1), (0, 1, 0)], [0.1, 0.11, 0.06], M["scarf"], t, thick=0.025)
+    # two tails falling down the back and fluttering out to one side, wide cloth with a
+    # twist, cut to a point
+    _strip([(-0.09, -0.03, 0.66), (-0.17, -0.09, 0.57), (-0.25, -0.15, 0.46), (-0.31, -0.19, 0.35),
+            (-0.37, -0.24, 0.24)],
+           [(0.15, 1, 0.35), (0.3, 1, 0.8), (0.2, 0.6, 1), (0.3, 1, 0.7), (0.2, 0.7, 1)],
+           [0.12, 0.16, 0.16, 0.13, 0.02], M["scarf"], t, thick=0.024)
+    _strip([(-0.08, 0.05, 0.64), (-0.16, 0.06, 0.55), (-0.22, 0.04, 0.45), (-0.27, 0.0, 0.36)],
+           [(0.2, 1, 0.5), (0.3, 1, 1), (0.2, 1, 0.5), (0.3, 1, 1)],
+           [0.1, 0.13, 0.11, 0.02], M["scarf"], t, thick=0.024)
+    # head: tanned face under the hat's shadow, dark spiky hair at the sides
+    h = C.empty("head", (0.045, 0, 0.82), t, rot=(0, -0.08, 0))
+    C.cyl(0.045, 0.1, (0, 0, -0.08), M["skin"], h, verts=10)
+    C.sphere(0.105, (0, 0, 0), M["skin"], h, scale=(1.02, 0.9, 1.12))
+    C.sphere(0.07, (0.035, 0, -0.055), M["skin"], h, scale=(1.0, 1.05, 0.8), segs=12)  # jaw
+    C.box((0.02, 0.15, 0.03), (0.1, 0, 0.025), M["hair"], h, bevel=0.0)  # eyes in shadow
+    for ang, z, ln in ((0.9, 0.03, 0.07), (1.4, 0.0, 0.08), (1.9, 0.02, 0.08), (2.5, 0.0, 0.08), (3.14, 0.02, 0.08),
+                       (-0.9, 0.03, 0.07), (-1.4, 0.0, 0.08), (-1.9, 0.02, 0.08), (-2.5, 0.0, 0.08),
+                       (0.45, 0.06, 0.05), (-0.45, 0.06, 0.05)):
+        d = Vector((math.cos(ang), math.sin(ang), -0.35)).normalized()
+        base = Vector((math.cos(ang) * 0.075, math.sin(ang) * 0.07, z + 0.03))
+        C.tube_between(base, base + d * ln, 0.03, M["hair"], h, verts=6, r2=0.003)
+    # flat-brimmed hat: gold-edged brim, square crown turned 45 degrees with a red band and
+    # a gold rim around its top
+    # tipped back so the face shows under the brim from the game's high camera
+    hat = C.empty("hat", (-0.01, 0, 0.095), h, rot=(0, -0.14, 0))
+    C.cyl(0.27, 0.024, (0, 0, 0), M["hat"], hat, verts=32, bevel=0.01)
+    C.torus(0.268, 0.012, (0, 0, 0.0), M["trim"], hat, seg=40, mseg=6)
+    q = (0, 0, math.pi / 4)
+    C.wedge((0.2, 0.2, 0.12), (0, 0, 0.072), M["hat"], hat, rot=q, taper=(0.93, 0.93), bevel=0.03)
+    C.box((0.208, 0.208, 0.046), (0, 0, 0.036), M["scarf"], hat, rot=q, bevel=0.006)
+    C.box((0.196, 0.196, 0.012), (0, 0, 0.132), M["trim"], hat, rot=q, bevel=0.004)
+    C.box((0.17, 0.17, 0.016), (0, 0, 0.138), M["hat"], hat, rot=q, bevel=0.004)
     return root, t
 
 
-def _ribbon(pts, width, mat, parent):
-    """Connected flat strip through pts (scarf tails)."""
-    for a, b in zip(pts[:-1], pts[1:]):
-        d = b - a
-        C.box((width, 0.022, d.length + 0.03), (a + b) / 2, mat, parent, bevel=0.006,
-              rot=d.to_track_quat("Z", "X").to_euler())
-        C.sphere(width * 0.5, b, mat, parent, scale=(1.0, 0.25, 1.0), segs=10)
-
-
-def _revolver(M, parent, at, name):
+def _pistol(M, parent, at, name):
+    """Gold flintlock: gold lock and barrel with a black inlay, dark grip, gold butt cap."""
     g = C.empty(name, at, parent)
-    C.box((0.2, 0.05, 0.07), (0.08, 0, 0.02), M["dark"], g, bevel=0.012)       # frame
-    C.cyl(0.042, 0.07, (0.05, 0, 0.03), M["brass"], g, rot=(0, math.pi / 2, 0), verts=12)  # drum
-    C.cyl(0.022, 0.26, (0.24, 0, 0.045), M["brass"], g, rot=(0, math.pi / 2, 0), verts=10)  # barrel
-    C.box((0.02, 0.03, 0.03), (0.35, 0, 0.075), M["gold"], g, bevel=0.0)       # sight
-    C.box((0.09, 0.045, 0.13), (-0.03, 0, -0.06), M["wood"], g, bevel=0.015, rot=(0, -0.35, 0))  # grip
+    C.box((0.15, 0.044, 0.066), (0.06, 0, 0.025), M["trim"], g, bevel=0.012)        # lock body
+    C.box((0.1, 0.05, 0.022), (0.065, 0, 0.022), M["grip"], g, bevel=0.004)          # black inlay
+    C.cyl(0.021, 0.27, (0.25, 0, 0.045), M["trim"], g, rot=(0, math.pi / 2, 0), verts=12)  # barrel
+    for x, r in ((0.16, 0.027), (0.3, 0.025), (0.375, 0.03)):
+        C.cyl(r, 0.026, (x, 0, 0.045), M["trim"], g, rot=(0, math.pi / 2, 0), verts=12)    # bands, muzzle
+    C.torus(0.022, 0.006, (0.0, 0, 0.078), M["grip"], g, rot=(math.pi / 2, 0, 0), seg=12, mseg=4)  # hammer
+    C.torus(0.026, 0.006, (0.05, 0, -0.026), M["trim"], g, rot=(math.pi / 2, 0, 0), seg=12, mseg=4)  # guard
+    C.box((0.08, 0.042, 0.15), (-0.035, 0, -0.06), M["grip"], g, bevel=0.016, rot=(0, -0.45, 0))  # grip
+    C.sphere(0.03, (-0.075, 0, -0.125), M["trim"], g, segs=10)                       # butt cap
     return g
 
 
 def build_weapon(kind, M, parent):
     """Returns (muzzle, right_hand, left_hand, group[, muzzle2]) in torso space."""
-    if kind == "rifle":  # twin revolvers, both arms extended
-        r = _revolver(M, parent, (0.46, -0.17, 0.3), "gunR")
-        l = _revolver(M, parent, (0.44, 0.17, 0.32), "gunL")
-        muzzle = Vector((0.83, -0.17, 0.345))
-        muzzle2 = Vector((0.81, 0.17, 0.365))
+    if kind == "rifle":  # twin flintlock pistols, both arms extended
+        r = _pistol(M, parent, (0.46, -0.17, 0.3), "gunR")
+        _pistol(M, parent, (0.44, 0.17, 0.32), "gunL")
+        muzzle = Vector((0.85, -0.17, 0.345))
+        muzzle2 = Vector((0.83, 0.17, 0.365))
         return muzzle, Vector((0.43, -0.17, 0.27)), Vector((0.41, 0.17, 0.29)), r, muzzle2
     g = C.empty("gun_" + kind, (0, -0.12, 0.3), parent)
     if kind == "shotgun":  # blunderbuss
@@ -218,6 +284,7 @@ def build_weapon(kind, M, parent):
 
 
 def _arm(M, parent, shoulder, hand, side):
+    """Coat sleeve rolled to the elbow (cream cuff), bare forearm, brown gauntlet glove."""
     shoulder, hand = Vector(shoulder), Vector(hand)
     d = hand - shoulder
     a = 0.3
@@ -227,11 +294,14 @@ def _arm(M, parent, shoulder, hand, side):
     out = Vector((0, side, -0.9)).normalized()
     out = (out - d.normalized() * out.dot(d.normalized())).normalized()
     elbow = mid + out * hh
-    C.tube_between(shoulder, elbow, 0.07, M["coat"], parent, name="uarm")
-    C.tube_between(elbow, hand, 0.062, M["coat"], parent, name="farm", r2=0.07)
+    C.tube_between(shoulder, elbow, 0.068, M["coat"], parent, name="uarm")
     fa = hand - elbow
-    C.cyl(0.075, 0.1, elbow + fa * 0.8, M["lining"], parent, rot=fa.to_track_quat("Z", "Y").to_euler(), verts=12)  # cuff
-    C.sphere(0.06, hand, M["leather"], parent, segs=12)  # glove
+    fd = fa.normalized()
+    rot = fa.to_track_quat("Z", "Y").to_euler()
+    C.tube_between(elbow, hand, 0.047, M["skin"], parent, name="farm", r2=0.04)
+    C.cyl(0.074, 0.09, elbow + fd * 0.035, M["cuff"], parent, rot=rot, verts=14, bevel=0.014)  # rolled sleeve
+    C.cyl(0.07, 0.085, hand - fd * 0.075, M["glove"], parent, rot=rot, verts=12, r2=0.05, bevel=0.008)  # gauntlet
+    C.sphere(0.058, hand, M["glove"], parent, segs=12)
 
 
 # ---------------------------------------------------------------- render
