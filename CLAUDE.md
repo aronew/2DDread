@@ -149,10 +149,12 @@ data/weapons, data/enemies   .tres definitions — tune numbers here, not in cod
 **Key concepts:**
 - **Three coordinate spaces** (`src/core/iso.gd`):
   - *screen* = node positions.
-  - *ground* = `(x, y / 0.75)`, true metric with 1 m = 90.51 px. All speeds, radii and
+  - *ground* = `(x, y / 0.5)`, true metric with 1 m = 90.51 px. All speeds, radii and
     AoE use this.
   - *tile* = grid coords, where walls are axis-aligned squares.
-- **Projection:** a 2 m cell is a 256×192 diamond. A metre of height is 59.87 screen px.
+- **Projection:** classic 2:1 isometric, like the owner's mockup: a 2 m cell is a 256×128
+  diamond and a metre of height is 78.38 screen px (camera pitch 30°; it was 48.6° /
+  256×192 until Nov 2026, changed so rooms read like the mockup).
   `Iso.lift(g, h_m)` draws a point that is h metres above the ground.
 - **Collision:** custom grid collision and DDA raycasts (not physics bodies) for actors
   and projectiles. Enemy AI uses a flow field toward the player plus soft separation.
@@ -176,8 +178,8 @@ models are made from primitives in code, then rendered through a custom stylizer
 - **Setup:** `python3 -m venv ~/venvs/bpy && ~/venvs/bpy/bin/pip install bpy==5.3.0 pillow numpy`
   (needs Python 3.13). Always `import common` before `from mathutils import ...`,
   because bpy provides mathutils.
-- **Rig** (`tools/blender/common.py`): orthographic camera, yaw 45°, pitch asin(0.75) ≈
-  48.6°, 90.51 px/m, so it matches `Iso` exactly. Key light from screen upper-left, cool
+- **Rig** (`tools/blender/common.py`): orthographic camera, yaw 45°, pitch asin(0.5) =
+  30°, 90.51 px/m, so it matches `Iso` exactly (`common.ISO_K` = `Iso.K`). Key light from screen upper-left, cool
   rim from behind.
 - **Stylizer** (`render_stylized()`): every frame is rendered at 2× supersampling as
   separate Cycles passes:
@@ -240,8 +242,9 @@ models are made from primitives in code, then rendered through a custom stylizer
   - `build_player.py`: gunslinger legs, 4 torsos, HUD portrait (`-- portrait`); ~10 min.
   - `build_enemies.py`: hound/witch/legion/skull, one sheet per animation; ~20 min per
     pair. Run two processes in parallel.
-  - `build_env.py`: 11 floor kinds, 9 wall kinds (incl. freestanding `pillar` and
-    `pillar_broken`, legend `O`/`Q`), 3 low blocks, 8 props; ~1.5 min.
+  - `build_env.py`: 11 floor kinds, 10 wall kinds (incl. freestanding `pillar` and
+    `pillar_broken`, legend `O`/`Q`, and `cut`, a waist-high wall), 3 low blocks, 8 props;
+    ~1.5 min.
     Index order is fixed because the layout legend maps to it.
 - **Before full renders:** preview a few frames first (render a contact sheet with
   `render_stylized()` and look at it). That's how every model so far was iterated.
@@ -260,8 +263,14 @@ godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to 
 
 - **Rooms for `--start`:** `landing conduit vault hatchery spine reactor`.
 - **Look test:** `--level=temple` builds a single room composed like the temple mockup
-  (`layout_temple.gd`); add `--start=temple` with `--bot`. `--zoom=N` multiplies the
-  camera zoom (1.4 ≈ the mockup's framing).
+  (`layout_temple.gd`): a V-shaped back wall running left to right (mural wall down to a
+  corner pillar, waist-high meander wall `U` rising to the right), a soul-fire chasm with
+  gold walkways, and near edges breaking off into the abyss. Add `--start=temple` with
+  `--bot`. `--zoom=N` multiplies the camera zoom; at the 30° camera the default zoom
+  already matches the mockup's scale.
+- **Near walls are cut low:** a wall with the room behind it and nothing walkable in front
+  (`dungeon._cut_near_walls()`) is drawn with the waist-high `cut` wall sprite so it never
+  hides the floor; it still blocks movement and shots like any wall.
 - **Chasms:** void cells enclosed by walkable floor on all four sides become soul-fire
   pits automatically (`pit_fire.gd`). Their far walls are drawn as stone dropping into a
   green glow (under the floor, so the near rim hides them), with painted flame strips

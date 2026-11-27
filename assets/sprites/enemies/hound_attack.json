@@ -1,10 +1,10 @@
 {
  "name": "hound_attack",
- "frame_w": 176,
- "frame_h": 160,
+ "frame_w": 200,
+ "frame_h": 184,
  "origin": [
-  88,
-  114
+  100,
+  126
  ],
  "rows": 16,
  "cols": 6,

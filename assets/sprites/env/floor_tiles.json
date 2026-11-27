@@ -1,10 +1,10 @@
 {
  "name": "floor_tiles",
  "frame_w": 264,
- "frame_h": 240,
+ "frame_h": 184,
  "origin": [
   132,
-  100
+  70
  ],
  "rows": 1,
  "cols": 11,

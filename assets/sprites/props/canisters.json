@@ -1,10 +1,10 @@
 {
  "name": "canisters",
  "frame_w": 97,
- "frame_h": 116,
+ "frame_h": 115,
  "origin": [
   49,
-  85
+  93
  ],
  "rows": 1,
  "cols": 1,

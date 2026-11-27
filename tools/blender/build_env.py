@@ -10,9 +10,9 @@ import common as C  # noqa: E402  (imports bpy, which provides mathutils)
 from mathutils import Vector
 
 CELL = 2.0
-FLOOR_FRAME = (264, 240, (132, 100))
-WALL_FRAME = (260, 388, (130, 286))
-LOW_FRAME = (260, 276, (130, 174))
+FLOOR_FRAME = (264, 184, (132, 70))
+WALL_FRAME = (260, 400, (130, 318))
+LOW_FRAME = (260, 276, (130, 190))
 ENV_STYLE = {"outline_px": 3, "normal_edge": 0.5, "color_edge": 0.24, "color_line": 0.45, "grain": 0.09}
 # floors: soft, textured stone — few crease lines so the ground stays calm under combat
 FLOOR_STYLE = {"outline_px": 0, "inner_px": 0, "normal_edge": 0.75, "depth_edge": 0.05, "color_edge": 0.3,
@@ -69,6 +69,8 @@ PAINTED = {
     "t_sun": ("floor_emblem_sun.png", (1.7, 1.7, 1.7),
               {"tex_proj": "FLAT", "tex_rot": -math.pi / 4, "tex_extension": "EXTEND"}),
     "t_wall": ("wall_ashlar.png", (CELL, CELL, 3.0), {}),
+    # the gold Greek-key strip as a band on vertical faces (box projection: along the wall x height)
+    "t_band": ("floor_border_meander.png", (CELL, CELL, 0.6), {}),
     "t_flames": ("soulfire_flames.png", (1.0, 3.24, 1.62),
                  {"tex_emit": True, "emit": (1.0, 1.0, 1.0), "emit_strength": 6.0}),
 }
@@ -396,6 +398,19 @@ def wall_variant(M, kind, rng):
         for i in range(3):
             p = Vector((rng.uniform(0.7, 1.05), rng.uniform(-1.05, -0.7), rng.uniform(0.2, 1.4)))
             C.cyl(0.08, 0.5, p, M["soul2"], r, r2=0.0, verts=6, rot=(rng.uniform(-0.6, 0.6), rng.uniform(0.3, 0.9), 0))
+    elif kind == "cut":
+        # a near-side wall cut down to waist height so it never hides the room behind it
+        r = C.empty("wall")
+        body = M["t_wall"] if "t_wall" in M else M["wall"]
+        C.box((CELL, CELL, 1.1), (0, 0, 0.55), body, r, bevel=0.02)
+        C.box((CELL + 0.06, CELL + 0.06, 0.12), (0, 0, 1.14), M["wall_dk"], r, bevel=0.025)   # coping
+        C.box((CELL + 0.07, CELL + 0.07, 0.03), (0, 0, 1.07), M["gold"], r, bevel=0.005)      # gold rim
+        C.box((CELL + 0.08, CELL + 0.08, 0.2), (0, 0, 0.1), M["wall_dk"], r, bevel=0.03)      # plinth
+        if "t_band" in M:  # the mockup's meander relief along the low wall
+
+            def band(o, a, n):
+                C.box((0.03, CELL, 0.6), o + n * 0.016 + UP * 0.58, M["t_band"], r, rot=_rot_for_normal(n), bevel=0.0)
+            _face_items(band)
     elif kind in ("pillar", "pillar_broken"):
         r = C.empty("wall")
         pillar(M, r, rng, broken=kind == "pillar_broken")
@@ -445,7 +460,7 @@ def pillar(M, r, rng, broken=False):
     C.box((0.3, 0.24, 0.2), (-0.5, 0.45, 0.48), M["pillar"], r, rot=(0.3, 0.2, 1.1), bevel=0.03)
 
 
-WALL_KINDS = ["frieze", "column", "firealcove", "relief", "banner", "rock", "breach", "pillar", "pillar_broken"]
+WALL_KINDS = ["frieze", "column", "firealcove", "relief", "banner", "rock", "breach", "pillar", "pillar_broken", "cut"]
 
 
 def render_walls():

@@ -12,7 +12,7 @@ const LOW_SHEET := "res://assets/sprites/env/low_blocks"
 enum Block { NONE, WALL, LOW, DOOR }
 
 const FLOOR_CHAR := {"g": 2, "h": 3, "l": 4, "v": 5, "w": 6, ",": 7, "o": 8, "c": 9, "r": 10, "z": 2, ":": 0}
-const WALL_CHAR := {"P": 0, "W": 3, "M": 2, "I": 4, "R": 5, "K": 6, "O": 7, "Q": 8}
+const WALL_CHAR := {"P": 0, "W": 3, "M": 2, "I": 4, "R": 5, "K": 6, "O": 7, "Q": 8, "U": 9}
 const LOW_CHAR := {"=": 0, "x": 1, "|": 2}
 const PROP_CHAR := {"b": "barrel", "k": "crate", "n": "canisters", "C": "chest", "e": "eggs",
 	"*": "crystals", "p": "pylon", "t": "cryotube"}
@@ -88,12 +88,30 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 					exit_cell = c
 				"z":
 					shock_cells.append(c)
+	_cut_near_walls()
 	_build_floor()
 	_build_blocks()
 	_build_ao()
 	_build_lights()
 	for pp in pending_props:
 		add_prop(pp[0], pp[1])
+
+
+const CUT_KIND := 9   # "cut" in the wall sheet: a waist-high wall
+
+
+## Walls on the near side of a room (the room behind them, open abyss in front) are
+## drawn as waist-high walls, so they never hide the floor. They still block like walls.
+func _cut_near_walls() -> void:
+	var front := [Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)]
+	var back := [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(-1, -1)]
+	for c in block:
+		if block[c] != Block.WALL or breakables.has(c):
+			continue
+		if front.any(func(o): return is_floor(c + o)):
+			continue
+		if back.any(func(o): return is_floor(c + o)):
+			block_kind[c] = CUT_KIND
 
 
 func _auto_floor(rng: RandomNumberGenerator) -> int:

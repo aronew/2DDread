@@ -1,10 +1,10 @@
 {
  "name": "chest",
- "frame_w": 159,
- "frame_h": 180,
+ "frame_w": 141,
+ "frame_h": 160,
  "origin": [
-  87,
-  130
+  77,
+  125
  ],
  "rows": 1,
  "cols": 2,

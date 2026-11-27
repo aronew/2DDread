@@ -527,7 +527,7 @@ class MinimapDraw extends Control:
 		var s := 8.0
 		var to_map := func(t: Vector2) -> Vector2:
 			var rel := t - pt
-			return c + Vector2((rel.x - rel.y) * s, (rel.x + rel.y) * s * 0.75)
+			return c + Vector2((rel.x - rel.y) * s, (rel.x + rel.y) * s * Iso.K)
 		var pc := Iso.cell_of(pl.gpos)
 		for ox in range(-13, 14):
 			for oy in range(-13, 14):
@@ -559,7 +559,7 @@ class MinimapDraw extends Control:
 			if ep.distance_to(c) < R - 4:
 				draw_circle(ep, 4.5 if e.is_elite else 3.0, Color(1.0, 0.6, 0.2) if e.is_elite else Color(1.0, 0.25, 0.25))
 		var ad: Vector2 = pl.aim_dir
-		var mdir := Vector2(ad.x, ad.y * 0.75).normalized()
+		var mdir := Vector2(ad.x, ad.y * Iso.K).normalized()
 		draw_colored_polygon(PackedVector2Array([c + mdir * 10, c + mdir.orthogonal() * 6 - mdir * 5, c - mdir.orthogonal() * 6 - mdir * 5]), Color(1, 1, 1))
 		draw_arc(c, R + 4, 0, TAU, 64, Color(0, 0, 0, 0.8), 5.0)
 		draw_arc(c, R + 4, 0, TAU, 64, Color(0.93, 0.74, 0.38, 0.9), 2.0)

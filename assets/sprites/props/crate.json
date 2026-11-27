@@ -1,10 +1,10 @@
 {
  "name": "crate",
- "frame_w": 158,
- "frame_h": 164,
+ "frame_w": 145,
+ "frame_h": 151,
  "origin": [
-  83,
-  112
+  76,
+  115
  ],
  "rows": 1,
  "cols": 1,

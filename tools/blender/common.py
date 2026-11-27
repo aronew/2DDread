@@ -3,7 +3,7 @@
 Every asset is rendered from the same orthographic camera so that all sprites
 share one projection:
 
-  * elevation  = asin(ISO_K)  (~48.6 deg)  -> a ground diamond is 4:3 (256x192)
+  * elevation  = asin(ISO_K)  (30 deg)    -> a ground diamond is 2:1 (256x128)
   * azimuth    = 45 deg        -> world +X runs to the screen lower-right
   * PX_PER_M   = 90.51         -> a 2 m floor tile is exactly 256 px wide
 
@@ -29,7 +29,7 @@ from mathutils import Vector, Euler, Matrix
 import numpy as np
 from PIL import Image
 
-ISO_K = 0.75
+ISO_K = 0.5
 ELEV = math.asin(ISO_K)
 COS_EL = math.cos(ELEV)
 PX_PER_M = 256.0 / (2.0 * math.sqrt(2.0))  # 90.51

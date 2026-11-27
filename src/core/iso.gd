@@ -10,11 +10,11 @@ extends RefCounted
 ##
 ## These match the Blender render rig (tools/blender/common.py).
 
-const K := 0.75                      # vertical foreshortening (sin of camera pitch)
+const K := 0.5                       # vertical foreshortening (sin of camera pitch): 30 deg, 2:1 isometric
 const PX_PER_M := 90.50967           # ground px per metre
-const HPX_PER_M := 59.8664           # screen px per metre of height above ground
+const HPX_PER_M := 78.3837           # screen px per metre of height above ground (PX_PER_M * cos pitch)
 const TILE_W := 256.0
-const TILE_H := 192.0
+const TILE_H := 128.0
 const TILE_M := 2.0
 const TILE_GPX := 181.01934          # one tile edge in ground px
 

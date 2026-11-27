@@ -76,9 +76,9 @@ func setup(pits: Array, d: Dungeon) -> void:
 	# beyond them isn't pit. How deep we can see depends on how wide the pit is.
 	for c in cells:
 		if not _pit.has(c + Vector2i(-1, 0)):
-			walls.append(_wall(Vector2(c.x, c.y), Vector2(c.x, c.y + 1), _run(c, Vector2i(1, 0)), false, c.y * 2.0 + c.x * 5.3))
+			walls.append(_wall(Vector2(c.x, c.y), Vector2(c.x, c.y + 1), _see(c), false, c.y * 2.0 + c.x * 5.3))
 		if not _pit.has(c + Vector2i(0, -1)):
-			walls.append(_wall(Vector2(c.x, c.y), Vector2(c.x + 1, c.y), _run(c, Vector2i(0, 1)), true, c.x * 2.0 + c.y * 7.1 + 40.0))
+			walls.append(_wall(Vector2(c.x, c.y), Vector2(c.x + 1, c.y), _see(c), true, c.x * 2.0 + c.y * 7.1 + 40.0))
 	var m := ShaderMaterial.new()
 	m.shader = SHADER
 	material = m
@@ -102,6 +102,13 @@ func setup(pits: Array, d: Dungeon) -> void:
 	queue_redraw()
 
 
+## How many cells of pit lie straight below a far wall of cell c on screen. Straight down
+## on screen is the (+1, +1) tile diagonal, so the view into the pit ends at whichever of
+## its +i / +j edges comes first.
+func _see(c: Vector2i) -> int:
+	return mini(_run(c, Vector2i(1, 0)), _run(c, Vector2i(0, 1)))
+
+
 func _run(c: Vector2i, dir: Vector2i) -> int:
 	var n := 0
 	while _pit.has(c + dir * n):
@@ -111,8 +118,8 @@ func _run(c: Vector2i, dir: Vector2i) -> int:
 
 func _wall(t0: Vector2, t1: Vector2, run: int, lit: bool, along: float) -> Array:
 	# the chasm is bottomless: its far wall shows all the way down to where the near
-	# rim hides it, which is 192 px (3.2 m of height) per cell of pit width
-	var depth := run * 3.2
+	# rim hides it; each diagonal cell of pit is one tile height of screen
+	var depth := run * Iso.TILE_H / Iso.HPX_PER_M
 	return [_screen(t0), _screen(t1), depth, lit, along]
 
 

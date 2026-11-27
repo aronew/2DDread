@@ -1,10 +1,10 @@
 {
  "name": "crystals",
- "frame_w": 111,
- "frame_h": 152,
+ "frame_w": 107,
+ "frame_h": 146,
  "origin": [
-  55,
-  109
+  53,
+  116
  ],
  "rows": 1,
  "cols": 1,

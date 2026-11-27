@@ -1,10 +1,10 @@
 {
  "name": "legion_attack",
  "frame_w": 272,
- "frame_h": 336,
+ "frame_h": 360,
  "origin": [
   136,
-  250
+  274
  ],
  "rows": 16,
  "cols": 7,

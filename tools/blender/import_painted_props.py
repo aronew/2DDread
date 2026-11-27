@@ -22,7 +22,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 KIT = os.path.join(HERE, "textures", "kit_2026-11-27")
 OUT = os.path.join(HERE, "..", "..", "assets", "sprites", "props")
 
-PX_M = 59.87          # screen px per metre of height
+K = 0.5               # sin of camera pitch (matches Iso.K)
+PX_M = 78.38          # screen px per metre of height
 FOOT = 64.0           # screen px across per metre of footprint (w + d)
 PAD = 4
 
@@ -84,7 +85,7 @@ def build(sheet, frames, glow, h_m, w_m, d_m):
     masters = [load(f) for f in frames]
     x0, y0, x1, y1 = bbox(masters[0][..., 3])
     # match the silhouette's height to the projected height (object + footprint depth)
-    want_h = h_m * PX_M + (w_m + d_m) * FOOT * 0.75
+    want_h = h_m * PX_M + (w_m + d_m) * FOOT * K
     scale = want_h / (y1 - y0)
     glow_name, glow_frame = (glow, 0) if isinstance(glow, str) else (glow or [None, None])
     crops = []
@@ -99,7 +100,7 @@ def build(sheet, frames, glow, h_m, w_m, d_m):
         # leaning amphora doesn't shift it), half the footprint's depth above its bottom
         low = c[int((bx[3] - bx[1]) * 0.8):, :, 3] > 128
         ox = float(np.where(low)[1].mean())
-        oy = (bx[3] - bx[1]) - (w_m + d_m) * FOOT * 0.375 / scale
+        oy = (bx[3] - bx[1]) - (w_m + d_m) * FOOT * K * 0.5 / scale
         crops.append((c, e, ox, oy))
     # common frame: every frame is placed so its origin lands on the same pixel
     lefts = [ox * scale for c, e, ox, oy in crops]

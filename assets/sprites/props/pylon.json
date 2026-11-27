@@ -1,10 +1,10 @@
 {
  "name": "pylon",
- "frame_w": 73,
- "frame_h": 144,
+ "frame_w": 75,
+ "frame_h": 150,
  "origin": [
-  36,
-  111
+  37,
+  126
  ],
  "rows": 1,
  "cols": 1,

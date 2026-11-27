@@ -15,15 +15,15 @@ by dropping in files that follow this contract. No code changes are needed.
 
 | Property | Value |
 |---|---|
-| Camera | Orthographic, yaw **45°**, pitch **48.59°** (= asin 0.75) |
+| Camera | Orthographic, yaw **45°**, pitch **30°** (= asin 0.5): classic 2:1 isometric |
 | Ground scale | **90.51 px per metre** horizontally |
-| Height scale | **59.87 px per metre** of vertical height on screen |
-| Grid cell | 2 m × 2 m → screen diamond **256 × 192 px** (4:3) |
-| Character | ~1.9 m tall ≈ 115 px from feet to helmet |
+| Height scale | **78.38 px per metre** of vertical height on screen |
+| Grid cell | 2 m × 2 m → screen diamond **256 × 128 px** (2:1) |
+| Character | ~1.9 m tall ≈ 150 px from feet to hat |
 
 If you model in 3D, reuse the rig in `tools/blender/common.py` (`setup_camera`,
 `setup_lights`). It reproduces the projection exactly. If you paint in 2D, draw
-on top of a 256×192 diamond guide and keep vertical edges vertical.
+on top of a 256×128 diamond guide and keep vertical edges vertical.
 
 **Directions.** Directional sheets store one direction per row.
 - **Row 0:** facing screen-right.
@@ -86,8 +86,8 @@ that matches Godot's `Light2D.height` model:
 | `player/player_torso_<rifle\|shotgun\|arc\|rail>` | 32 dirs, grid 4 rows × 8 cols, row-major | meta `muzzle_m`: [forward, left, height] in metres; optional `muzzle2_m` = second barrel (twin revolvers alternate) |
 | `ui/portrait.png` | single image | HUD portrait shown in the gold diamond |
 | `enemies/<name>_<anim>` | 16 dirs × N frames | names come from `EnemyData.sheet_move` / `sheet_attack` (hound, witch, legion, skull) |
-| `env/floor_tiles` | 1 row × N kinds | 264×240 frames, origin (132,100); slab sides hang below the diamond so platform edges form automatically |
-| `env/wall_blocks` | 1 row × N kinds | 260×388 frames, origin (130,286); 3 m tall full-cell blocks |
+| `env/floor_tiles` | 1 row × N kinds | 264×184 frames, origin (132,70); slab sides hang below the diamond so platform edges form automatically |
+| `env/wall_blocks` | 1 row × N kinds | 260×400 frames, origin (130,318); 3 m tall full-cell blocks. Kind `cut` is a waist-high wall the game uses for near-side walls automatically |
 | `env/low_blocks` | 1 row × N kinds | movement blockers that bullets pass over |
 | `props/<name>` | 1 row × frames | chest: frame 1 = open; eggs: frame 1 = swollen |
 

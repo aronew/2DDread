@@ -1,13 +1,13 @@
 {
  "name": "wall_blocks",
  "frame_w": 260,
- "frame_h": 388,
+ "frame_h": 400,
  "origin": [
   130,
-  286
+  318
  ],
  "rows": 1,
- "cols": 9,
+ "cols": 10,
  "files": {
   "color": "wall_blocks_c.png",
   "normal": "wall_blocks_n.png",
@@ -22,6 +22,7 @@
   "rock",
   "breach",
   "pillar",
-  "pillar_broken"
+  "pillar_broken",
+  "cut"
  ]
 }
