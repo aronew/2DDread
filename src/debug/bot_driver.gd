@@ -55,12 +55,12 @@ func _ready() -> void:
 	if shots_dir != "":
 		DirAccess.make_dir_recursive_absolute(shots_dir)
 	var start: String = Game.world.get_meta("start_room", "") if Game.world.has_meta("start_room") else ""
+	var ids: Array = Game.world.director.rooms.map(func(r): return r.id)
 	if start != "" and _route.has(start):
 		_route_i = _route.find(start)
-	elif start != "":
+	elif start != "" or not ids.has(_route[0]):
 		# another level (e.g. --level=temple): its rooms in layout order from the start room
-		var ids: Array = Game.world.director.rooms.map(func(r): return r.id)
-		_route = (ids.slice(ids.find(start)) if ids.has(start) else [start]) + ["exit"]
+		_route = (ids.slice(ids.find(start)) if ids.has(start) else ([start] if start != "" else ids)) + ["exit"]
 	if enabled:
 		Game.bot_mode = true
 		Game.player.input_override = self

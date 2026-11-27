@@ -67,9 +67,11 @@ func _draw() -> void:
 	if _kind == 0:
 		var c := Iso.to_screen(_g)
 		draw_polyline(_ellipse(c, _r, 40), edge, 3.0, true)
-		if p > 0.02:
+		# (a fill under ~2 px is degenerate and fails to triangulate)
+		if p > 0.02 and _r * p > 2.0:
 			draw_colored_polygon(_ellipse(c, _r * p, 32), fill)
-		draw_colored_polygon(_ellipse(c, _r, 32), _color * Color(1, 1, 1, 0.04 * fade))
+		if _r > 2.0:
+			draw_colored_polygon(_ellipse(c, _r, 32), _color * Color(1, 1, 1, 0.04 * fade))
 		draw_polyline(_ellipse(c, _r * p, 40), edge * Color(1, 1, 1, 0.6), 2.0, true)
 	else:
 		var d := (_b - _g)

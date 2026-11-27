@@ -57,7 +57,7 @@ static func find_pits(d: Dungeon) -> Array:
 	for y in range(lo.y, hi.y + 1):
 		for x in range(lo.x, hi.x + 1):
 			var c := Vector2i(x, y)
-			if d.floor_kind.has(c):
+			if d.floor_kind.has(c) or d.drops.has(c):
 				continue
 			if _closed(d, c, Vector2i(1, 0)) and _closed(d, c, Vector2i(-1, 0)) \
 					and _closed(d, c, Vector2i(0, 1)) and _closed(d, c, Vector2i(0, -1)):

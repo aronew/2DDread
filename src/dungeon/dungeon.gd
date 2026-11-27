@@ -36,6 +36,8 @@ var shock_cells: Array = []
 var breakables := {}      # Vector2i -> hp
 var bridges := {}         # Vector2i -> true: floor cells drawn as bridge decks over a pit
 var painted_cells := {}   # Vector2i -> true: covered by a room painting, no tile drawn
+var drops := {}           # Vector2i -> true: `_` cells, the face of a drop to a lower floor (void, never a pit)
+var stairs := {}          # Vector2i -> true: `/` cells, walkable stairs drawn by Terrace (no tile)
 var tall_walls := {}      # Vector2i -> true: back walls drawn 6 m tall (see _is_back_wall)
 var start_cell := Vector2i.ZERO
 var exit_cell := Vector2i(-1, -1)
@@ -102,6 +104,11 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 				"X":
 					exit_cell = c
 					floor_kind[c] = 0   # plain stone under the portal
+				"_":
+					drops[c] = true
+					floor_kind.erase(c)   # void: nothing walks here, Terrace draws the face
+				"/":
+					stairs[c] = true
 				"z":
 					shock_cells.append(c)
 	_cut_near_walls()
@@ -147,6 +154,10 @@ func _orient_bridges() -> void:
 		var hi := not bridges.has(c + d)
 		var part := 0 if (lo and hi) else (1 if lo else (2 if hi else 3))
 		floor_kind[c] = BRIDGE_KIND0 + (4 if along_j else 0) + part
+
+
+func is_stair(c: Vector2i) -> bool:
+	return stairs.has(c)
 
 
 func is_bridge(c: Vector2i) -> bool:
@@ -486,7 +497,7 @@ func _build_floor() -> void:
 	add_child(_floor_root)
 	var chunks := {}
 	for c in floor_kind:
-		if bridges.has(c) or painted_cells.has(c):
+		if bridges.has(c) or painted_cells.has(c) or stairs.has(c):
 			continue
 		var k := Vector2i(floori(float(c.x) / CHUNK), floori(float(c.y) / CHUNK))
 		if not chunks.has(k):
@@ -615,7 +626,7 @@ class AOLayer extends Node2D:
 	func _draw() -> void:
 		var dirs := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
 		for c in dungeon.floor_kind:
-			if dungeon.block.get(c, 0) == Dungeon.Block.WALL:
+			if dungeon.block.get(c, 0) == Dungeon.Block.WALL or dungeon.stairs.has(c):
 				continue
 			for o in dirs:
 				var n: Vector2i = c + o

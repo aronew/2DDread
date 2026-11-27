@@ -44,25 +44,40 @@ extends RefCounted
 ## hounds; once the nests are down, a shielded elite Legionnaire. Clearing it drops a
 ## chest and opens the exit portal (X) at the far right, which descends to the next depth.
 
+## Room 4, THE GREAT STAIR + THE UNDERCROFT (columns 59-79, rows 0-19): bigger, L-shaped
+## and on two floor levels (see Terrace). The bridge arrives on a long upper gallery: its
+## back wall is murals, niches and columns, with a gold processional band leading to a
+## grand stair cut into the gallery's front terrace and flanked by braziers. The path
+## turns there and goes down the stair (toward the camera) into the Undercroft, a sunken
+## hall two levels (3.27 m) below: on screen it starts two cells further down-right, at
+## row 10, behind rows 8-9 of terrace face (`_`) and stair (`/`). Its left wall is 3 m next
+## to the terrace (taller would hide the gallery) and 6 m further down. A nave of columns
+## and a sarcophagus lead to the exit portal. Fights: hounds and witches on the gallery,
+## then a Legionnaire and skulls; in the Undercroft, a Legionnaire and hounds while Hex
+## Witches shoot down from the gallery, then a molten elite. Two paint guides (stair_01,
+## undercroft_01) overlap at the stair.
+
 const MAP := [
-	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OPPPOPWPOPPPO",
-	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:",
-	"M:::::::::::::::::::::    P::O:  ::O::    P::O:::::O:::",
-	"W::::::::::::::::k::::BBBB:::::  :::::BBBB:hhhh:=l:::::",
-	"M::::::::o:::::::::p::    :::::BB:::::    ::::::=::::::",
-	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::",
-	"O::::::::::Q::::::::*:    ::::,  :::n:    b::Q::o::Q:X:",
-	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::",
-	"M::::S::::::::::::::::      ::::::           ::::::::",
-	"Wn  B  B    ::::w:::::",
-	"M:  B  B    :::::::::",
-	"W:::::::::::::::::::k:",
-	"M::Q::,::::::::::::::",
-	"W:n:::::::::::w::::n",
-	" :::Q:::::,:::::::::",
-	"   ::::::::::::::::",
-	"      ::::::::::",
-	"",
+	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OPPPOPWPOPPPO    OPMPOPWPOWMWOPWPOMO",
+	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:    P:k:::n:::::::n::k:",
+	"M:::::::::::::::::::::    P::O:  ::O::    P::O:::::O:::    P::::::::::::::::::",
+	"W::::::::::::::::k::::BBBB:::::  :::::BBBB:hhhh:=l:::::BBBB:hhhhhhh:l:::::::::",
+	"M::::::::o:::::::::p::    :::::BB:::::    ::::::=::::::    :::o:::::::::::*:::",
+	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b",
+	"O::::::::::Q::::::::*:    ::::,  :::n:    b::Q::o::Q:::    ::b:::::*////*:::::",
+	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::",
+	"M::::S::::::::::::::::      ::::::           ::::::::           _____///______",
+	"Wn  B  B    ::::w:::::                                           _____///______",
+	"M:  B  B    :::::::::                                              P:*::::*:::::",
+	"W:::::::::::::::::::k:                                             M:::::::::::n",
+	"M::Q::,::::::::::::::                                              P::::o:::::::",
+	"W:n:::::::::::w::::n                                               M::O:::::O:::",
+	" :::Q:::::,:::::::::                                               W:::::=::::::",
+	"   ::::::::::::::::                                                Ok::::=::::::",
+	"      ::::::::::                                                   W::O:::::O:::",
+	"                                                                   M:b:::::::k::",
+	"                                                                   P:::::X:::n::",
+	"                                                                   O::,:::::::::",
 ]
 
 ## Room paintings laid over the layout (RoomPaint; docs/paint_guides/README.md).
@@ -95,6 +110,31 @@ const ROOMS := [
 			{"trigger": {"remaining": 2}, "spawn": [["brute", 1, {"elite": ["shielded"]}], ["mite", 3], ["spitter", 1]], "far": true},
 		],
 		"reward": "chest",
+	},
+	{
+		"id": "gallery", "name": "THE GREAT STAIR", "rect": [59, 1, 77, 9], "lock": false,
+		"beats": [
+			{"trigger": "enter", "spawn": [["mite", 4], ["spitter", 2]], "far": true},
+			{"trigger": {"remaining": 2}, "spawn": [["brute", 1], ["mite", 3], ["bloater", 2]], "far": true},
+		],
+	},
+	{
+		# Hex Witches appear up on the gallery and shoot down into the hall
+		"id": "undercroft", "name": "THE UNDERCROFT", "rect": [68, 10, 79, 19], "lock": false,
+		"beats": [
+			{"trigger": "enter", "spawn": [["brute", 1], ["mite", 4], ["spitter", 2, {"area": [73, 1, 77, 7]}]], "far": true},
+			{"trigger": {"remaining": 2}, "spawn": [["brute", 1, {"elite": ["molten"]}], ["bloater", 2], ["spitter", 1, {"area": [60, 1, 66, 7]}]], "far": true},
+		],
+		"reward": "chest",
 		"exit": true,
 	},
+]
+
+## Changes of floor level (Terrace): room 4's gallery drops two levels (3.27 m) to the
+## Undercroft. Coordinates are the gallery's; on screen the Undercroft sits two cells
+## further down-right, so its floor starts at row 10.
+const TERRACES: Array = [
+	{"face": [64, 68, 8], "drop": 2},     # runs on behind the hall's left wall
+	{"face": [72, 78, 8], "drop": 2},
+	{"stair": [68, 72, 6], "run": 2, "drop": 2, "steps": 10, "cheek": true},
 ]

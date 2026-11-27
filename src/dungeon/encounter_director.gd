@@ -167,7 +167,12 @@ func _spawn_beat(r: Room, b: Dictionary) -> void:
 			n += Game.depth - 1
 		for i in n:
 			var g: Vector2
-			if opts.has("elite") or id == "brute":
+			if opts.has("area"):
+				# placed in a set part of the level, e.g. up on a balcony over the room
+				var ar: Array = opts["area"]
+				var rect := Rect2i(ar[0], ar[1], ar[2] - ar[0] + 1, ar[3] - ar[1] + 1)
+				g = dungeon.random_floor_in(rect, pl.gpos, Iso.m(4.0), _rng, false)
+			elif opts.has("elite") or id == "brute":
 				g = dungeon.random_floor_in(r.rect, pl.gpos, Iso.m(8.0), _rng, true)
 			else:
 				# groups arrive from 3 directions around the player, including behind

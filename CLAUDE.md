@@ -20,6 +20,7 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 | 1 | THE SOUL-FIRE TEMPLE (`temple`) | 0-23 | painted (`assets/rooms/temple_01`) |
 | 2 | THE HOODED SANCTUM (`sanctum`) | 26-37 | painted (`assets/rooms/sanctum_01`); its props were moved to match the painting |
 | 3 | THE BONE ALTAR (`altar`) | 42-54 | painted (`assets/rooms/altar_01`); no pit: a ritual hall with a central altar, three bone nests that spawn hounds until broken, fire urns, then a shielded elite Legionnaire; drops a chest and opens the exit portal. Props follow the painting (its banners became plain frieze, braziers and candles became painted shrubs) |
+| 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | laid out, two guides (`stair_01`, `undercroft_01`) rendered, **waiting for the owner's two SOL paintings**. L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
 
 Each room's right edge has a gold bridge (row 3) across the abyss to the next; the last
 room holds the exit portal (`X`, and `"exit": true` in its `ROOMS` entry), which
@@ -39,8 +40,9 @@ game renders ("paint guides"). Recipe for every new room:
      column, `:` plain floor, `B` bridge (over a pit or across the abyss), a space inside
      the floor = a soul-fire pit (enclosed void), `k` urns, `n` candles, `p` candelabra,
      `*` soul brazier, `o` laurel-skull plate, `w` cracked slabs, `,` mossy slabs, `S`
-     start, `X` exit portal. Full legend in `src/dungeon/dungeon.gd` (`FLOOR_CHAR`,
-     `WALL_CHAR`, `PROP_CHAR`).
+     start, `X` exit portal, `_` the face of a drop to a lower floor (void), `/` stairs
+     (see "Terraces and stairs" in section 6). Full legend in `src/dungeon/dungeon.gd`
+     (`FLOOR_CHAR`, `WALL_CHAR`, `PROP_CHAR`).
    - Check on the guide that nothing tall stands right in front of a feature on screen:
      cells with the same `i - j` line up vertically, the nearer one in front.
    - Keep explosive fire urns (`b`, 3.2 m blast) at least 2 cells off the entry path.
@@ -234,7 +236,7 @@ src/combat/         weapon_data/weapon/weapon_db · projectile(_system) · comba
 src/enemies/        enemy_data · enemy.gd (base FSM, armour, stagger, status, death) · mite/spitter/brute/bloater · elite.gd
 src/abilities/      shock_nova · seeker_swarm · lash (F whip: crack / yank / execute / whirl)
 src/loot/           item · loot (generation/drops) · pickup
-src/dungeon/        layout_test (ASCII + rooms/beats) · layout_temple (mockup look-test room) · dungeon.gd (grid collision, DDA raycast, flow field, floor/walls/lights) · pit_fire (soul-fire in enclosed chasms) · encounter_director · prop · doors/portal/shock floor
+src/dungeon/        layout_test (ASCII + rooms/beats) · layout_temple (mockup look-test room) · dungeon.gd (grid collision, DDA raycast, flow field, floor/walls/lights) · pit_fire (soul-fire in enclosed chasms) · terrace (drops and stairs between floor levels) · encounter_director · prop · doors/portal/shock floor
 src/ui/             hud.gd (procedural HUD + minimap) · inventory_ui.gd
 src/vfx/            shaders/ (entity, glow_rim, post, post_lite, void_bg) · camera · post_fx · telegraph · tex_gen · glow_mat
 src/debug/          bot_driver.gd (automated playtester)
@@ -413,6 +415,24 @@ godot --path . -- --start=reactor --depth=2 --gfx=low                 # jump to 
   dark stone face over the pit). `Dungeon._orient_bridges()` picks the axis and end
   pieces from the neighbours, and the decks are drawn above the pit layers (z −17) so
   the fire glows under them. The pit side under a deck is "open": no masonry, just glow.
+- **Terraces and stairs (floor levels):** the game has one flat ground plane, but at the
+  2:1 camera a drop of 1.633 m (one "level") moves a point 128 px down on screen, exactly
+  what one cell of depth does. So a floor one level lower is simply laid out one cell
+  further down-right (+1 i and +1 j per level), and gameplay stays flat. Between the two
+  floors the layout leaves a row of `_` cells per level (void, never a pit), and
+  `src/dungeon/terrace.gd` paints the drop's stone face there (green ashlar, gold
+  Greek-key band, capstone lip; textures from `tools/rooms/prep_terrace_textures.py`).
+  Stairs are walkable `/` cells drawn from their true 3D geometry, so whoever stands on
+  one stands on the steps. A stair descending toward +j over `run` cells and `n` levels
+  covers rows `j0 .. j0 + run + n` on screen, shifted right by up to `n` cells; mark the
+  cells whose centres fall on its visible part `/` (room 4: 4-3-3-3 cells, shifted one
+  right every second row) and the rest of the drop rows `_`. The faces and stairs are
+  listed in the layout's `TERRACES` (room 4: a two-level drop, a 10-step stair with its
+  cut stone side). Rules: a lower floor's walls rise from the lower level, so keep tall
+  walls where they can't hide the upper floor (room 4's Undercroft has 3 m walls next to
+  the terrace and 6 m ones further down); faces face +j (or +i), toward the camera;
+  flying enemies cross drops, walkers use the stairs. Beat spawns can name an `"area"`
+  (room 4 puts Hex Witches up on the gallery to shoot down into the hall).
 - **Paint guides and room paintings (generated art):** the owner's art comes from an
   image generator (SOL), which takes attached reference images. `--paint-guide` (with
   `--look` and `--shots`) hides the HUD and player and writes each shot's camera next to
