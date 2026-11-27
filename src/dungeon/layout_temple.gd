@@ -63,8 +63,8 @@ extends RefCounted
 ## soul-fire niches (M) and columns enclose the back and left; four hooded shrine blocks
 ## (W, freestanding 3 m) stand around an open central field between two gold Greek-key
 ## bands, with a laurel-skull plate in the middle and three more along the front. The exit
-## portal waits in the back-right corner between two braziers. Props stay off the walls'
-## corners so nothing spawns in a pocket. Fight: three waves (hounds and witches; a
+## portal waits in the back-right corner between two braziers. Props follow the owner's
+## painting (shades_01). Fight: three waves (hounds and witches; a
 ## Legionnaire, skulls and witches; a frenzied elite Legionnaire with hounds), then a
 ## chest and the portal.
 
@@ -74,11 +74,11 @@ const MAP := [
 	"M:::::::::::::::::::::    P::O:  ::O::    P::O:::::O:::    P::::::::::::::::::",
 	"W::::::::::::::::k::::BBBB:::::  :::::BBBB:hhhh:=l:::::BBBB:hhhhhhh:l:::::::::",
 	"M::::::::o:::::::::p::    :::::BB:::::    ::::::=::::::    :::o:::::::::::n:::      OMWMOPWPOMWMOPWO",
-	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b      W:k:::n:::n:k:::",
-	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::      M:::::::::::*X*:",
+	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b      W:k:::n:::n:::k:",
+	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::      Mb::::::::::*X*:",
 	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::      O::hhhhhhhhhhh::",
 	"M::::S::::::::::::::::      ::::::           ::::::::           _____///______      W:::W:n:::::W:::",
-	"Wn  B  B    ::::w:::::                                           _____///______     Mb::::::::::::::",
+	"Wn  B  B    ::::w:::::                                           _____///______     M:::::::::::::::",
 	"M:  B  B    :::::::::                                              P:k::::k:::::    W:::::::o:::::::",
 	"W:::::::::::::::::::k:                                             M::::::::::::    O:::::::::::::b:",
 	"M::Q::,::::::::::::::                                              P::::o:::::::    M:::::::::::::::",
@@ -98,7 +98,8 @@ const MAP := [
 ## assets/rooms/sanctum_01: the owner's SOL painting of room 2
 ## (docs/paint_guides/sanctum_01_painted_sol.webp), painted at paint guide sanctum_01.
 const PAINTS: Array = ["res://assets/rooms/temple_01", "res://assets/rooms/sanctum_01", "res://assets/rooms/altar_01",
-	"res://assets/rooms/stair_01", "res://assets/rooms/undercroft_01"]
+	"res://assets/rooms/stair_01", "res://assets/rooms/undercroft_01",
+	"res://assets/rooms/shades_01"]
 
 const ROOMS := [
 	{
