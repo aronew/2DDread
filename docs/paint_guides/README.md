@@ -54,6 +54,36 @@ Room 1's right half came back painted (`temple_east_01_painted_sol.webp`, import
 with `walls`): SOL painted the camera-side walls as solid blocks with Greek-key bands and
 followed the guide closely. Use that phrasing for the next rooms.
 
+### Round 2: rooms 2-5 with their new walls (guides rendered 2026-11-27)
+
+Same cameras as the `_01` guides (checked: identical `world_to_image`), so the floors,
+pits and props sit exactly where the current paintings have them; what's new is the
+walls on every side and the corridors in place of the bridges.
+
+| Room | Attach (image 1 / optional image 3) | Room's prompt below |
+|---|---|---|
+| 2, Hooded Sanctum | `sanctum_02_lines.png` / `sanctum_02_guide.png` | room 2 |
+| 3, Bone Altar | `altar_02_lines.png` / `altar_02_guide.png` | room 3 |
+| 4, Great Stair (upper half) | `stair_02_lines.png` / `stair_02_guide.png` | room 4, gallery |
+| 4, Undercroft (lower half) | `undercroft_02_lines.png` / `undercroft_02_guide.png` | room 4, Undercroft |
+| 5, Hall of Shades | `shades_02_lines.png` / `shades_02_guide.png` | room 5 |
+
+Image 2 is always the mockup; add one v3 painting (e.g. `temple_01_painted_sol_v3.webp`)
+as a style reference if SOL takes it. Use each room's prompt below (swap `_01` for `_02`)
+and add these lines to its "What things are" list:
+
+> - The dark blocks along the bottom and right edges, nearest the camera, are solid
+>   temple walls seen from behind, as tall as the others: dark green stone with a gold
+>   Greek-key band, ending in a flat cap. Paint them solid.
+> - The walled passages leading out of the room at the sides are stone corridors to the
+>   next rooms: same floor, walls on both sides.
+> - Everything outside the walls is pure black.
+
+Import each with `walls` (`import_room_paint.py PAINTING GUIDE_JSON NAME walls`), using
+the `_02` guide JSON. Neighbouring rooms and corridors at the frame edges will be painted
+too: black them out with `clip_paint.py` where they belong to another room's painting
+(room 4's two halves were split along the terrace edge this way; do the same again).
+
 ## Prompt for SOL
 
 Attach `temple_02_lines.png` (image 1) and `docs/concept/mockup_01_soul_fire_temple.webp`
