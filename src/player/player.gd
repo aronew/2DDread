@@ -270,8 +270,8 @@ func _footsteps(dt: float) -> void:
 	_step_t -= dt
 	if _step_t <= 0.0:
 		_step_t = STEP_T
-		VFX.emit("smoke", Iso.lift(gpos - vel.normalized() * Iso.m(0.2), 0.05), (-vel).angle(),
-			Color(0.42, 0.42, 0.44, 0.22), 0.12)
+		VFX.emit("puff", Iso.lift(gpos - vel.normalized() * Iso.m(0.2), 0.05), (-vel).angle(),
+			Color(0.42, 0.42, 0.44, 0.3), 0.4)
 
 
 func _max_speed() -> float:

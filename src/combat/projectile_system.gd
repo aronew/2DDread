@@ -156,6 +156,9 @@ func _hit_enemy(p: Projectile, e, at: Vector2) -> void:
 	var style: String = e.impact_style
 	Combat.hit_enemy(e, d)
 	VFX.impact(at, minf(p.height, e.hit_height), -d.direction, style, e.blood_color)
+	if d.crit:   # crits get a gold flare so they read at a glance
+		var sp := Iso.lift(at, minf(p.height, e.hit_height))
+		VFX.burst_sprite(VFX.T.flash_wide, sp, Color(2.6, 1.9, 0.7, 0.9), Vector2(0.25, 0.25), Vector2(0.75, 0.6), 0.09, true, randf() * TAU)
 	if p.explode_radius > 0.0:
 		_explode(p, at)
 	if p.split > 0:
@@ -353,9 +356,11 @@ func _draw() -> void:
 				var l := minf(p.length, p.traveled + 12.0)
 				var tail := head - sdir * l
 				var c: Color = p.color
+				var gw: float = p.width * 4.5
+				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(gw, gw), Vector2(gw, gw) * 2.0), false, c * Color(1.5, 1.4, 1.3, 0.55))
 				draw_line(tail, head, c * Color(1, 1, 1, 0.35), p.width * 3.2, true)
-				draw_line(tail.lerp(head, 0.3), head, c * Color(2.2, 2.2, 2.2, 1), p.width, true)
-				draw_circle(head, p.width * 0.75, Color(3.5, 3.5, 3.5))
+				draw_line(tail.lerp(head, 0.25), head, c * Color(2.4, 2.4, 2.4, 1), p.width * 1.15, true)
+				draw_circle(head, p.width * 0.8, Color(3.5, 3.5, 3.5))
 	for b in beams:
 		var k: float = b["t"] / b["dur"]
 		var c: Color = b["color"]
