@@ -21,7 +21,7 @@ func _enter_tree() -> void:
 
 	_mouse("fire", MOUSE_BUTTON_LEFT)
 	_axis("fire", JOY_AXIS_TRIGGER_RIGHT, 1.0)
-	_mouse("alt_fire", MOUSE_BUTTON_RIGHT)
+	_key("alt_fire", [KEY_F, KEY_G])          # Firebomb
 	_axis("alt_fire", JOY_AXIS_TRIGGER_LEFT, 1.0)
 
 	_key("dash", [KEY_SPACE, KEY_SHIFT])
@@ -30,7 +30,8 @@ func _enter_tree() -> void:
 	_joy("ability_1", [JOY_BUTTON_X])
 	_key("ability_2", [KEY_E])
 	_joy("ability_2", [JOY_BUTTON_Y])
-	_key("melee", [KEY_F, KEY_V])
+	_mouse("melee", MOUSE_BUTTON_RIGHT)      # Hellfire Saber
+	_key("melee", [KEY_V])
 	_joy("melee", [JOY_BUTTON_B, JOY_BUTTON_RIGHT_SHOULDER])
 	_key("reload", [KEY_R])
 	_joy("reload", [JOY_BUTTON_RIGHT_STICK])

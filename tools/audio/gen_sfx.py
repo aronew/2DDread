@@ -314,16 +314,6 @@ def shield_break():
 
 # ---------------------------------------------------------------- player / abilities
 
-def dash():
-    d = 0.28
-    t = t_axis(d)
-    n = noise(d)
-    lo = band(n, 300, 1200)
-    hi = band(n, 1500, 6000)
-    k = t / d
-    return (lo * (1 - k) + hi * k) * np.sin(np.pi * k) ** 1.5
-
-
 def nova():
     d = 1.3
     crack = band(noise(d), 2000, 14000) * env(d, 0.0005, 0.04) * 1.2
@@ -363,33 +353,55 @@ def execute():
     return verb(sat(mix(thud, crunch, splat, shimmer), 3.0), 0.35, 0.7)
 
 
-def whip_lash():
-    """Leather whoosh that rises as the loop unrolls toward the tip."""
-    d = 0.16
+def sword_swing():
+    """A fast blade cutting the air: a bright rising whoosh with a thin metallic ring."""
+    d = 0.22
     t = t_axis(d)
     k = t / d
-    air = band(noise(d), 600, 5000) * np.sin(np.pi * k) ** 1.5 * (0.3 + k)
-    flutter = band(noise(d), 200, 1200) * (0.5 + 0.5 * np.sin(2 * np.pi * 38 * t)) * np.sin(np.pi * k) * 0.35
-    return mix(air, flutter)
+    air = band(noise(d), 900, 9000) * np.sin(np.pi * np.clip(k * 1.3, 0, 1)) ** 2 * (0.4 + k * 0.8)
+    ring = sum(np.sin(2 * np.pi * f * t) * a for f, a in ((2630, 0.12), (3950, 0.08))) * env(d, 0.02, 0.09)
+    return mix(air, ring)
 
 
-def whip_crack():
-    """The tip breaking the sound barrier: a hard broadband snap with a short slap-back."""
+def sword_heavy():
+    """The combo finisher: a deeper, longer whoosh with a body thump."""
+    d = 0.36
+    t = t_axis(d)
+    k = t / d
+    air = band(noise(d), 300, 6000) * np.sin(np.pi * np.clip(k * 1.2, 0, 1)) ** 1.6 * (0.5 + k)
+    thump = sweep(160, 55, d, curve=0.4) * env(d, 0.05, 0.1) * 0.7
+    ring = sum(np.sin(2 * np.pi * f * t) * a for f, a in ((1870, 0.12), (2810, 0.08))) * env(d, 0.06, 0.14)
+    return sat(mix(air, thump, ring), 1.6)
+
+
+def sword_hit():
+    """Blade through flesh: a sharp slice transient, a wet crunch and a short low punch."""
     d = 0.3
-    snap = band(noise(d), 1800, 16000) * env(d, 0.0002, 0.006) * 1.6
-    body = band(noise(d), 500, 4000) * env(d, 0.0005, 0.025) * 0.7
-    pop = sweep(2400, 600, d, curve=0.2) * env(d, 0.0002, 0.01) * 0.5
-    x = sat(mix(snap, body, pop), 3.0)
-    return verb(delay(x, 0.045, 0.25), 0.18, 0.25)
+    slice_ = band(noise(d), 2500, 14000) * env(d, 0.0003, 0.012) * 1.3
+    crunch = band(noise(d), 400, 3500) * env(d, 0.0008, 0.05)
+    punch = sweep(130, 45, d, curve=0.4) * env(d, 0.001, 0.06) * 1.2
+    return sat(mix(slice_, crunch, punch), 2.6)
 
 
-def whip_yank():
-    """Rope going taut (creak) then the heavy tug."""
+def sword_thrust():
+    """Dash-slash: a tearing rush that ends in a hard stop."""
     d = 0.32
-    creak = band(sweep(180, 90, d, "saw", curve=0.6), 150, 2500) * env(d, 0.002, 0.08) * 0.5
-    thump = sweep(110, 45, d, curve=0.4) * env(d, 0.004, 0.09) * 1.2
-    swish = band(noise(d), 400, 3000) * env(d, 0.01, 0.06) * 0.4
-    return sat(mix(creak, thump, swish), 2.2)
+    t = t_axis(d)
+    k = t / d
+    rush = band(noise(d), 600, 8000) * np.clip(k * 3.0, 0, 1) * np.exp(-k * 3.0) * 2.2
+    tone = sweep(500, 1800, d, "saw", 0.5) * env(d, 0.01, 0.08) * 0.15
+    stop = band(noise(d), 200, 2000) * env(d, 0.0005, 0.03) * 0.8
+    return sat(mix(rush, tone, stop), 2.0)
+
+
+def dash():
+    """Dash: a low push plus a fast airy rip, punchier than the old whoosh."""
+    d = 0.26
+    t = t_axis(d)
+    k = t / d
+    push = sweep(140, 60, d, curve=0.5) * env(d, 0.002, 0.07) * 0.9
+    rip = band(noise(d), 700, 8000) * np.sin(np.pi * np.clip(k * 1.6, 0, 1)) ** 1.3 * (1.0 - k * 0.6)
+    return sat(mix(push, rip), 1.5)
 
 
 def player_hurt():
@@ -545,13 +557,14 @@ SOUNDS = {
     "impact_armor": impact_armor, "explosion_small": lambda: explosion(False), "explosion_big": lambda: explosion(True),
     "enemy_death": enemy_death, "enemy_death_big": enemy_death_big, "mite_attack": mite_attack,
     "spitter_charge": spitter_charge, "spitter_spit": spitter_spit, "acid_splash": acid_splash,
-    "brute_roar": brute_roar, "brute_slam": brute_slam, "bloater_prime": bloater_prime, "dash": dash,
+    "brute_roar": brute_roar, "brute_slam": brute_slam, "bloater_prime": bloater_prime,
     "nova": nova, "seeker_launch": seeker_launch, "melee_swing": melee_swing, "melee_hit": melee_hit,
     "execute": execute, "pickup_item": pickup_item, "pickup_orb": pickup_orb, "xp_orb": xp_orb,
     "level_up": level_up, "door_lock": door_lock, "door_open": door_open, "chest_open": chest_open,
     "crate_break": crate_break, "wall_break": wall_break, "player_hurt": player_hurt, "shock_zap": shock_zap,
     "spawn": spawn, "legendary_drop": legendary_drop, "ui_click": ui_click, "elite_spawn": elite_spawn,
-    "shield_break": shield_break, "whip_lash": whip_lash, "whip_crack": whip_crack, "whip_yank": whip_yank,
+    "shield_break": shield_break, "sword_swing": sword_swing, "sword_heavy": sword_heavy,
+    "sword_hit": sword_hit, "sword_thrust": sword_thrust, "dash": dash,
 }
 
 if __name__ == "__main__":

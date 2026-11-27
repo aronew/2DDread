@@ -28,7 +28,7 @@ var _route_i := 0
 var _strafe := 1.0
 var _strafe_t := 0.0
 var _dash_t := 0.0
-var _hold_t := 0.0   # keeps the whip key down to yank
+var _hold_t := 0.0   # keeps the sword button down to chain the combo
 var _loot_target = null
 var _loot_t := 0.0
 var _skip_loot := {}
@@ -102,7 +102,7 @@ func _process(dt: float) -> void:
 	if quit_after > 0.0 and _elapsed() >= quit_after:
 		_log()
 		print("[bot] FINAL ", stats)
-		print("[bot] whip ", Game.player.lash.stats)
+		print("[bot] sword ", Game.player.blade.stats)
 		get_tree().quit()
 
 
@@ -293,8 +293,8 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 			s["dash"] = true
 			s["move"] = (p.gpos - e.gpos).normalized().orthogonal() * _strafe
 			_dash_t = 0.6
-		if e.state == Enemy.S.STAGGER and e.data.yankable and d < Iso.m(Lash.REACH_M - 0.3) and Game.dungeon.has_los(p.gpos, e.gpos):
-			s["melee"] = true   # whip execute: drag it in and finish it
+		if e.state == Enemy.S.STAGGER and d < Iso.m(Blade.MAGNET_M) and Game.dungeon.has_los(p.gpos, e.gpos):
+			s["melee"] = true   # sword execute: the lunge snaps onto it
 			s["mouse"] = Iso.lift(e.gpos, e.hit_height)
 	for q in Game.projectiles.list:
 		if not no_dodge and q.team == 1 and q.pos.distance_to(p.gpos) < Iso.m(2.0) and _dash_t <= 0.0 and p.dash_charges > 0:
@@ -305,14 +305,17 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 		s["ability_1"] = true
 	if cluster >= 4:
 		s["ability_2"] = true
-	if t is Enemy and p.lash.is_ready():
-		var sweet := dist > Iso.m(Lash.REACH_M - Lash.SWEET_M + 0.1) and dist < Iso.m(Lash.REACH_M - 0.1)
-		var yank: bool = t.data.yankable and t.data.mass < Lash.HEAVY_MASS and p.cur == 1 and dist > Iso.m(3.0) and dist < Iso.m(Lash.REACH_M)
-		var wrench: bool = t.armor_hp > 0.0 and t.facing.dot(-dir) > 0.45 and dist < Iso.m(Lash.REACH_M)
-		if dist < Iso.m(2.2) or sweet or yank or wrench:
+	if t is Enemy:
+		# close in with the sword when an enemy is in lunge reach (not a shielded front),
+		# chaining the combo; dash first now and then to open with the thrust
+		var shielded: bool = t.armor_hp > 0.0 and t.facing.dot(-dir) > 0.45
+		if dist < Iso.m(Blade.MAGNET_M - 0.6) and not shielded:
 			s["melee"] = true
-			if yank or wrench:
-				_hold_t = 0.3
+			_hold_t = 0.25
+			if dist > Iso.m(2.8) and p.dash_charges > 1 and _dash_t <= 0.0 and not human:
+				s["dash"] = true
+				s["move"] = dir
+				_dash_t = 0.5
 	if cluster >= 3 and dist > Iso.m(5.0) and p.launcher.mag > 0:
 		s["alt_pressed"] = true
 	if not no_dodge and p.hp < p.max_hp * 0.35 and close >= 2 and p.dash_charges > 0 and _dash_t <= 0.0:

@@ -399,7 +399,7 @@ func take_damage(info: DamageInfo) -> float:
 		Audio.play("impact_armor", gpos)
 	elif weak:
 		col = Color(1.0, 0.85, 0.3)
-	if amt >= 0.5 or info.crit:
+	if (amt >= 0.5 or info.crit) and not info.execute:   # executes say EXECUTED instead
 		VFX.damage_number(gpos, hit_height + 0.5 * data.visual_scale + (0.3 if is_elite else 0.0), amt, info.crit or weak, col)
 	if not info.is_dot and not deflect:
 		Audio.play("impact_flesh", gpos)

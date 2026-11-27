@@ -168,7 +168,7 @@ class HudDraw extends Control:
 		_draw_room(vs)
 		if _hint_t > 0.0:
 			var a := clampf(_hint_t / 2.0, 0.0, 1.0)
-			_text(Vector2(0, 30), "WASD move · Mouse aim · LMB fire · RMB launcher · SPACE dash · Q nova · E seekers · F lash (hold: yank) · R reload · 1-3 weapons · TAB inventory",
+			_text(Vector2(0, 30), "WASD move · Mouse aim · LMB fire · RMB sword (hold: combo, after a dash: thrust) · SPACE dash · F firebomb · Q nova · E seekers · R reload · 1-3 weapons · TAB inventory",
 				17, Color(0.8, 0.85, 0.9, 0.85 * a), null, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
 		if not pl.alive:
 			draw_rect(Rect2(Vector2.ZERO, vs), Color(0.2, 0.0, 0.0, 0.35))
@@ -264,7 +264,7 @@ class HudDraw extends Control:
 	# -------------------------------------------------------------- abilities (diamonds)
 
 	func _draw_abilities(pl, vs: Vector2) -> void:
-		var items: Array = [pl.abilities[0], pl.abilities[1], pl.lash]
+		var items: Array = [pl.abilities[0], pl.abilities[1], pl.blade]
 		var cx := vs.x * 0.5
 		for i in items.size():
 			var a = items[i]
@@ -285,15 +285,16 @@ class HudDraw extends Control:
 					for k in 3:
 						var o := Vector2(-r * 0.32 + k * r * 0.32, r * 0.12 - (k % 2) * r * 0.24)
 						draw_colored_polygon(PackedVector2Array([c + o + Vector2(0, -r * 0.24), c + o + Vector2(r * 0.12, r * 0.16), c + o + Vector2(-r * 0.12, r * 0.16)]), col * 1.4)
-				2:  # coiled whip: handle, a loop, and a lash ending in an ember tip
-					draw_line(c + Vector2(-r * 0.5, r * 0.42), c + Vector2(-r * 0.22, r * 0.14), col * 1.2, 4.0)
-					draw_arc(c + Vector2(-r * 0.02, -r * 0.02), r * 0.26, PI * 0.75, PI * 2.6, 16, col * 1.5, 3.0)
-					var lash_pts := PackedVector2Array()
-					for k in 7:
-						var u := k / 6.0
-						lash_pts.append(c + Vector2(r * (0.2 + u * 0.32), r * (0.18 - u * 0.62) + sin(u * PI) * r * 0.12))
-					draw_polyline(lash_pts, col * 1.5, 2.5)
-					draw_circle(lash_pts[6], 3.0, Color(2.2, 1.4, 0.5))
+				2:  # the saber: a curved blade, crossguard and grip, on the diagonal
+					var dg := Vector2(0.7071, -0.7071)
+					var nm := Vector2(0.7071, 0.7071)
+					var base := c - dg * r * 0.18
+					var blade_pts := PackedVector2Array([base + nm * r * 0.07, base + dg * r * 0.42 + nm * r * 0.1,
+						base + dg * r * 0.62 - nm * r * 0.02, base + dg * r * 0.4 - nm * r * 0.06, base - nm * r * 0.06])
+					draw_colored_polygon(blade_pts, Color(2.0, 1.5, 0.9))
+					draw_line(base + nm * r * 0.2, base - nm * r * 0.2, col * 1.4, 3.0)
+					draw_line(base, base - dg * r * 0.3, Color(0.55, 0.25, 0.15), 4.0)
+					draw_circle(base - dg * r * 0.34, 3.0, col * 1.5)
 			if not a.is_ready():
 				var k: float = 1.0 - a.progress()
 				var top := c.y - r + 2.0 * r * (1.0 - k)
@@ -312,7 +313,8 @@ class HudDraw extends Control:
 			var kc := c + Vector2(0, r + 18)
 			draw_colored_polygon(_diamond(kc, 13), PANEL)
 			_gold_frame(_diamond(kc, 13), 1.4)
-			_text(Vector2(kc.x - 13, kc.y + 6), a.key_hint, 15, Color(0.95, 0.92, 0.85), font, HORIZONTAL_ALIGNMENT_CENTER, 26, 3)
+			_text(Vector2(kc.x - 13, kc.y + (6 if a.key_hint.length() == 1 else 4)), a.key_hint, 15 if a.key_hint.length() == 1 else 10,
+				Color(0.95, 0.92, 0.85), font, HORIZONTAL_ALIGNMENT_CENTER, 26, 3)
 
 	# -------------------------------------------------------------- weapon / ammo plate
 
@@ -360,13 +362,13 @@ class HudDraw extends Control:
 			_gold_frame(_diamond(c, 18), 1.6 if not active else 2.4)
 			_text(Vector2(c.x - 18, c.y + 7), str(i + 1), 18, GOLD if active else Color(0.75, 0.72, 0.66), font, HORIZONTAL_ALIGNMENT_CENTER, 36, 3)
 			sx -= 44
-		# firebomb charges (RMB)
+		# firebomb charges (F)
 		var l = pl.launcher
 		for k in l.s_mag:
 			var bc := Vector2(pr.end.x - 20 - k * 22, pr.end.y + 16)
 			draw_circle(bc, 7, Color(1.0, 0.55, 0.2) if k < l.mag else Color(0.18, 0.1, 0.06))
 			draw_arc(bc, 8, 0, TAU, 16, GOLD_DK, 1.5)
-		_text(Vector2(pr.end.x - 30 - l.s_mag * 22 - 90, pr.end.y + 22), "RMB bomb", 14, Color(0.85, 0.7, 0.5), font, HORIZONTAL_ALIGNMENT_RIGHT, 90)
+		_text(Vector2(pr.end.x - 30 - l.s_mag * 22 - 90, pr.end.y + 22), "F bomb", 14, Color(0.85, 0.7, 0.5), font, HORIZONTAL_ALIGNMENT_RIGHT, 90)
 
 	func _draw_xp(_pl, _vs: Vector2) -> void:
 		pass  # xp lives under the health bar now
