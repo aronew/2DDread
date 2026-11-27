@@ -1,0 +1,510 @@
+{
+  "criteria": {
+    "visible_alpha": ">128",
+    "bright_red": "R>220,G<75,B<80",
+    "pink": "R>200,B>130,G<110"
+  },
+  "files": [
+    {
+      "file": "decals/crack_network.png",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        251
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "decals/moss_patch.png",
+      "width": 1312,
+      "height": 1199,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "decals/old_scorch.png",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        254
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "decals/rubble_chips.png",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        254
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "emission_drafts/alcove_emission.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "emission_drafts/bone_nest_emission.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "emission_drafts/brazier_emission.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "emission_drafts/candelabra_emission.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "emission_drafts/candles_emission.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "emission_drafts/chasm_emission.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "emission_drafts/fire_urn_emission.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "emission_drafts/wall_torch_emission.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/altar_low.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/bridge_gold_walkway.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/chasm_edge.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/door_arch.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/pit_balustrade.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/wall_banner_torch.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/wall_cracked_secret.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/wall_frieze_column.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/wall_frieze_plain.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/wall_hooded_relief.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/wall_rock.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "modules/wall_soul_alcove.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/amphorae_pair.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/bone_nest_active.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/bone_nest_empty.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/broken_statue.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/candelabra.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/candle_cluster.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/chest_closed.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/chest_open.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/column_broken.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/column_intact.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/fire_urn.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/rubble_heap.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "sprites/soul_brazier.png",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ],
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "textures/column_wrap.png",
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "textures/emblem_laurel_skull.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "textures/emblem_sunburst.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "textures/floor_damaged.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "textures/floor_moss_bones.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "textures/floor_worn.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "textures/gold_meander_strip.png",
+      "width": 2172,
+      "height": 724,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "textures/soul_fire_strip.png",
+      "width": 1774,
+      "height": 887,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    },
+    {
+      "file": "textures/wall_ashlar_frieze.png",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB",
+      "alpha_range": null,
+      "bright_red_pixels": 0,
+      "pink_pixels": 0
+    }
+  ]
+}

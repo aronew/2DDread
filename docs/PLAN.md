@@ -15,8 +15,8 @@ design from day one.
 | **Pre-rendered 3D → 2D sprites (Blender/bpy, Cycles)** | Gives the dimensional, illustrated look of the references while running entirely on Godot's 2D renderer. |
 | **Three passes per sprite: colour, normal, emission** | Normal maps let `PointLight2D` muzzle flashes/explosions relight characters and walls; the emission pass is drawn additively with HDR values so neon parts bloom. |
 | **Normals encoded in a "top-down" frame** (R = screen right, G = screen up, B = world up) | Matches how Godot's `Light2D.height` model works, so floors light evenly and vertical wall faces only catch light from lights in front of them. |
-| **Camera: ortho, 45° yaw, ~48.6° pitch (ground diamond 256×192 = 4:3)** | Steeper than classic 2:1 iso → better twin-stick readability, matches the reference shots. |
-| **Gameplay simulated in "ground space"** (`g = (screen.x, screen.y / 0.75)`) | Distances, AoE radii, speeds and knockback are true metric values; rendering is a cheap y-scale. |
+| **Camera: ortho, 45° yaw, 30° pitch (ground diamond 256×128 = 2:1)** | Classic 2:1 isometric, matching the owner's mockup: walls show their faces and rooms read wide. (Was 48.6° / 4:3 for steeper twin-stick readability until Nov 2026.) |
+| **Gameplay simulated in "ground space"** (`g = (screen.x, screen.y / K)`, K = 0.5) | Distances, AoE radii, speeds and knockback are true metric values; rendering is a cheap y-scale. |
 | **Custom grid collision instead of physics bodies** | Walls are grid cells → circle-vs-square in tile space is exact, cheap, has no ghost-edge snagging, and scales to many enemies. DDA raycasts give exact projectile/wall hits and ricochet normals. |
 | **Split player sprite: legs (move dir) + torso (aim dir, 32 dirs)** | True twin-stick: run one way, shoot another; legs backpedal instead of twisting 180°. |
 | **Data-driven `Resource`s** (`WeaponData`, `EnemyData`) + perk scripts with hooks | New weapons/enemies/modifiers without touching the combat core. |
@@ -30,7 +30,7 @@ core/      Iso math · SheetDB (sprite sheets → CanvasTextures) · IsoSprite �
 player/    Player (movement, dash, aim, weapons, abilities) · PlayerVisual (legs/torso compositing)
 combat/    WeaponData · Weapon · ProjectileSystem · CombatGrid (spatial hash) · Status effects · Perks
 enemies/   EnemyData · Enemy (base FSM) · Mite · Spitter · Brute · Bloater · Elite affixes
-abilities/ Shock Nova · Seeker Swarm · Rend (melee/execute)
+abilities/ Shock Nova · Seeker Swarm · Fury's Lash (whip: crack / yank / execute / whirl)
 loot/      Item generation (6 rarities, affixes, legendary perks) · Pickups · Inventory
 dungeon/   Layout (ASCII, hand-authored) · Dungeon builder · Rooms/encounters · Doors · Props/hazards
 ui/        HUD · Minimap · Inventory screen · Damage numbers

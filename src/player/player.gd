@@ -2,7 +2,7 @@ class_name Player
 extends Node2D
 ## The hunter. Fast, momentum-preserving movement, dash with i-frames,
 ## twin-stick aim (mouse or right stick with aim assist), 3 primary weapons +
-## Havoc launcher on RMB, Q/E abilities, F melee/execute.
+## Firebomb on RMB, Q/E abilities, F whip (Fury's Lash: crack / hold to yank / execute).
 
 const SPEED_M := 6.6
 const ACCEL_M := 75.0
@@ -34,7 +34,8 @@ var gear := {&"armor": null, &"core": null, &"relic": null}
 var backpack: Array = []
 var build: Build
 var abilities: Array = []
-var rend: Rend
+var lash: Lash
+var whip: WhipVisual
 
 var dash_charges := 2
 var dash_max := 2
@@ -42,6 +43,7 @@ var _dash_recharge_t := 0.0
 var _dash_t := 0.0
 var _dash_dir := Vector2.ZERO
 var _dash_from := Vector2.ZERO
+var _since_dash := 99.0
 var _iframes := 0.0
 var _hurt_iframes := 0.0
 var _hurt_flash := 0.0
@@ -66,7 +68,10 @@ func _ready() -> void:
 	weapons[2] = _starter(&"arc")
 	launcher = Weapon.new(WeaponDB.get_data(&"launcher"))
 	abilities = [ShockNova.new(), SeekerSwarm.new()]
-	rend = Rend.new()
+	whip = WhipVisual.new()
+	add_child(whip)
+	lash = Lash.new()
+	lash.visual = whip
 	build.recalc()
 	on_stats_changed()
 	hp = max_hp
@@ -96,6 +101,20 @@ func dashing() -> bool:
 	return _dash_t > 0.0
 
 
+## True while dashing or within `window` seconds after a dash ended.
+func dash_recent(window: float) -> bool:
+	return dashing() or _since_dash < window
+
+
+func grant_iframes(t: float) -> void:
+	_iframes = maxf(_iframes, t)
+
+
+## Screen position of the whip hand (off-hand, chest height, follows the aim).
+func whip_hand_screen() -> Vector2:
+	return Iso.lift(gpos + aim_dir * Iso.m(0.28) + Iso.left_of(aim_dir) * Iso.m(0.24), 1.22) + visual.torso_offset
+
+
 func cur_weapon() -> Weapon:
 	return weapons[cur]
 
@@ -115,6 +134,7 @@ func _input_state() -> Dictionary:
 	s["fire_released"] = Input.is_action_just_released("fire")
 	s["alt"] = Input.is_action_pressed("alt_fire")
 	s["alt_pressed"] = Input.is_action_just_pressed("alt_fire")
+	s["melee_held"] = Input.is_action_pressed("melee")
 	for a in ["dash", "ability_1", "ability_2", "melee", "reload", "weapon_1", "weapon_2", "weapon_3", "weapon_next", "weapon_prev"]:
 		s[a] = Input.is_action_just_pressed(a)
 	return s
@@ -147,6 +167,7 @@ func _timers(dt: float) -> void:
 	_hurt_iframes = maxf(0.0, _hurt_iframes - dt)
 	_swap_t = maxf(0.0, _swap_t - dt)
 	_last_fire_t += dt
+	_since_dash += dt
 	if dash_charges < dash_max:
 		_dash_recharge_t += dt
 		if _dash_recharge_t >= DASH_RECHARGE:
@@ -219,6 +240,7 @@ func _update_move(s: Dictionary, dt: float) -> void:
 			VFX.afterimage(visual.sprites(), Color(0.5, 0.75, 2.2, 0.55))
 		if _dash_t <= 0.0:
 			vel = _dash_dir * _max_speed()
+			_since_dash = 0.0
 			build.on_dash(_dash_from, gpos)
 			Events.dashed.emit(_dash_from, gpos)
 	else:
@@ -354,18 +376,20 @@ func add_ammo_fraction(f: float) -> void:
 func _update_abilities(s: Dictionary, dt: float) -> void:
 	for a in abilities:
 		a.process(dt, self)
-	rend.process(dt, self)
 	if s.get("ability_1", false):
 		abilities[0].try_use(self)
 	if s.get("ability_2", false):
 		abilities[1].try_use(self)
+	lash.set_held(s.get("melee_held", false))
 	if s.get("melee", false):
-		rend.try_use(self)
+		lash.try_use(self)
+	lash.process(dt, self)
 
 
 func reset_cooldowns() -> void:
 	for a in abilities:
 		a.cd_left = 0.0
+	lash.cd_left = 0.0
 
 
 # ------------------------------------------------------------------ health
@@ -406,6 +430,7 @@ func heal(amount: float, show := true) -> void:
 func _die() -> void:
 	alive = false
 	hp = 0.0
+	lash.cancel()
 	VFX.gore(gpos, Color(0.8, 0.1, 0.1), 2.0)
 	VFX.explosion(gpos, Iso.m(2.0), Color(0.4, 0.6, 1.0), false)
 	visual.visible = false

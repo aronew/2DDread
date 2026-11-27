@@ -28,6 +28,10 @@ var _route_i := 0
 var _strafe := 1.0
 var _strafe_t := 0.0
 var _dash_t := 0.0
+var _hold_t := 0.0   # keeps the whip key down to yank
+var _loot_target = null
+var _loot_t := 0.0
+var _skip_loot := {}
 var _fire_toggle := false
 var _bfs_cache := {}
 var _stuck_t := 0.0
@@ -51,8 +55,12 @@ func _ready() -> void:
 	if shots_dir != "":
 		DirAccess.make_dir_recursive_absolute(shots_dir)
 	var start: String = Game.world.get_meta("start_room", "") if Game.world.has_meta("start_room") else ""
+	var ids: Array = Game.world.director.rooms.map(func(r): return r.id)
 	if start != "" and _route.has(start):
 		_route_i = _route.find(start)
+	elif start != "" or not ids.has(_route[0]):
+		# another level (e.g. --level=temple): its rooms in layout order from the start room
+		_route = (ids.slice(ids.find(start)) if ids.has(start) else ([start] if start != "" else ids)) + ["exit"]
 	if enabled:
 		Game.bot_mode = true
 		Game.player.input_override = self
@@ -94,6 +102,7 @@ func _process(dt: float) -> void:
 	if quit_after > 0.0 and _elapsed() >= quit_after:
 		_log()
 		print("[bot] FINAL ", stats)
+		print("[bot] whip ", Game.player.lash.stats)
 		get_tree().quit()
 
 
@@ -123,15 +132,34 @@ func _shot() -> void:
 	var img := get_viewport().get_texture().get_image()
 	var path := "%s/shot_%03d.png" % [shots_dir, _shot_n]
 	img.save_png(path)
+	if Game.world.has_meta("paint_guide"):
+		# where this frame looks, so a painting made from it can be laid back on the room
+		var cam := Game.camera
+		var c := cam.get_screen_center_position()
+		# world (Node2D) position -> image pixel: the stretch transform times the camera's
+		var t: Transform2D = get_viewport().get_final_transform() * get_viewport().get_canvas_transform()
+		var info := {"screen_center": [c.x, c.y], "zoom": cam.zoom.x, "size": [img.get_width(), img.get_height()],
+			"world_to_image": [t.x.x, t.x.y, t.y.x, t.y.y, t.origin.x, t.origin.y]}
+		var f := FileAccess.open(path.get_basename() + ".json", FileAccess.WRITE)
+		if f:
+			f.store_string(JSON.stringify(info, " "))
 	_shot_n += 1
 
 
 func _log() -> void:
 	var pl = Game.player
 	var room = Game.world.director.active
-	print("[bot] t=%.0fs fps=%d hp=%d/%d lvl=%d enemies=%d proj=%d room=%s route=%s %s" % [
+	print("[bot] t=%.0fs fps=%d hp=%d/%d lvl=%d enemies=%d proj=%d room=%s route=%s cell=%s %s" % [
 		_elapsed(), Engine.get_frames_per_second(), pl.hp, pl.max_hp, pl.level, Game.living_enemies(),
-		Game.projectiles.list.size(), room.id if room else "-", _route[mini(_route_i, _route.size() - 1)], stats])
+		Game.projectiles.list.size(), room.id if room else "-", _route[mini(_route_i, _route.size() - 1)],
+		Iso.cell_of(pl.gpos), stats])
+	# the last few enemies and where they are: a stalled room usually means one is stuck
+	if Game.living_enemies() > 0 and Game.living_enemies() <= 3:
+		var left: Array = []
+		for e in Game.enemies:
+			if is_instance_valid(e) and e.alive:
+				left.append("%s@%s" % [e.data.id, Iso.cell_of(e.gpos)])
+		print("[bot]   left: ", ", ".join(left))
 
 
 # ------------------------------------------------------------------ brain
@@ -145,11 +173,13 @@ func state(p) -> Dictionary:
 		return s
 	var dt := get_process_delta_time()
 	_dash_t -= dt
+	_hold_t -= dt
 	var target = _pick_target(p)
 	if target != null:
 		_fight(p, target, s, dt)
 	else:
 		_navigate(p, s, dt)
+	s["melee_held"] = _hold_t > 0.0
 	return s
 
 
@@ -167,11 +197,28 @@ func _pick_target(p):
 		if d < best_d and Game.dungeon.has_los(p.gpos, e.gpos):
 			best_d = d
 			best = e
-	if best == null:
+	# like a player: break active nests (they spawn hounds without end) unless an enemy is
+	# right on top of us
+	if best == null or best_d > Iso.m(3.5):
+		var nest = null
+		var nest_d := Iso.m(14.0)
 		for pr in Game.dungeon.props:
-			if pr.alive and pr.nest_active and pr.gpos.distance_to(p.gpos) < Iso.m(14.0):
-				return pr
+			if pr.alive and pr.nest_active and _clear_shot(p.gpos, pr.gpos):
+				var dd: float = pr.gpos.distance_to(p.gpos)
+				if dd < nest_d:
+					nest_d = dd
+					nest = pr
+		if nest != null:
+			return nest
 	return best
+
+
+## Line of sight wide enough for a bullet: a thin ray can graze past a column that the
+## shot itself clips (the altar's nest beside a column kept the bot firing into stone).
+func _clear_shot(a: Vector2, b: Vector2) -> bool:
+	var side := (b - a).orthogonal().normalized() * Iso.m(0.25)
+	return Game.dungeon.has_los(a, b) and Game.dungeon.has_los(a + side, b + side) \
+		and Game.dungeon.has_los(a - side, b - side)
 
 
 func _fight(p, t, s: Dictionary, dt: float) -> void:
@@ -246,8 +293,8 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 			s["dash"] = true
 			s["move"] = (p.gpos - e.gpos).normalized().orthogonal() * _strafe
 			_dash_t = 0.6
-		if e.state == Enemy.S.STAGGER and d < Iso.m(2.6):
-			s["melee"] = true
+		if e.state == Enemy.S.STAGGER and e.data.yankable and d < Iso.m(Lash.REACH_M - 0.3) and Game.dungeon.has_los(p.gpos, e.gpos):
+			s["melee"] = true   # whip execute: drag it in and finish it
 			s["mouse"] = Iso.lift(e.gpos, e.hit_height)
 	for q in Game.projectiles.list:
 		if not no_dodge and q.team == 1 and q.pos.distance_to(p.gpos) < Iso.m(2.0) and _dash_t <= 0.0 and p.dash_charges > 0:
@@ -258,8 +305,14 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 		s["ability_1"] = true
 	if cluster >= 4:
 		s["ability_2"] = true
-	if dist < Iso.m(2.2):
-		s["melee"] = true
+	if t is Enemy and p.lash.is_ready():
+		var sweet := dist > Iso.m(Lash.REACH_M - Lash.SWEET_M + 0.1) and dist < Iso.m(Lash.REACH_M - 0.1)
+		var yank: bool = t.data.yankable and t.data.mass < Lash.HEAVY_MASS and p.cur == 1 and dist > Iso.m(3.0) and dist < Iso.m(Lash.REACH_M)
+		var wrench: bool = t.armor_hp > 0.0 and t.facing.dot(-dir) > 0.45 and dist < Iso.m(Lash.REACH_M)
+		if dist < Iso.m(2.2) or sweet or yank or wrench:
+			s["melee"] = true
+			if yank or wrench:
+				_hold_t = 0.3
 	if cluster >= 3 and dist > Iso.m(5.0) and p.launcher.mag > 0:
 		s["alt_pressed"] = true
 	if not no_dodge and p.hp < p.max_hp * 0.35 and close >= 2 and p.dash_charges > 0 and _dash_t <= 0.0:
@@ -271,13 +324,31 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 func _navigate(p, s: Dictionary, dt: float) -> void:
 	var dir_node = Game.world.director
 	var target_cell := Vector2i(-999, -999)
-	# loot first: walk over nearby items/orbs
+	# loot first: walk over nearby items it can walk straight to (an altar or a brazier in
+	# the way would pin it); give up on an item it can't reach within a few seconds
 	for n in Game.world.entities.get_children():
-		if n is Pickup and n.kind == &"item" and n.gpos.distance_to(p.gpos) < Iso.m(8.0):
+		if n is Pickup and n.kind == &"item" and n.gpos.distance_to(p.gpos) < Iso.m(8.0) \
+				and not _skip_loot.has(n.get_instance_id()) and not Game.dungeon.raycast(p.gpos, n.gpos, "walk").hit:
+			if n != _loot_target:
+				_loot_target = n
+				_loot_t = 0.0
+			_loot_t += dt
+			if _loot_t > 4.0:
+				_skip_loot[n.get_instance_id()] = true
+				continue
 			s["move"] = (n.gpos - p.gpos).normalized()
 			s["mouse"] = Iso.lift(n.gpos, 0.5)
 			return
-	while _route_i < _route.size():
+	# an active nest out of sight (behind a column): go to it, it won't stop spawning
+	var nest_c := Vector2i(-999, -999)
+	var nest_d := INF
+	for pr in Game.dungeon.props:
+		if pr.alive and pr.nest_active and pr.gpos.distance_to(p.gpos) < nest_d:
+			nest_d = pr.gpos.distance_to(p.gpos)
+			nest_c = Iso.cell_of(pr.gpos)
+	if nest_c.x != -999:
+		target_cell = nest_c
+	while target_cell.x == -999 and _route_i < _route.size():
 		var id: String = _route[_route_i]
 		if id == "exit":
 			if Game.world.portal and Game.world.portal.active:

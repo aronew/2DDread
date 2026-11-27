@@ -7,18 +7,23 @@ extends Node2D
 
 const FLOOR_SHEET := "res://assets/sprites/env/floor_tiles"
 const WALL_SHEET := "res://assets/sprites/env/wall_blocks"
+const WALL_TALL_SHEET := "res://assets/sprites/env/wall_blocks_tall"   # 6 m, for back walls
 const LOW_SHEET := "res://assets/sprites/env/low_blocks"
 
 enum Block { NONE, WALL, LOW, DOOR }
 
-const FLOOR_CHAR := {"g": 2, "h": 3, "l": 4, "v": 5, "w": 6, ",": 7, "o": 8, "c": 9, "r": 10, "z": 2}
-const WALL_CHAR := {"P": 0, "W": 3, "M": 2, "I": 4, "R": 5, "K": 6}
+const FLOOR_CHAR := {"g": 2, "h": 3, "l": 4, "v": 5, "w": 6, ",": 7, "o": 8, "c": 9, "r": 10, "z": 2, ":": 0}
+const WALL_CHAR := {"P": 0, "W": 3, "M": 2, "I": 4, "R": 5, "K": 6, "O": 7, "Q": 8, "U": 9}
 const LOW_CHAR := {"=": 0, "x": 1, "|": 2}
 const PROP_CHAR := {"b": "barrel", "k": "crate", "n": "canisters", "C": "chest", "e": "eggs",
 	"*": "crystals", "p": "pylon", "t": "cryotube"}
 const NEIGH8 := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
 	Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)]
 const CHUNK := 4  # small chunks keep per-item 2D light counts under the renderer limit
+## Bridge decks in the floor sheet: bridge_i_{single,start,end,mid}, then bridge_j_*.
+## Layouts mark bridge cells with B; the axis and the part are worked out from the
+## neighbours (see _orient_bridges).
+const BRIDGE_KIND0 := 11
 
 var floor_kind := {}      # Vector2i -> floor tile index
 var block := {}           # Vector2i -> Block
@@ -29,6 +34,11 @@ var props: Array = []
 var door_cells: Array = []
 var shock_cells: Array = []
 var breakables := {}      # Vector2i -> hp
+var bridges := {}         # Vector2i -> true: floor cells drawn as bridge decks over a pit
+var painted_cells := {}   # Vector2i -> true: covered by a room painting, no tile drawn
+var drops := {}           # Vector2i -> true: `_` cells, the face of a drop to a lower floor (void, never a pit)
+var stairs := {}          # Vector2i -> true: `/` cells, walkable stairs drawn by Terrace (no tile)
+var tall_walls := {}      # Vector2i -> true: back walls drawn 6 m tall (see _is_back_wall)
 var start_cell := Vector2i.ZERO
 var exit_cell := Vector2i(-1, -1)
 var flow := {}
@@ -63,7 +73,11 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 			if ch == " ":
 				continue
 			var c := Vector2i(i, j)
-			floor_kind[c] = _auto_floor(rng)
+			# random variants only on generic "." floor; props, walls and markers stand on
+			# plain stone (a variant can be the red rune ring, which reads as a telegraph).
+			# The draw is made either way, so the random column swaps below stay the same.
+			var auto := _auto_floor(rng)
+			floor_kind[c] = auto if ch == "." else 0
 			if FLOOR_CHAR.has(ch):
 				floor_kind[c] = FLOOR_CHAR[ch]
 			if WALL_CHAR.has(ch):
@@ -80,20 +94,74 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 			elif PROP_CHAR.has(ch):
 				pending_props.append([c, PROP_CHAR[ch]])
 			match ch:
+				"B":
+					bridges[c] = true
 				"S":
 					start_cell = c
+					floor_kind[c] = 0   # plain stone where the player appears
 				"D":
 					door_cells.append(c)
 				"X":
 					exit_cell = c
+					floor_kind[c] = 0   # plain stone under the portal
+				"_":
+					drops[c] = true
+					floor_kind.erase(c)   # void: nothing walks here, Terrace draws the face
+				"/":
+					stairs[c] = true
 				"z":
 					shock_cells.append(c)
+	_cut_near_walls()
+	_orient_bridges()
 	_build_floor()
 	_build_blocks()
 	_build_ao()
 	_build_lights()
 	for pp in pending_props:
 		add_prop(pp[0], pp[1])
+
+
+const CUT_KIND := 9   # "cut" in the wall sheet: a waist-high wall
+
+
+## Walls on the near side of a room (the room behind them, open abyss in front) are
+## drawn as waist-high walls, so they never hide the floor. They still block like walls.
+func _cut_near_walls() -> void:
+	var front := [Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)]
+	var back := [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(-1, -1)]
+	for c in block:
+		if block[c] != Block.WALL or breakables.has(c):
+			continue
+		if front.any(func(o): return is_floor(c + o)):
+			continue
+		if back.any(func(o): return is_floor(c + o)):
+			block_kind[c] = CUT_KIND
+
+
+## A bridge runs along whichever axis its neighbouring bridge cells lie on (a lone cell:
+## across the void on its sides). Its end cells, where it meets land, get the medallions.
+func _orient_bridges() -> void:
+	for c in bridges:
+		var along_j: bool
+		if bridges.has(c + Vector2i(0, 1)) or bridges.has(c + Vector2i(0, -1)):
+			along_j = true
+		elif bridges.has(c + Vector2i(1, 0)) or bridges.has(c + Vector2i(-1, 0)):
+			along_j = false
+		else:
+			along_j = not floor_kind.has(c + Vector2i(1, 0)) and not floor_kind.has(c + Vector2i(-1, 0))
+		var d := Vector2i(0, 1) if along_j else Vector2i(1, 0)
+		var lo := not bridges.has(c - d)
+		var hi := not bridges.has(c + d)
+		var part := 0 if (lo and hi) else (1 if lo else (2 if hi else 3))
+		floor_kind[c] = BRIDGE_KIND0 + (4 if along_j else 0) + part
+
+
+func is_stair(c: Vector2i) -> bool:
+	return stairs.has(c)
+
+
+func is_bridge(c: Vector2i) -> bool:
+	return bridges.has(c)
 
 
 func _auto_floor(rng: RandomNumberGenerator) -> int:
@@ -306,6 +374,23 @@ func random_floor_in(rect: Rect2i, avoid_g: Vector2, min_dist: float, rng: Rando
 
 # ------------------------------------------------------------------ flow field
 
+## Cells into which stepping costs more: a standing prop (amphora, brazier, urn...) blocks
+## most of its cell, so the flow leads around it, but still through it when it is the only
+## way (enemies pushed into a brazier from the far side used to stay stuck behind it).
+const PROP_FLOW_COST := 4
+
+
+func _prop_blocks(c: Vector2i) -> bool:
+	if not props_by_cell.has(c):
+		return false
+	for p in props_by_cell[c]:
+		if p.alive and p.blocks_movement:
+			return true
+	return false
+
+
+## Distance field toward target (Dial's algorithm: steps cost 1, PROP_FLOW_COST into a cell
+## with a prop), out to about 48 steps.
 func update_flow(target: Vector2i) -> void:
 	if target == _flow_target:
 		return
@@ -313,23 +398,27 @@ func update_flow(target: Vector2i) -> void:
 	flow.clear()
 	if walk_blocked(target):
 		return
-	var q: Array[Vector2i] = [target]
+	var buckets: Array = [[target]]
 	flow[target] = 0
-	var head := 0
-	while head < q.size():
-		var c: Vector2i = q[head]
-		head += 1
-		var d: int = flow[c]
-		if d > 48:
-			continue
-		for o in NEIGH8:
-			var n: Vector2i = c + o
-			if flow.has(n) or walk_blocked(n):
-				continue
-			if o.x != 0 and o.y != 0 and (walk_blocked(Vector2i(c.x + o.x, c.y)) or walk_blocked(Vector2i(c.x, c.y + o.y))):
-				continue
-			flow[n] = d + 1
-			q.append(n)
+	var d := 0
+	while d < buckets.size():
+		for c in buckets[d]:
+			if flow.get(c, -1) != d or d > 48:
+				continue   # a shorter way reached it already, or out of range
+			for o in NEIGH8:
+				var n: Vector2i = c + o
+				if walk_blocked(n):
+					continue
+				if o.x != 0 and o.y != 0 and (walk_blocked(Vector2i(c.x + o.x, c.y)) or walk_blocked(Vector2i(c.x, c.y + o.y))):
+					continue
+				var nd: int = d + (PROP_FLOW_COST if _prop_blocks(n) else 1)
+				if flow.has(n) and flow[n] <= nd:
+					continue
+				flow[n] = nd
+				while buckets.size() <= nd:
+					buckets.append([])
+				buckets[nd].append(n)
+		d += 1
 
 
 func invalidate_flow() -> void:
@@ -409,18 +498,29 @@ func remove_prop(p: Prop) -> void:
 		if props_by_cell[c].is_empty():
 			props_by_cell.erase(c)
 	props.erase(p)
+	invalidate_flow()   # the way through its cell is open now
 
 
 # ------------------------------------------------------------------ visuals
 
+## Floor cells a room painting covers (RoomPaint): their tiles are dropped.
+func set_painted_cells(cells: Dictionary) -> void:
+	painted_cells = cells
+	_build_floor()
+
+
 func _build_floor() -> void:
 	var sheet := SheetDB.get_sheet(FLOOR_SHEET)
+	if _floor_root:
+		_floor_root.queue_free()
 	_floor_root = Node2D.new()
 	_floor_root.name = "Floor"
 	_floor_root.z_index = -20
 	add_child(_floor_root)
 	var chunks := {}
 	for c in floor_kind:
+		if bridges.has(c) or painted_cells.has(c) or stairs.has(c):
+			continue
 		var k := Vector2i(floori(float(c.x) / CHUNK), floori(float(c.y) / CHUNK))
 		if not chunks.has(k):
 			chunks[k] = []
@@ -443,6 +543,20 @@ func _build_floor() -> void:
 			ce.modulate = Color(1.8, 1.8, 1.8)
 			ce.z_index = 1
 			_floor_root.add_child(ce)
+	if not bridges.is_empty():
+		# decks sit above the pits' interiors and coping (PitFire: z -19 / -18), so their
+		# stone face shows over the pit and the fire shows under them
+		var cells: Array = bridges.keys().filter(func(c): return not painted_cells.has(c))
+		cells.sort_custom(func(a, b): return a.x + a.y < b.x + b.y or (a.x + a.y == b.x + b.y and a.x < b.x))
+		var tiles: Array = []
+		for c in cells:
+			tiles.append([Iso.to_screen(Iso.cell_center(c)), sheet.region(0, floor_kind[c])])
+		var bc := TileChunk.new()
+		bc.name = "Bridges"
+		bc.setup(sheet.tex, sheet, tiles)
+		bc.z_as_relative = false   # absolute, though it lives under the floor root
+		bc.z_index = -17
+		_floor_root.add_child(bc)
 
 
 class TileChunk extends Node2D:
@@ -462,13 +576,36 @@ class TileChunk extends Node2D:
 			draw_texture_rect_region(tex, Rect2(t[0] - origin, size), t[1])
 
 
+## A back wall stands at the far edge of the floor: nothing walkable behind it (the -i,
+## -j side, up on screen, for 4 cells) and something walkable around it. Back walls are
+## drawn from the tall sheet, so rooms are enclosed by towering walls like the mockup's;
+## nothing can stand behind them, so they never hide anyone. Interior walls (floor on
+## both sides) stay 3 m, and near walls are cut low (_cut_near_walls).
+func _is_back_wall(c: Vector2i) -> bool:
+	if block.get(c, Block.NONE) != Block.WALL or breakables.has(c) or block_kind.get(c, 0) == CUT_KIND:
+		return false
+	# a 6 m wall covers about 4 cells of floor behind it on screen: none may be walkable
+	for o in [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(-1, -1)]:
+		for k in range(1, 5):
+			if is_floor(c + o * k):
+				return false
+	for o in NEIGH8:
+		if is_floor(c + o):
+			return true
+	return false
+
+
 func _build_blocks() -> void:
 	var wsheet := SheetDB.get_sheet(WALL_SHEET)
+	var tsheet := SheetDB.get_sheet(WALL_TALL_SHEET)
 	var lsheet := SheetDB.get_sheet(LOW_SHEET)
 	for c in block:
 		var b: int = block[c]
 		if b == Block.WALL:
-			block_nodes[c] = _block_sprite(c, wsheet, block_kind[c])
+			var tall := tsheet != null and _is_back_wall(c)
+			if tall:
+				tall_walls[c] = true
+			block_nodes[c] = _block_sprite(c, tsheet if tall else wsheet, block_kind[c])
 		elif b == Block.LOW:
 			block_nodes[c] = _block_sprite(c, lsheet, block_kind[c])
 
@@ -490,7 +627,7 @@ func _block_sprite(c: Vector2i, sheet, idx: int) -> Node2D:
 		e.region_rect = s.region_rect
 		e.offset = s.offset
 		e.material = _add_mat
-		e.modulate = Color(1.15, 1.15, 1.15) if sheet.name == "wall_blocks" else Color(0.75, 0.75, 0.75)
+		e.modulate = Color(1.15, 1.15, 1.15) if sheet.name.begins_with("wall_blocks") else Color(0.75, 0.75, 0.75)
 		n.add_child(e)
 	entities.add_child(n)
 	return n
@@ -511,7 +648,7 @@ class AOLayer extends Node2D:
 	func _draw() -> void:
 		var dirs := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
 		for c in dungeon.floor_kind:
-			if dungeon.block.get(c, 0) == Dungeon.Block.WALL:
+			if dungeon.block.get(c, 0) == Dungeon.Block.WALL or dungeon.stairs.has(c):
 				continue
 			for o in dirs:
 				var n: Vector2i = c + o
@@ -645,7 +782,8 @@ func _process(dt: float) -> void:
 	var pl = Game.player
 	if pl == null:
 		return
-	_fade_occluders(pl, dt)
+	if not (Game.world and Game.world.has_meta("paint_guide")):   # guides show every wall solid
+		_fade_occluders(pl, dt)
 	var pc := Iso.cell_of(pl.gpos)
 	if pc != _last_visit_cell:
 		_last_visit_cell = pc
@@ -665,7 +803,8 @@ func _fade_occluders(pl, dt: float) -> void:
 				continue
 			var n: Node2D = block_nodes[c]
 			var dy := n.position.y - p.y
-			if dy > 0.0 and dy < 300.0 and absf(n.position.x - p.x) < 190.0:
+			var reach := 540.0 if tall_walls.has(c) else 300.0
+			if dy > 0.0 and dy < reach and absf(n.position.x - p.x) < 190.0:
 				want[c] = true
 	for c in want:
 		_faded[c] = true

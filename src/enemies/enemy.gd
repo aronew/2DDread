@@ -58,6 +58,8 @@ var _shield_regen_t := 0.0
 var _rng_offset := randf() * 100.0
 var _flank := 0.0
 var _affix_t := 0.0
+var yank_to := Vector2.ZERO   # whip drag destination (Lash keeps it next to the player)
+var _yank_t := 0.0
 
 
 func setup(d: EnemyData, g: Vector2, opts := {}) -> void:
@@ -167,7 +169,13 @@ func _process(dt: float) -> void:
 				state = S.CHASE
 				state_t = 0.0
 		S.STAGGER:
-			vel = vel.move_toward(Vector2.ZERO, Iso.m(30.0) * dt)
+			if _yank_t > 0.0:
+				# dragged by the whip: arrive exactly when the drag ends, then stop dead
+				_yank_t -= dt
+				var to := yank_to - gpos
+				vel = (to / maxf(_yank_t, dt)).limit_length(Iso.m(45.0)) if _yank_t > 0.0 else Vector2.ZERO
+			else:
+				vel = vel.move_toward(Vector2.ZERO, Iso.m(30.0) * dt)
 			if state_t >= data.stagger_time:
 				state = S.CHASE
 				state_t = 0.0
@@ -425,6 +433,42 @@ func _stagger() -> void:
 
 func on_staggered() -> void:
 	pass
+
+
+## Whip drag: pulled to `to` over `dur` seconds, any attack interrupted, then
+## dazed for `daze` seconds (counts as staggered, like any other stun).
+func yank(to: Vector2, dur: float, daze: float) -> void:
+	if not alive:
+		return
+	yank_to = to
+	_yank_t = dur
+	knock = Vector2.ZERO
+	stagger_meter = 0.0
+	clear_telegraph()
+	_attack_frame = -1.0
+	enter(S.STAGGER)
+	state_t = data.stagger_time - (dur + daze)
+
+
+## Whip yank on a heavy's front: tears the tower shield aside. Costs plating and
+## exposes the body for `expose` seconds (no frontal armour while staggered).
+func wrench_shield(frac: float, expose: float) -> void:
+	if not alive or armor_hp <= 0.0:
+		return
+	armor_hp -= max_hp * 0.45 * frac
+	if armor_hp <= 0.0:
+		_armor_shattered()
+		return
+	VFX.popup(gpos, hit_height + 1.4, "SHIELD WRENCHED", Color(1.0, 0.8, 0.4), 26)
+	VFX.emit("sparks", Iso.lift(gpos + facing * radius, hit_height), Iso.to_screen(facing).angle(), Color(3.0, 2.4, 1.6), 0.7)
+	Audio.play("impact_armor", gpos)
+	_flash = 1.0
+	_show_bar_t = 3.0
+	stagger_meter = 0.0
+	clear_telegraph()
+	_attack_frame = -1.0
+	enter(S.STAGGER)
+	state_t = data.stagger_time - expose
 
 
 func apply_status(s: StringName, info: DamageInfo) -> void:

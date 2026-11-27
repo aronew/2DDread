@@ -325,10 +325,10 @@ def skull_prime(R, t):
 
 ENEMIES = {
     # name: (builder, frame (w,h,origin), {anim: (frames, pose_fn)})
-    "hound": (hound, (176, 160, (88, 114)), {"run": (8, hound_run), "attack": (6, hound_bite)}),
-    "witch": (witch, (200, 240, (100, 200)), {"float": (6, witch_float), "attack": (6, witch_cast)}),
-    "legion": (legion, (272, 336, (136, 250)), {"walk": (8, legion_walk), "attack": (7, legion_slam)}),
-    "skull": (skull, (176, 200, (88, 168)), {"fly": (6, skull_fly), "attack": (4, skull_prime)}),
+    "hound": (hound, (200, 184, (100, 126)), {"run": (8, hound_run), "attack": (6, hound_bite)}),
+    "witch": (witch, (200, 264, (100, 224)), {"float": (6, witch_float), "attack": (6, witch_cast)}),
+    "legion": (legion, (272, 360, (136, 274)), {"walk": (8, legion_walk), "attack": (7, legion_slam)}),
+    "skull": (skull, (176, 216, (88, 184)), {"fly": (6, skull_fly), "attack": (4, skull_prime)}),
 }
 
 

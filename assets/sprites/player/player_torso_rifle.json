@@ -1,10 +1,10 @@
 {
  "name": "player_torso_rifle",
  "frame_w": 240,
- "frame_h": 216,
+ "frame_h": 232,
  "origin": [
   120,
-  186
+  200
  ],
  "rows": 4,
  "cols": 8,

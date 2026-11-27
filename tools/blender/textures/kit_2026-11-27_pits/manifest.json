@@ -1,0 +1,95 @@
+[
+  {
+    "file": "pits/bridge_crossing.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bytes": 979237,
+    "sha256": "1aa3b4aaaedf361d44c589daa50304d7316011b7021a1288625ad7d9e24bcc8b"
+  },
+  {
+    "file": "pits/pit_complete.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bytes": 828636,
+    "sha256": "bc3f2373dfb7c522ba9f18b8f782fba7e8f4b7d541a04d1c007dbb0557fac1a4"
+  },
+  {
+    "file": "pits/pit_edge_i.png",
+    "width": 1536,
+    "height": 1024,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      254
+    ],
+    "bytes": 1412033,
+    "sha256": "d5f9ee52574e28bbf1e850977d418e1dc96825623c02a963fb794256f2c9c1f5"
+  },
+  {
+    "file": "pits/pit_edge_j.png",
+    "width": 1536,
+    "height": 1024,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      254
+    ],
+    "bytes": 1404189,
+    "sha256": "cb69da330e68c41f40912827f142c3dc68ea2b78425f33cc80f1deb53c19561c"
+  },
+  {
+    "file": "pits/pit_inner_corner.png",
+    "width": 1536,
+    "height": 1024,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      254
+    ],
+    "bytes": 1363675,
+    "sha256": "ad44cfa319307e094fe44c7ed0bd1d0b42ba60c8e742e222dde0515d60f9cd13"
+  },
+  {
+    "file": "pits/pit_outer_corner.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bytes": 1262500,
+    "sha256": "2b6ab110f199c920885895aea703acb6ba62e8276b823d34b40910901f91d588"
+  },
+  {
+    "file": "sprites/floor_isometric.png",
+    "width": 1448,
+    "height": 1086,
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "bytes": 944514,
+    "sha256": "e89ba613d8309ffa85e030588b02d4e67e73b6cff3fdb731839cecd7b3ed92c7"
+  },
+  {
+    "file": "textures/floor_albedo.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGB",
+    "alpha_range": null,
+    "bytes": 1547029,
+    "sha256": "63d7a1a48a96c0b84db608e9c5de1fb233d06829b7151830b59432f275a97d51"
+  }
+]

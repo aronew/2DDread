@@ -1,15 +1,15 @@
 {
  "name": "chest",
- "frame_w": 176,
+ "frame_w": 141,
  "frame_h": 160,
  "origin": [
-  88,
-  108
+  77,
+  125
  ],
  "rows": 1,
  "cols": 2,
  "files": {
-  "color": "chest_c.png",
-  "normal": "chest_n.png"
- }
+  "color": "chest_c.png"
+ },
+ "source": "painted: textures/kit_2026-11-27/sprites/chest_closed, chest_open"
 }

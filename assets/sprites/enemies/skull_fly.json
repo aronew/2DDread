@@ -1,10 +1,10 @@
 {
  "name": "skull_fly",
  "frame_w": 176,
- "frame_h": 200,
+ "frame_h": 216,
  "origin": [
   88,
-  168
+  184
  ],
  "rows": 16,
  "cols": 6,

@@ -1,10 +1,10 @@
 {
  "name": "player_legs",
  "frame_w": 160,
- "frame_h": 160,
+ "frame_h": 164,
  "origin": [
   80,
-  112
+  116
  ],
  "rows": 16,
  "cols": 9,

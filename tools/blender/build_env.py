@@ -10,9 +10,9 @@ import common as C  # noqa: E402  (imports bpy, which provides mathutils)
 from mathutils import Vector
 
 CELL = 2.0
-FLOOR_FRAME = (264, 240, (132, 100))
-WALL_FRAME = (260, 388, (130, 286))
-LOW_FRAME = (260, 276, (130, 174))
+FLOOR_FRAME = (264, 184, (132, 70))
+WALL_FRAME = (260, 400, (130, 318))
+LOW_FRAME = (260, 276, (130, 190))
 ENV_STYLE = {"outline_px": 3, "normal_edge": 0.5, "color_edge": 0.24, "color_line": 0.45, "grain": 0.09}
 # floors: soft, textured stone — few crease lines so the ground stays calm under combat
 FLOOR_STYLE = {"outline_px": 0, "inner_px": 0, "normal_edge": 0.75, "depth_edge": 0.05, "color_edge": 0.3,
@@ -45,7 +45,62 @@ def materials():
         "wax": C.mat("v_wax", (0.92, 0.88, 0.75), rough=0.5),
         "rock": C.mat("v_rock", (0.12, 0.14, 0.13), rough=0.9, noise=0.6, noise_scale=4, noise_color=(0.06, 0.07, 0.07)),
         "marble": C.mat("v_marble", (0.4, 0.42, 0.38), rough=0.5, noise=0.3, noise_scale=6),
+        "pillar": C.mat("v_pillar", (0.2, 0.28, 0.18), rough=0.8, noise=0.4, noise_scale=6,
+                        noise_color=(0.11, 0.16, 0.1)),
+        "relief": C.mat("v_relief", (0.2, 0.32, 0.25), rough=0.85, noise=0.35, noise_scale=7,
+                        noise_color=(0.11, 0.19, 0.14)),
+        **painted_materials(),
     }
+
+
+RELIEF_H = 2.48       # the mural panel's height on a relief wall (between plinth and cornice)
+BRIDGE_BAND = 0.6     # width of each gold Greek-key band along a bridge's sides (m)
+BRIDGE_PLATE = 0.8    # the sunburst medallion at a bridge's ends (fills the centre strip)
+BRIDGE_FASCIA = 0.3   # deck thickness: the dark stone face seen over the pit
+
+# Painted textures (tools/blender/textures, made with docs' prompt book). Each one is
+# optional: when its file is missing, the kit falls back to the modelled look.
+PAINTED = {
+    # key: (file, metres per repeat along object X, Y, Z, extra options)
+    # large 50-90 cm slabs (slab_* are made by prep_textures.py from the kit's large-slab
+    # floors). They are painted darker than the mockup's lit stone, so lift them here.
+    # flag2 uses the same slabs turned 90 degrees so the 2 m repeat doesn't line up.
+    # *_cool are greyer copies (prep_textures.py cool()), like the mockup's grey stone
+    "t_floor": ("slab_worn_cool.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_floor2": ("slab_worn_cool.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3, "tex_rot": math.pi / 2}),
+    "t_cracked": ("slab_damaged_cool.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_moss": ("slab_moss_bones_cool.png", (CELL, CELL, CELL), {"tex_proj": "FLAT", "tex_gain": 1.3}),
+    "t_border": ("floor_border_meander.png", (CELL, CELL / 2.96, CELL), {"tex_proj": "FLAT"}),  # strip ~2.96:1
+    # turned 45 degrees so the skull stands upright on screen; edges clamp to plain stone
+    "t_emblem": ("floor_emblem_skull.png", (1.7, 1.7, 1.7),
+                 {"tex_proj": "FLAT", "tex_rot": -math.pi / 4, "tex_extension": "EXTEND"}),
+    "t_sun": ("floor_emblem_sun.png", (1.7, 1.7, 1.7),
+              {"tex_proj": "FLAT", "tex_rot": -math.pi / 4, "tex_extension": "EXTEND"}),
+    "t_wall": ("wall_ashlar.png", (CELL, CELL, 3.0), {}),
+    # the gold Greek-key strip as a band on vertical faces (box projection: along the wall x height)
+    "t_band": ("floor_border_meander.png", (CELL, CELL, 0.6), {}),
+    "t_flames": ("soulfire_flames.png", (1.0, 3.24, 1.62),
+                 {"tex_emit": True, "emit": (1.0, 1.0, 1.0), "emit_strength": 3.0}),
+    # pit capstones: the floor's slab paint, lighter, like the owner's pit pack coping
+    "t_coping": ("slab_worn_cool_plain.png", (1.3, 1.3, 1.3), {"tex_gain": 1.6}),
+    # the kit's hooded-figure mural, unprojected flat by prep_textures.py (one panel per face)
+    "t_hooded": ("wall_hooded_panel.png", (1.0, CELL, RELIEF_H), {"tex_extension": "EXTEND", "tex_gain": 1.15}),
+    # bridges: the Greek-key strip running along a bridge's length (axis j = Blender -Y),
+    # and a small sunburst medallion for the ends
+    "t_band_j": ("floor_border_meander.png", (BRIDGE_BAND, CELL, CELL), {"tex_proj": "FLAT", "tex_rot": math.pi / 2}),
+    "t_band_i": ("floor_border_meander.png", (CELL, BRIDGE_BAND, CELL), {"tex_proj": "FLAT"}),
+    "t_sun_small": ("floor_emblem_sun.png", (BRIDGE_PLATE, BRIDGE_PLATE, BRIDGE_PLATE),
+                    {"tex_proj": "FLAT", "tex_rot": -math.pi / 4, "tex_extension": "EXTEND"}),
+}
+
+
+def painted_materials():
+    out = {}
+    for key, (fn, size, opts) in PAINTED.items():
+        path = C.tex_path(fn)
+        if path:
+            out[key] = C.mat("p_" + key, (0.2, 0.22, 0.2), rough=0.85, tex=path, tex_size=size, **opts)
+    return out
 
 
 def flame(M, parent, pos, h, rng, strong=True):
@@ -67,13 +122,22 @@ def stone(M, rng):
 
 def slab(M, size=CELL * 1.012):
     root = C.empty("slab")
+
+    # edge pieces sit flush with the slab's side (3 mm proud), never past the floor's top
+    # edge, or they peek through as a dotted line where neighbouring tiles overlap
+    def inset(d):
+        k = 1.0 - d / (size / 2)
+        return Vector((k, k, 1.0))
+
     C.box((size, size, 0.5), (0, 0, -0.25), M["grout"], root, bevel=0.01)
-    # ledge blocks + gold lip on the two camera-facing sides (only seen at platform edges)
+    # ledge blocks on the two camera-facing sides (only seen at platform edges). No gold
+    # lip: neighbouring tiles overlap, and a bright lip peeked through every tile's soft
+    # edge as a dotted line across the whole floor.
     for (dx, dy, rz) in ((size / 2, 0, 0), (0, -size / 2, math.pi / 2)):
         for k in (-0.5, 0.5):
             off = Vector((0, k, 0)) if rz == 0 else Vector((k, 0, 0))
-            C.box((0.04, size * 0.48, 0.42), Vector((dx, dy, -0.26)) + off, M["wall2"], root, bevel=0.02, rot=(0, 0, rz))
-        C.box((0.05, size, 0.06), (dx, dy, -0.05), M["gold"], root, bevel=0.01, rot=(0, 0, rz))
+            C.box((0.04, size * 0.48, 0.42), Vector((dx, dy, -0.26)) * inset(0.017) + off, M["wall2"], root, bevel=0.02,
+                  rot=(0, 0, rz))
     return root
 
 
@@ -120,15 +184,27 @@ def meander(M, parent, origin, along, up, normal, length, height, unit=0.24, off
               rot=(b - a).to_track_quat("Z", "Y").to_euler())
 
 
+def floor_top(M, r, rng, key="t_floor", rows=3):
+    """The walkable surface: the painted texture when it exists, else modelled flagstones.
+    The painted top is 1.2% larger than the cell, like the slab, so neighbouring tiles
+    overlap; the texture repeats every CELL, so the overlap shows matching stone."""
+    if key in M:
+        # paper-thin, so no lit side edge shows where neighbouring tiles overlap
+        C.box((CELL * 1.012, CELL * 1.012, 0.004), (0, 0, 0.008), M[key], r, bevel=0.0)
+        return True
+    flagstones(M, r, rng, rows=rows)
+    return False
+
+
 def floor_variant(M, kind, rng):
     r = slab(M)
     up = Vector((0, 0, 1))
     if kind == "flag":
-        flagstones(M, r, rng, rows=3)
+        floor_top(M, r, rng, rows=3)
     elif kind == "flag2":
-        flagstones(M, r, rng, rows=2)
+        floor_top(M, r, rng, key="t_floor2" if "t_floor2" in M else "t_floor", rows=2)
     elif kind == "grate":
-        flagstones(M, r, rng, rows=3)
+        floor_top(M, r, rng, rows=3)
         C.box((1.3, 1.3, 0.1), (0, 0, -0.02), M["grout"], r, bevel=0.0)
         C.box((1.2, 1.2, 0.04), (0, 0, -0.12), M["soul2"], r, bevel=0.0)
         for i in range(-5, 6):
@@ -137,30 +213,38 @@ def floor_variant(M, kind, rng):
             C.box((1.36, 0.07, 0.07), (0, s * 0.66, 0.0), M["iron"], r, bevel=0.01)
             C.box((0.07, 1.36, 0.07), (s * 0.66, 0, 0.0), M["iron"], r, bevel=0.01)
     elif kind == "meander":
-        flagstones(M, r, rng, rows=3)
-        C.box((CELL, 0.42, 0.05), (0, 0.45, 0.0), M["wall_dk"], r, bevel=0.01)
-        meander(M, r, (0, 0.45, 0.03), Vector((1, 0, 0)), Vector((0, 1, 0)), up, CELL * 0.95, 0.3, offset=0.0)
+        floor_top(M, r, rng, rows=3)
+        if "t_border" in M:  # painted gold Greek-key strip; repeats every CELL so runs join up
+            C.box((CELL * 1.012, CELL / 2.96, 0.04), (0, 0.45, 0.005), M["t_border"], r, bevel=0.0)
+        else:
+            C.box((CELL, 0.42, 0.05), (0, 0.45, 0.0), M["wall_dk"], r, bevel=0.01)
+            meander(M, r, (0, 0.45, 0.03), Vector((1, 0, 0)), Vector((0, 1, 0)), up, CELL * 0.95, 0.3, offset=0.0)
     elif kind == "sun":
-        flagstones(M, r, rng, rows=2)
+        floor_top(M, r, rng, rows=2)
+        if "t_sun" in M:  # painted sunburst inlay on a raised plate, like the emblem
+            C.box((1.7, 1.7, 0.03), (0, 0, 0.012), M["t_sun"], r, bevel=0.01)
+            return r
         C.cyl(0.24, 0.05, (0, 0, 0.02), M["gold"], r, verts=24)
         for i in range(12):
             a = i * math.pi / 6
             C.box((0.4, 0.07, 0.03), (0.45 * math.cos(a), 0.45 * math.sin(a), 0.03), M["gold"], r, bevel=0.005, rot=(0, 0, a))
     elif kind == "drain":
-        flagstones(M, r, rng, rows=3)
+        floor_top(M, r, rng, rows=3)
         C.cyl(0.55, 0.06, (0, 0, -0.005), M["wall_dk"], r, verts=32, bevel=0.01)
         C.cyl(0.42, 0.04, (0, 0, -0.05), M["soul2"], r, verts=32, bevel=0.0)
         C.torus(0.48, 0.04, (0, 0, 0.02), M["bronze"], r, seg=32, mseg=6)
         for i in range(6):
             C.box((0.86, 0.05, 0.05), (0, 0, 0.0), M["iron"], r, bevel=0.005, rot=(0, 0, i * math.pi / 6))
     elif kind == "cracked":
-        flagstones(M, r, rng, rows=3)
+        if floor_top(M, r, rng, key="t_cracked", rows=3):
+            return r
         for i in range(5):
             x, y = rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8)
             C.box((0.22, 0.16, 0.08), (x, y, 0.02), stone(M, rng), r, bevel=0.03, rot=(rng.random(), rng.random() * 0.3, rng.random() * 3))
         C.box((1.4, 0.035, 0.08), (0.1, -0.1, 0.0), M["grout"], r, bevel=0.0, rot=(0, 0, 0.7))
     elif kind == "moss":
-        flagstones(M, r, rng, rows=3)
+        if floor_top(M, r, rng, key="t_moss", rows=3):
+            return r
         for i in range(6):
             x, y = rng.uniform(-0.7, 0.7), rng.uniform(-0.7, 0.7)
             C.sphere(rng.uniform(0.2, 0.36), (x, y, 0.0), M["moss"], r, scale=(1.3, 1.0, 0.15), subsurf=1, displace=0.03)
@@ -169,7 +253,10 @@ def floor_variant(M, kind, rng):
             C.cyl(0.03, 0.34, (x, y, 0.05), M["bone"], r, verts=8, rot=(math.pi / 2, 0, rng.random() * 3))
         C.sphere(0.1, (rng.uniform(-0.5, 0.5), rng.uniform(-0.5, 0.5), 0.08), M["bone"], r, scale=(1.1, 0.9, 1.0))
     elif kind == "emblem":
-        flagstones(M, r, rng, rows=2)
+        floor_top(M, r, rng, rows=2)
+        if "t_emblem" in M:  # inlaid plate, slightly raised so it gets an ink edge
+            C.box((1.7, 1.7, 0.03), (0, 0, 0.012), M["t_emblem"], r, bevel=0.01)
+            return r
         for s in (-1, 1):
             for i in range(7):  # laurel leaves
                 a = -0.3 + i * 0.36
@@ -179,7 +266,7 @@ def floor_variant(M, kind, rng):
         for s in (-1, 1):
             C.sphere(0.05, (0.07 * s, 0.1, 0.09), M["black"], r, scale=(1, 1, 0.4))
     elif kind == "runes":
-        flagstones(M, r, rng, rows=3)
+        floor_top(M, r, rng, rows=3)
         C.torus(0.6, 0.025, (0, 0, 0.02), M["rune"], r, seg=40, mseg=4)
         for i in range(6):
             a = i * math.pi / 3
@@ -192,8 +279,56 @@ def floor_variant(M, kind, rng):
     return r
 
 
+def bridge_variant(M, axis, part, rng):
+    """A bridge deck cell over a soul-fire pit, after the owner's bridge_crossing piece:
+    gold Greek-key bands along both sides, paving down the middle, a sunburst medallion
+    at each end that meets land, and a dark stone face on the camera side. axis "i" runs
+    along Blender X, "j" along -Y. part: "start" (land at the -axis end), "end" (land at
+    +axis), "single" (both) or "mid". No face at the ends: there the deck meets land or
+    the next deck cell, and a face would paint over them."""
+    r = C.empty("bridge")
+    along = Vector((1, 0, 0)) if axis == "i" else Vector((0, -1, 0))
+    side = Vector((0, -1, 0)) if axis == "i" else Vector((1, 0, 0))   # the camera-facing long side
+    top = 0.035
+
+    def place(a_mid, a_len, s_mid, s_len, h, z, mat, bevel=0.0):
+        size = along * a_len + side * s_len
+        loc = along * a_mid + side * s_mid
+        C.box((abs(size.x) or s_len, abs(size.y) or s_len, h), (loc.x, loc.y, z), mat, r, bevel=bevel)
+
+    centre = CELL - 2 * BRIDGE_BAND
+    place(0, CELL * 1.012, 0, centre + 0.01, 0.02, top - 0.012, M.get("t_floor", M["stone"][0]))
+    band = M.get("t_band_" + axis, M["gold"])
+    for sgn in (-1, 1):
+        place(0, CELL * 1.012, sgn * (CELL - BRIDGE_BAND) / 2, BRIDGE_BAND, 0.03, top - 0.01, band)
+    # medallions at the ends that meet land
+    ends = {"start": [-1], "end": [1], "single": [-1, 1], "mid": []}[part]
+    for e in ends:
+        a_mid = e * (CELL / 2 - BRIDGE_PLATE / 2 - 0.05)
+        place(a_mid, BRIDGE_PLATE, 0, BRIDGE_PLATE, 0.03, top + 0.004, M.get("t_sun_small", M["gold"]), bevel=0.008)
+    # the deck's face over the pit: blocks of dark stone, so it reads as built masonry
+    x = -CELL / 2
+    while x < CELL / 2 - 0.01:
+        w = min(rng.uniform(0.45, 0.7), CELL / 2 - x)
+        if CELL / 2 - (x + w) < 0.25:
+            w = CELL / 2 - x
+        loc = along * (x + w / 2) + side * (CELL / 2 - 0.05)
+        size = along * (w - 0.015) + side * 0.1
+        C.box((abs(size.x), abs(size.y), BRIDGE_FASCIA), (loc.x, loc.y, top - 0.03 - BRIDGE_FASCIA / 2), M["wall2"], r,
+              bevel=0.015)
+        x += w
+    # a thin gold lip along the deck's camera-facing edge, like the reference
+    loc = side * (CELL / 2 - 0.02)
+    size = along * CELL + side * 0.05
+    C.box((abs(size.x), abs(size.y), 0.04), (loc.x, loc.y, top - 0.02), M["gold"], r, bevel=0.005)
+    return r
+
+
 FLOOR_KINDS = ["flag", "flag2", "grate", "meander", "sun", "drain", "cracked", "moss", "emblem", "runes",
-               "rockfloor"]
+               "rockfloor",
+               # bridge decks (Dungeon picks the part from the layout's B cells)
+               "bridge_i_single", "bridge_i_start", "bridge_i_end", "bridge_i_mid",
+               "bridge_j_single", "bridge_j_start", "bridge_j_end", "bridge_j_mid"]
 
 
 def render_floors():
@@ -206,14 +341,20 @@ def render_floors():
     rng = random.Random(7)
     for i, k in enumerate(FLOOR_KINDS):
         C.clear_scene_objects()
-        floor_variant(M, k, rng)
+        if k.startswith("bridge_"):
+            _, axis, part = k.split("_")
+            bridge_variant(M, axis, part, rng)
+        else:
+            floor_variant(M, k, rng)
         sw.put(0, i, C.render_stylized(FLOOR_STYLE))
     sw.save()
 
 
 # ======================================================================= walls
 
-H = 3.0
+H = 3.0              # wall height; render_walls(tall=True) sets TALL_H for the back-wall sheet
+TALL_H = 6.0         # back walls (nothing walkable behind them) tower like the mockup's
+WALL_TALL_FRAME = (260, 640, (130, 556))
 UP = Vector((0, 0, 1))
 
 
@@ -229,13 +370,17 @@ def _rot_for_normal(n):
 
 def wall_base(M, rng, body="wall"):
     r = C.empty("wall")
-    C.box((CELL, CELL, H), (0, 0, H / 2), M[body], r, bevel=0.02)
+    painted = "t_wall" in M  # the painted ashlar has its own joints and gold frieze band
+    C.box((CELL, CELL, H), (0, 0, H / 2), M["t_wall"] if painted else M[body], r, bevel=0.02)
     C.box((CELL + 0.1, CELL + 0.1, 0.18), (0, 0, H - 0.09), M["wall_dk"], r, bevel=0.03)  # cornice
     C.box((CELL * 0.94, CELL * 0.94, 0.05), (0, 0, H + 0.01), M["cap"], r, bevel=0.01)
     C.box((CELL + 0.08, CELL + 0.08, 0.3), (0, 0, 0.15), M["wall_dk"], r, bevel=0.03)  # plinth
 
     def courses(o, a, n):
         rot = _rot_for_normal(n)
+        if painted:
+            C.box((0.05, CELL * 1.0, 0.05), o + n * 0.01 + UP * (H - 0.2), M["gold"], r, rot=rot, bevel=0.005)
+            return
         for z in (0.75, 1.25, 1.75):  # masonry courses
             C.box((0.03, CELL * 0.98, 0.025), o + n * 0.005 + UP * z, M["wall_dk"], r, rot=rot, bevel=0.0)
         for i, z in enumerate((0.5, 1.0, 1.5)):
@@ -260,13 +405,13 @@ def wall_variant(M, kind, rng):
     elif kind == "column":
         r = wall_base(M, rng, "wall2")
         c = Vector((CELL / 2, -CELL / 2, 0))
-        C.cyl(0.34, 2.4, c + UP * 1.5, M["marble"], r, verts=20, bevel=0.0)
+        C.cyl(0.34, H - 0.6, c + UP * (0.3 + (H - 0.6) / 2), M["pillar"], r, verts=20, bevel=0.0)
         for i in range(10):  # flutes
             a = i * 2 * math.pi / 10
-            C.box((0.04, 0.04, 2.3), c + Vector((0.34 * math.cos(a), 0.34 * math.sin(a), 1.5)), M["wall2"], r, bevel=0.0,
-                  rot=(0, 0, a))
-        for z in (0.3, 2.72):
-            C.cyl(0.44, 0.2, c + UP * z, M["marble"], r, verts=20, bevel=0.03)
+            C.box((0.04, 0.04, H - 0.7), c + Vector((0.34 * math.cos(a), 0.34 * math.sin(a), 0.3 + (H - 0.6) / 2)),
+                  M["wall2"], r, bevel=0.0, rot=(0, 0, a))
+        for z in (0.3, H - 0.28):
+            C.cyl(0.44, 0.2, c + UP * z, M["pillar"], r, verts=20, bevel=0.03)
             C.torus(0.38, 0.03, c + UP * (z + 0.12 if z > 1 else z + 0.12), M["gold"], r, seg=24, mseg=6)
     elif kind == "firealcove":
         r = wall_base(M, rng)
@@ -275,27 +420,34 @@ def wall_variant(M, kind, rng):
             rot = _rot_for_normal(n)
             C.box((0.12, 1.06, 1.9), o + n * 0.02 + UP * 1.25, M["wall_dk"], r, rot=rot, bevel=0.04)
             C.cyl(0.53, 0.12, o + n * 0.02 + UP * 2.2, M["wall_dk"], r, verts=24, rot=(math.pi / 2, 0, rot[2] + math.pi / 2))
-            C.box((0.1, 0.84, 1.62), o + n * 0.05 + UP * 1.2, M["black"], r, rot=rot, bevel=0.0)
-            for i in range(4):  # soul flames rising in the niche
-                k = -0.27 + i * 0.18
-                flame(M, r, o + n * 0.14 + a * k + UP * 0.4, rng.uniform(0.7, 1.2), rng, i % 2 == 0)
+            if "t_flames" in M:  # painted soul-fire on the back of the niche
+                C.box((0.1, 0.84, 1.62), o + n * 0.05 + UP * 1.2, M["t_flames"], r, rot=rot, bevel=0.0)
+            else:
+                C.box((0.1, 0.84, 1.62), o + n * 0.05 + UP * 1.2, M["black"], r, rot=rot, bevel=0.0)
+                for i in range(4):  # soul flames rising in the niche
+                    k = -0.27 + i * 0.18
+                    flame(M, r, o + n * 0.14 + a * k + UP * 0.4, rng.uniform(0.7, 1.2), rng, i % 2 == 0)
             C.box((0.14, 1.12, 0.06), o + n * 0.06 + UP * 0.34, M["gold"], r, rot=rot, bevel=0.01)
-            C.torus(0.52, 0.03, o + n * 0.09 + UP * 2.2, M["gold"], r, rot=(math.pi / 2, 0, rot[2] + math.pi / 2), seg=32, mseg=6)
         _face_items(face)
     elif kind == "relief":
         r = wall_base(M, rng, "wall2")
 
         def face(o, a, n):
             rot = _rot_for_normal(n)
-            C.box((0.08, 1.3, 1.5), o + n * 0.02 + UP * 1.55, M["wall"], r, rot=rot, bevel=0.06)
-            C.box((0.09, 1.36, 0.05), o + n * 0.05 + UP * 2.32, M["gold"], r, rot=rot, bevel=0.01)
-            C.box((0.09, 1.36, 0.05), o + n * 0.05 + UP * 0.78, M["gold"], r, rot=rot, bevel=0.01)
+            if "t_hooded" in M:   # the owner's painted mural: hooded figure, laurels, Greek-key bands
+                C.box((0.03, CELL, RELIEF_H), o + n * 0.012 + UP * (0.31 + RELIEF_H / 2), M["t_hooded"], r, rot=rot,
+                      bevel=0.0)
+                return
+            # modelled fallback: a hooded bust in green stone between gold laurel branches
+            C.box((0.05, 1.56, 2.0), o + n * 0.01 + UP * 1.45, M["wall_dk"], r, rot=rot, bevel=0.02)
+            C.sphere(0.5, o + n * 0.05 + UP * 1.0, M["relief"], r, rot=rot, scale=(0.2, 1.2, 1.0), segs=20)
+            C.sphere(0.5, o + n * 0.07 + UP * 1.72, M["relief"], r, rot=rot, scale=(0.3, 0.62, 0.86), segs=20)
+            C.sphere(0.5, o + n * 0.2 + UP * 1.64, M["black"], r, rot=rot, scale=(0.1, 0.36, 0.52), segs=16)
             for s in (-1, 1):
-                for i in range(6):  # laurel branch
-                    ang = -1.1 + i * 0.4
-                    p = o + n * 0.08 + a * (s * (0.32 + 0.18 * math.cos(ang))) + UP * (1.55 + 0.42 * math.sin(ang))
-                    C.sphere(0.07, p, M["gold"], r, scale=(0.4, 1.4, 0.5), rot=(s * (ang + 1.2), 0, rot[2]))
-            C.sphere(0.2, o + n * 0.08 + UP * 1.6, M["marble"], r, scale=(0.4, 0.8, 1.0))
+                for i in range(8):  # laurel branch curving up beside the figure
+                    ang = -1.25 + i * 0.32
+                    p = o + n * 0.06 + a * (s * (0.48 + 0.22 * math.cos(ang))) + UP * (1.45 + 0.62 * math.sin(ang))
+                    C.sphere(0.08, p, M["gold"], r, scale=(0.4, 1.5, 0.55), rot=(s * (ang + 1.3), 0, rot[2]))
         _face_items(face)
     elif kind == "banner":
         r = wall_base(M, rng, "wall_dk")
@@ -323,6 +475,22 @@ def wall_variant(M, kind, rng):
         for i in range(3):
             p = Vector((rng.uniform(0.7, 1.05), rng.uniform(-1.05, -0.7), rng.uniform(0.2, 1.4)))
             C.cyl(0.08, 0.5, p, M["soul2"], r, r2=0.0, verts=6, rot=(rng.uniform(-0.6, 0.6), rng.uniform(0.3, 0.9), 0))
+    elif kind == "cut":
+        # a near-side wall cut down to waist height so it never hides the room behind it
+        r = C.empty("wall")
+        body = M["t_wall"] if "t_wall" in M else M["wall"]
+        C.box((CELL, CELL, 1.1), (0, 0, 0.55), body, r, bevel=0.02)
+        C.box((CELL + 0.06, CELL + 0.06, 0.12), (0, 0, 1.14), M["wall_dk"], r, bevel=0.025)   # coping
+        C.box((CELL + 0.07, CELL + 0.07, 0.03), (0, 0, 1.07), M["gold"], r, bevel=0.005)      # gold rim
+        C.box((CELL + 0.08, CELL + 0.08, 0.2), (0, 0, 0.1), M["wall_dk"], r, bevel=0.03)      # plinth
+        if "t_band" in M:  # the mockup's meander relief along the low wall
+
+            def band(o, a, n):
+                C.box((0.03, CELL, 0.6), o + n * 0.016 + UP * 0.58, M["t_band"], r, rot=_rot_for_normal(n), bevel=0.0)
+            _face_items(band)
+    elif kind in ("pillar", "pillar_broken"):
+        r = C.empty("wall")
+        pillar(M, r, rng, broken=kind == "pillar_broken")
     elif kind == "breach":
         r = wall_base(M, rng)
 
@@ -339,19 +507,72 @@ def wall_variant(M, kind, rng):
                 C.box((0.2, 0.2, 0.2), o + n * 0.12 + a * rng.uniform(-0.8, 0.8) + UP * 0.1, M["wall"], r,
                       rot=(rng.random(), rng.random(), rng.random()), bevel=0.03)
         _face_items(face)
+    if H > 4 and kind not in ("rock", "cut", "pillar", "pillar_broken"):
+        tall_upper(M, r)
     return r
 
 
-WALL_KINDS = ["frieze", "column", "firealcove", "relief", "banner", "rock", "breach"]
+def tall_upper(M, r):
+    """The upper half of a tall back wall: above the 3 m features, a dark ledge, a gold
+    Greek-key band and another ledge, then plain ashlar up to the cornice."""
+    def face(o, a, n):
+        rot = _rot_for_normal(n)
+        C.box((0.12, CELL * 1.0, 0.16), o + n * 0.05 + UP * 3.08, M["wall_dk"], r, rot=rot, bevel=0.02)
+        if "t_band" in M:
+            C.box((0.03, CELL, 0.62), o + n * 0.016 + UP * 3.5, M["t_band"], r, rot=rot, bevel=0.0)
+        C.box((0.12, CELL * 1.0, 0.12), o + n * 0.05 + UP * 3.88, M["wall_dk"], r, rot=rot, bevel=0.02)
+    _face_items(face)
 
 
-def render_walls():
+def pillar(M, r, rng, broken=False):
+    """Freestanding fluted temple pillar on a plinth (the mockup's columns); broken = snapped stump."""
+    C.box((1.5, 1.5, 0.35), (0, 0, 0.175), M["wall_dk"], r, bevel=0.04)
+    C.box((1.56, 1.56, 0.045), (0, 0, 0.31), M["gold"], r, bevel=0.01)   # gold rim just under the plinth top
+    for n in (Vector((1, 0, 0)), Vector((0, -1, 0))):   # the mockup's gold diamond and laurel on the plinth
+        o = n * 0.76 + UP * 0.16
+        side = Vector((-n.y, n.x, 0))
+        C.box((0.03, 0.13, 0.13), o, M["gold"], r, rot=(math.pi / 4, 0, math.atan2(n.y, n.x)), bevel=0.005)
+        for sgn in (-1, 1):
+            for i in range(3):
+                C.sphere(0.035, o + side * sgn * (0.13 + i * 0.07) + UP * (0.02 * i - 0.02), M["gold"], r,
+                         scale=(0.4, 1.5, 0.6), rot=(sgn * 0.5, 0, math.atan2(n.y, n.x)))
+    C.cyl(0.66, 0.2, (0, 0, 0.45), M["pillar"], r, verts=32, bevel=0.04)
+    C.torus(0.6, 0.035, (0, 0, 0.62), M["gold"], r, seg=32, mseg=6)
+    top = 1.85 if broken else (H + 0.3 if H > 4 else 3.5)
+    shaft = top - 0.6
+    C.cyl(0.5, shaft, (0, 0, 0.6 + shaft / 2), M["pillar"], r, verts=32, bevel=0.0)
+    for i in range(14):  # flutes
+        a = i * 2 * math.pi / 14
+        C.box((0.06, 0.07, shaft - 0.12), (0.49 * math.cos(a), 0.49 * math.sin(a), 0.6 + shaft / 2), M["wall_dk"], r,
+              bevel=0.0, rot=(0, 0, a))
+    if not broken:
+        C.torus(0.52, 0.04, (0, 0, top - 0.06), M["gold"], r, seg=32, mseg=6)
+        C.cyl(0.54, 0.2, (0, 0, top + 0.08), M["pillar"], r, verts=32, bevel=0.04, r2=0.66)  # flared capital
+        C.box((1.18, 1.18, 0.16), (0, 0, top + 0.26), M["wall_dk"], r, bevel=0.03)     # abacus
+        C.box((1.22, 1.22, 0.04), (0, 0, top + 0.22), M["gold"], r, bevel=0.005)
+        return
+    for i in range(6):  # jagged break
+        a = i * 2 * math.pi / 6 + rng.uniform(-0.3, 0.3)
+        C.box((0.32, 0.3, rng.uniform(0.12, 0.42)), (0.26 * math.cos(a), 0.26 * math.sin(a), top + 0.05), M["pillar"], r,
+              rot=(rng.uniform(-0.35, 0.35), rng.uniform(-0.35, 0.35), a), bevel=0.03)
+    C.cyl(0.34, 0.42, (0.42, -0.42, 0.62), M["pillar"], r, verts=20, bevel=0.03, rot=(math.pi / 2, 0, 0.7))  # fallen drum
+    C.box((0.3, 0.24, 0.2), (-0.5, 0.45, 0.48), M["pillar"], r, rot=(0.3, 0.2, 1.1), bevel=0.03)
+
+
+WALL_KINDS = ["frieze", "column", "firealcove", "relief", "banner", "rock", "breach", "pillar", "pillar_broken", "cut"]
+
+
+def render_walls(tall=False):
+    """tall: the 6 m sheet (wall_blocks_tall) the game uses for back walls."""
+    global H
+    H = TALL_H if tall else 3.0
     C.reset_scene()
     C.setup_lights()
     M = materials()
-    fw, fh, org = WALL_FRAME
+    fw, fh, org = WALL_TALL_FRAME if tall else WALL_FRAME
     C.setup_camera(fw, fh, org)
-    sw = C.SheetWriter("env", "wall_blocks", fw, fh, org, 1, len(WALL_KINDS), meta={"kinds": WALL_KINDS})
+    sw = C.SheetWriter("env", "wall_blocks_tall" if tall else "wall_blocks", fw, fh, org, 1, len(WALL_KINDS),
+                       meta={"kinds": WALL_KINDS, "height_m": H})
     rng = random.Random(3)
     for i, k in enumerate(WALL_KINDS):
         C.clear_scene_objects()
@@ -558,13 +779,134 @@ def render_props():
         sw.save()
 
 
+# ======================================================================= pit coping
+
+# Soul-fire pits (src/dungeon/pit_fire.gd) get a narrow row of capstones on the floor
+# around their opening, like the owner's pit pack (tools/blender/textures/
+# kit_2026-11-27_pits). The coping is drawn per grid corner ("dual grid"): a piece is
+# centred on a tile vertex, covers the quarter of each of the four cells around it, and
+# its column in the sheet is a 4-bit mask of which of those cells are pit:
+#   bit 0 = cell (-1,-1) (top on screen), 1 = (0,-1) (right), 2 = (-1,0) (left),
+#   3 = (0,0) (bottom).
+# 16 pieces cover every pit shape, and corners join by construction. Only the stones are
+# rendered here; the pit's masonry walls and flames are drawn by PitFire under them.
+PIT_FRAME = (264, 160, (132, 70))
+COPE_W = 0.35        # capstone depth from the pit's edge into the floor (m)
+COPE_TOP = 0.035     # capstones sit just proud of the floor...
+COPE_LOW = -0.17     # ...and their front face drops this far
+
+
+def _tile_to_blender(i, j):
+    return Vector((2.0 * i, -2.0 * j, 0.0))
+
+
+def _capstone(M, root, rng, i0, i1, j0, j1, deep):
+    """One capstone over tile rect [i0,i1] x [j0,j1] (tile units around the vertex).
+    deep: its camera-facing side borders the pit, so its front face drops into the pit;
+    otherwise that side faces the floor and only the stone's lip above the floor shows."""
+    a, b = _tile_to_blender(i0, j0), _tile_to_blender(i1, j1)
+    gap = 0.012
+    sx, sy = abs(b.x - a.x) - gap, abs(b.y - a.y) - gap
+    c = (a + b) / 2
+    top = COPE_TOP + rng.uniform(-0.006, 0.006)
+    h = top - (COPE_LOW if deep else -0.01)
+    C.box((sx, sy, h), (c.x, c.y, top - h / 2), M.get("t_coping", M["stone"][2]), root,
+          bevel=0.022 if deep else 0.012,
+          rot=(rng.uniform(-0.008, 0.008), rng.uniform(-0.008, 0.008), rng.uniform(-0.01, 0.01)))
+
+
+def _grout(M, root, i0, i1, j0, j1, deep):
+    """Dark bed under a run of capstones, a little lower and inset so only the joints show it."""
+    a, b = _tile_to_blender(i0, j0), _tile_to_blender(i1, j1)
+    c = (a + b) / 2
+    low = COPE_LOW if deep else -0.012
+    C.box((abs(b.x - a.x) - 0.004, abs(b.y - a.y) - 0.004, COPE_TOP - 0.02 - low), (c.x, c.y, (COPE_TOP - 0.02 + low) / 2),
+          M["grout"], root, bevel=0.0)
+
+
+def _strip_blocks(M, root, rng, along_i, fixed0, fixed1, s0, s1, deep, deep_first):
+    """Capstones along a strip: across = [fixed0, fixed1], along = from s0 (at the vertex)
+    to s1 (tile units), split into one or two stones. deep_first applies to the stone at s0."""
+    length = abs(s1 - s0) * 2.0
+    cuts = [s0, s1]
+    if length > 0.8:
+        t = rng.uniform(0.42, 0.58)
+        cuts = [s0, s0 + (s1 - s0) * t, s1]
+    for k, (u0, u1) in enumerate(zip(cuts[:-1], cuts[1:])):
+        lo, hi = min(u0, u1), max(u0, u1)
+        d = deep_first if k == 0 else deep
+        if along_i:
+            _capstone(M, root, rng, lo, hi, fixed0, fixed1, d)
+        else:
+            _capstone(M, root, rng, fixed0, fixed1, lo, hi, d)
+
+
+def pit_coping(M, mask, rng):
+    root = C.empty("coping")
+    w = COPE_W / 2.0            # in tile units
+    quarters = {(-1, -1): 0, (0, -1): 1, (-1, 0): 2, (0, 0): 3}
+
+    def pit(di, dj):
+        return bool(mask & (1 << quarters[(di, dj)]))
+
+    # every floor quarter lays stones only inside itself, so pieces never overlap
+    for (di, dj) in quarters:
+        if pit(di, dj):
+            continue
+        si = -1 if di < 0 else 1     # which side of the vertex this quarter lies on
+        sj = -1 if dj < 0 else 1
+        across_i = pit(-1 - di, dj)  # pit beyond the i = 0 line
+        across_j = pit(di, -1 - dj)  # pit beyond the j = 0 line
+        diag = pit(-1 - di, -1 - dj)
+        # the camera-facing sides of a stone are +i and +j: the pit is in front of the
+        # stone when it lies on the vertex's side opposite this quarter's negative side
+        deep_i = across_i and si < 0
+        deep_j = across_j and sj < 0
+        band_i = sorted((0.0, w * si))
+        band_j = sorted((0.0, w * sj))
+        # dark grout under each run, so the joints between stones never show the pit's glow
+        if across_i:
+            _grout(M, root, band_i[0], band_i[1], *sorted((0.0, 0.5 * sj)), deep_i or deep_j)
+        if across_j:
+            _grout(M, root, *sorted((0.0, 0.5 * si)), band_j[0], band_j[1], deep_j)
+        if diag and not across_i and not across_j:
+            _grout(M, root, band_i[0], band_i[1], band_j[0], band_j[1], si < 0 and sj < 0)
+        if across_i:
+            _strip_blocks(M, root, rng, False, band_i[0], band_i[1], 0.0, 0.5 * sj, deep_i, deep_i or deep_j)
+        if across_j:
+            _strip_blocks(M, root, rng, True, band_j[0], band_j[1], (w * si) if across_i else 0.0, 0.5 * si,
+                          deep_j, deep_j)
+        if diag and not across_i and not across_j:
+            # the stone that turns a pit's corner; only the far corner's one hangs over the pit
+            _capstone(M, root, rng, band_i[0], band_i[1], band_j[0], band_j[1], si < 0 and sj < 0)
+    return root
+
+
+def render_pit_coping():
+    C.reset_scene()
+    C.setup_lights()
+    M = materials()
+    fw, fh, org = PIT_FRAME
+    C.setup_camera(fw, fh, org)
+    sw = C.SheetWriter("env", "pit_coping", fw, fh, org, 1, 16, meta={"layout": "dual grid, bit0=(-1,-1) bit1=(0,-1) bit2=(-1,0) bit3=(0,0)"})
+    for mask in range(1, 15):
+        C.clear_scene_objects()
+        pit_coping(M, mask, random.Random(100 + mask))
+        sw.put(0, mask, C.render_stylized(ENV_STYLE))
+    sw.save()
+
+
 if __name__ == "__main__":
     import sys
-    what = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["floors", "walls", "lows", "props"]
+    what = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["floors", "walls", "lows", "props", "pits"]
+    if "pits" in what:
+        render_pit_coping()
     if "floors" in what:
         render_floors()
     if "walls" in what:
         render_walls()
+    if "walls" in what or "tall" in what:
+        render_walls(tall=True)
     if "lows" in what:
         render_lows()
     if "props" in what:

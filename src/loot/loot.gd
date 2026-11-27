@@ -133,9 +133,36 @@ static func item_level() -> int:
 
 static func scatter(g: Vector2, spread_m := 1.2) -> Vector2:
 	var p := g + Vector2.from_angle(rng().randf() * TAU) * Iso.m(rng().randf_range(0.3, spread_m))
-	if Game.dungeon and Game.dungeon.walk_blocked(Iso.cell_of(p)):
+	if Game.dungeon == null or not Game.dungeon.walk_blocked(Iso.cell_of(p)):
+		return p
+	if not Game.dungeon.walk_blocked(Iso.cell_of(g)):
 		return g
-	return p
+	return nearest_walkable(g)
+
+
+## Drops from flying enemies that die over a pit or the abyss land on the closest floor
+## instead, so loot never ends up where nobody can walk.
+static func nearest_walkable(g: Vector2) -> Vector2:
+	var d: Dungeon = Game.dungeon
+	var c0 := Iso.cell_of(g)
+	var best := g
+	var best_d := INF
+	for r in range(1, 6):
+		for dx in range(-r, r + 1):
+			for dy in range(-r, r + 1):
+				if maxi(absi(dx), absi(dy)) != r:
+					continue
+				var c := c0 + Vector2i(dx, dy)
+				if d.walk_blocked(c):
+					continue
+				var cc := Iso.cell_center(c)
+				var dd := cc.distance_to(g)
+				if dd < best_d:
+					best_d = dd
+					best = cc
+		if best_d < INF:
+			return best
+	return g
 
 
 static func drop_from_enemy(e) -> void:

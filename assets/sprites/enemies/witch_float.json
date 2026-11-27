@@ -1,10 +1,10 @@
 {
  "name": "witch_float",
  "frame_w": 200,
- "frame_h": 240,
+ "frame_h": 264,
  "origin": [
   100,
-  200
+  224
  ],
  "rows": 16,
  "cols": 6,

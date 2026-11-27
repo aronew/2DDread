@@ -125,7 +125,25 @@ func build_level() -> void:
 	_warm_up()
 	Game.dungeon = dungeon
 	Game.enemies.clear()
-	dungeon.build(LayoutTest.MAP, entities, decals)
+	var layout := _layout()
+	dungeon.build(layout["map"], entities, decals)
+	var pits := PitFire.find_pits(dungeon)
+	if not pits.is_empty():
+		var pf := PitFire.new()
+		pf.name = "PitFire"
+		hazards.add_child(pf)
+		pf.setup(pits, dungeon)
+	# terrace drops and stairs between floor levels (layout `_` / `/` cells)
+	if not layout.get("terraces", []).is_empty():
+		var tr := Terrace.new()
+		tr.name = "Terrace"
+		dungeon.add_child(tr)
+		tr.setup(layout["terraces"], dungeon)
+	# room paintings (generated art laid over the layout); --no-paint shows the bare kit,
+	# and paint guides are always taken without them
+	var args := OS.get_cmdline_user_args()
+	if layout.has("paints") and not args.has("--no-paint") and not args.has("--paint-guide"):
+		RoomPaint.apply(layout["paints"], dungeon)
 	for c in dungeon.door_cells:
 		var df := DoorField.new()
 		df.setup(c, dungeon)
@@ -145,9 +163,18 @@ func build_level() -> void:
 	director = EncounterDirector.new()
 	director.name = "Director"
 	level_root.add_child(director)
-	director.setup(LayoutTest.ROOMS, dungeon, self)
+	director.setup(layout["rooms"], dungeon, self)
 	if camera:
 		camera.snap()
+
+
+## Which hand-authored level to build. --level=temple opens the mockup look-test room.
+func _layout() -> Dictionary:
+	for a in OS.get_cmdline_user_args():
+		if a == "--level=temple":
+			return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS, "paints": LayoutTemple.PAINTS,
+				"terraces": LayoutTemple.TERRACES}
+	return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
 
 
 func _layer(n: String, z: int) -> Node2D:
@@ -335,6 +362,27 @@ func _parse_args() -> void:
 					c = Vector2i(r.rect.get_center())
 				player.spawn_at(Iso.cell_center(c))
 				camera.snap()
+	if opts.has("zoom"):
+		# dev: camera zoom multiplier, e.g. --zoom=1.4 for the closer mockup framing
+		camera.zoom_mult = float(opts["zoom"])
+	if opts.has("look"):
+		# dev: still look-test, e.g. --look=12.5,9 puts the player on that tile point with
+		# no encounters and no mouse look-ahead, for comparing a room against concept art
+		var xy: PackedStringArray = String(opts["look"]).split(",")
+		if xy.size() == 2:
+			player.spawn_at(Iso.tile_to_ground(Vector2(float(xy[0]), float(xy[1]))))
+		director.set_process(false)
+		camera.lookahead = 0.0
+		camera.snap()
+	if opts.has("paint-guide"):
+		# dev: a clean frame of the room for an image generator to paint over (no HUD,
+		# no player), plus where the camera was, so the painting can be laid back on
+		# the room exactly. Use with --look and --shots.
+		hud.visible = false
+		player.visible = false
+		if portal:
+			portal.visible = false   # the dormant portal ring is an effect, not architecture
+		set_meta("paint_guide", true)   # BotDriver writes the camera next to each shot
 	if opts.has("gfx"):
 		Game.set_preset(opts["gfx"], false)
 	for k in Game.gfx.keys():

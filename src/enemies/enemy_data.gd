@@ -18,6 +18,8 @@ extends Resource
 @export var turn_rate := 12.0           # rad/s
 @export var flying := false
 @export var boss := false
+## Can Fury's Lash drag it around? (volatile kamikazes are not; heavies drag the player instead)
+@export var yankable := true
 @export_group("Attack")
 @export var damage := 10.0
 @export var attack_range_m := 2.0

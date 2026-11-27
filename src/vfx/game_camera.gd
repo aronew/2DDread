@@ -4,6 +4,7 @@ extends Camera2D
 ## small hits stay subtle), directional kick for recoil, zoom punch.
 
 const BASE_ZOOM := 0.95
+var zoom_mult := 1.0   # dev flag --zoom
 var trauma := 0.0
 var _kick := Vector2.ZERO
 var _noise := FastNoiseLite.new()
@@ -15,7 +16,7 @@ var lookahead := 0.18
 
 func _ready() -> void:
 	_noise.frequency = 4.0
-	zoom = Vector2(BASE_ZOOM, BASE_ZOOM)
+	zoom = Vector2(BASE_ZOOM, BASE_ZOOM) * zoom_mult
 	VFX.camera = self
 	Game.camera = self
 	make_current()
@@ -57,5 +58,5 @@ func _process(dt: float) -> void:
 	offset = sh + _kick
 	rotation = _noise.get_noise_2d(_t * 40.0, 99.0) * 0.025 * s
 	_zoom_punch = move_toward(_zoom_punch, 0.0, dt * 0.25)
-	var z := BASE_ZOOM * (1.0 + _zoom_punch)
+	var z := BASE_ZOOM * zoom_mult * (1.0 + _zoom_punch)
 	zoom = Vector2(z, z)

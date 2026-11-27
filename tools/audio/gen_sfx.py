@@ -363,6 +363,35 @@ def execute():
     return verb(sat(mix(thud, crunch, splat, shimmer), 3.0), 0.35, 0.7)
 
 
+def whip_lash():
+    """Leather whoosh that rises as the loop unrolls toward the tip."""
+    d = 0.16
+    t = t_axis(d)
+    k = t / d
+    air = band(noise(d), 600, 5000) * np.sin(np.pi * k) ** 1.5 * (0.3 + k)
+    flutter = band(noise(d), 200, 1200) * (0.5 + 0.5 * np.sin(2 * np.pi * 38 * t)) * np.sin(np.pi * k) * 0.35
+    return mix(air, flutter)
+
+
+def whip_crack():
+    """The tip breaking the sound barrier: a hard broadband snap with a short slap-back."""
+    d = 0.3
+    snap = band(noise(d), 1800, 16000) * env(d, 0.0002, 0.006) * 1.6
+    body = band(noise(d), 500, 4000) * env(d, 0.0005, 0.025) * 0.7
+    pop = sweep(2400, 600, d, curve=0.2) * env(d, 0.0002, 0.01) * 0.5
+    x = sat(mix(snap, body, pop), 3.0)
+    return verb(delay(x, 0.045, 0.25), 0.18, 0.25)
+
+
+def whip_yank():
+    """Rope going taut (creak) then the heavy tug."""
+    d = 0.32
+    creak = band(sweep(180, 90, d, "saw", curve=0.6), 150, 2500) * env(d, 0.002, 0.08) * 0.5
+    thump = sweep(110, 45, d, curve=0.4) * env(d, 0.004, 0.09) * 1.2
+    swish = band(noise(d), 400, 3000) * env(d, 0.01, 0.06) * 0.4
+    return sat(mix(creak, thump, swish), 2.2)
+
+
 def player_hurt():
     d = 0.3
     thump = sweep(180, 70, d) * env(d, 0.001, 0.06)
@@ -522,10 +551,17 @@ SOUNDS = {
     "level_up": level_up, "door_lock": door_lock, "door_open": door_open, "chest_open": chest_open,
     "crate_break": crate_break, "wall_break": wall_break, "player_hurt": player_hurt, "shock_zap": shock_zap,
     "spawn": spawn, "legendary_drop": legendary_drop, "ui_click": ui_click, "elite_spawn": elite_spawn,
-    "shield_break": shield_break,
+    "shield_break": shield_break, "whip_lash": whip_lash, "whip_crack": whip_crack, "whip_yank": whip_yank,
 }
 
 if __name__ == "__main__":
+    import sys
+    only = sys.argv[1:]
+    if only:  # regenerate just the named sounds, leaving every other file untouched
+        for name in only:
+            write(name, SOUNDS[name]())
+        print("wrote", only)
+        sys.exit(0)
     for name, fn in SOUNDS.items():
         write(name, fn())
     write("music_calm", music_calm(), 0.7)

@@ -1,15 +1,15 @@
 {
  "name": "crate",
- "frame_w": 144,
- "frame_h": 160,
+ "frame_w": 145,
+ "frame_h": 151,
  "origin": [
-  72,
-  116
+  76,
+  115
  ],
  "rows": 1,
  "cols": 1,
  "files": {
-  "color": "crate_c.png",
-  "normal": "crate_n.png"
- }
+  "color": "crate_c.png"
+ },
+ "source": "painted: textures/kit_2026-11-27/sprites/amphorae_pair"
 }

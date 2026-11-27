@@ -1,0 +1,29 @@
+{
+ "name": "wall_blocks_tall",
+ "frame_w": 260,
+ "frame_h": 640,
+ "origin": [
+  130,
+  556
+ ],
+ "rows": 1,
+ "cols": 10,
+ "files": {
+  "color": "wall_blocks_tall_c.png",
+  "normal": "wall_blocks_tall_n.png",
+  "emit": "wall_blocks_tall_e.png"
+ },
+ "kinds": [
+  "frieze",
+  "column",
+  "firealcove",
+  "relief",
+  "banner",
+  "rock",
+  "breach",
+  "pillar",
+  "pillar_broken",
+  "cut"
+ ],
+ "height_m": 6.0
+}
