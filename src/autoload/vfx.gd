@@ -97,6 +97,15 @@ func setup(fx_: Node2D, lit_: Node2D, decals_: Node2D, overlay_: Node2D) -> void
 		"grav": 1200.0, "damp": [60, 140], "scale": [0.18, 0.42], "additive": false, "rand_life": 0.3})
 	_make_pool("gibs", 8, {"amount": 12, "life": 0.85, "tex": T.shard, "spread": 70.0, "v": [220, 700],
 		"grav": 1600.0, "damp": [50, 120], "scale": [0.8, 1.9], "additive": false, "angle": true, "spin": true})
+	# small, frequent puffs (muzzle smoke, footsteps) get their own pool so they never steal
+	# emitters from explosions and dashes
+	_make_pool("puff", 16, {"amount": 5, "life": 0.55, "tex": T.smoke, "spread": 40.0, "v": [30, 90],
+		"grav": -40.0, "damp": [60, 120], "scale": [0.35, 0.7], "additive": false, "angle": true, "rand_life": 0.3,
+		"fade_in": true})
+	# spent brass / shells kicked out of the guns
+	_make_pool("casings", 24, {"amount": 1, "life": 0.55, "tex": T.shard, "spread": 22.0, "v": [170, 280],
+		"grav": 1500.0, "damp": [30, 60], "scale": [0.26, 0.34], "additive": false, "angle": true, "spin": true,
+		"rand_life": 0.1})
 	_make_pool("debris", 8, {"amount": 16, "life": 0.9, "tex": T.shard, "spread": 80.0, "v": [200, 650],
 		"grav": 1700.0, "damp": [40, 90], "scale": [0.6, 1.5], "additive": false, "angle": true, "spin": true})
 	for i in LIGHT_POOL:
@@ -357,11 +366,24 @@ func muzzle(screen_pos: Vector2, gdir: Vector2, style: Dictionary) -> void:
 	s.rotation = ang + randf_range(-0.08, 0.08)
 	var sc: float = style.get("scale", 1.0) * randf_range(0.85, 1.15)
 	s.scale = Vector2(sc, sc * randf_range(0.8, 1.1))
-	s.modulate = style.get("color", Color(1, 0.8, 0.5)) * 2.0
+	var col: Color = style.get("color", Color(1, 0.8, 0.5))
+	s.modulate = col * 2.0
 	f["t"] = style.get("dur", 0.045)
-	light_flash(screen_pos, style.get("color", Color(1, 0.8, 0.5)), style.get("light", 1.6), style.get("range", 4.0), 0.07, 60.0)
+	light_flash(screen_pos, col, style.get("light", 1.6), style.get("range", 4.0), 0.07, 60.0)
+	# a hot bloom at the barrel and a wisp of gun smoke drifting off it
+	var gk: float = style.get("scale", 1.0)
+	burst_sprite(T.glow, screen_pos + sdir * 10.0 * gk, col * Color(1.6, 1.4, 1.2, 0.9), Vector2(0.18, 0.18) * gk,
+		Vector2(0.5, 0.42) * gk, 0.08)
+	emit("puff", screen_pos + sdir * 18.0 * gk, ang, Color(0.62, 0.6, 0.58, 0.28), 0.25 + 0.25 * minf(gk, 1.5))
 	if style.get("sparks", 0.0) > 0.0:
-		emit("sparks", screen_pos, ang, style.get("color", Color.WHITE) * 2.5, style["sparks"])
+		emit("sparks", screen_pos, ang, col * 2.5, style["sparks"])
+
+
+## A spent casing (or a shotgun shell) kicked out of the gun, to the gun's right.
+func casing(screen_pos: Vector2, gdir: Vector2, shell := false) -> void:
+	var side := Iso.to_screen(-Iso.left_of(gdir)).normalized()
+	var ang := (side + Vector2(0, -1.2)).angle()
+	emit("casings", screen_pos, ang, Color(0.85, 0.2, 0.15) if shell else Color(1.0, 0.78, 0.35))
 
 
 ## Bullet/beam impact at ground point g and visual height h_m.
@@ -372,6 +394,8 @@ func impact(g: Vector2, h_m: float, normal_g: Vector2, style := "metal", color :
 		"flesh":
 			emit("blood", sp, ang, color, 0.45)
 			burst_sprite(T.core, sp, color * 2.0, Vector2(0.25, 0.25), Vector2(0.8, 0.8), 0.09)
+			# a sharp white-hot star on contact: the hit reads even in a crowd
+			burst_sprite(T.flash, sp, Color(2.2, 1.9, 1.5, 0.9), Vector2(0.2, 0.2), Vector2(0.5, 0.42), 0.06, true, randf() * TAU)
 		"armor":
 			emit("sparks", sp, ang, Color(3.0, 2.5, 1.6), 0.7)
 			burst_sprite(T.core, sp, Color(3, 2.6, 2.0), Vector2(0.3, 0.3), Vector2(1.0, 1.0), 0.08)
@@ -387,6 +411,8 @@ func impact(g: Vector2, h_m: float, normal_g: Vector2, style := "metal", color :
 		_:
 			emit("sparks", sp, ang, color * Color(3.0, 2.2, 1.2), 0.45)
 			burst_sprite(T.core, sp, Color(3, 2.5, 1.8), Vector2(0.2, 0.2), Vector2(0.7, 0.7), 0.07)
+			burst_sprite(T.flash, sp, Color(2.4, 2.0, 1.4, 0.8), Vector2(0.15, 0.15), Vector2(0.42, 0.34), 0.05, true, ang)
+			emit("puff", sp, ang, Color(0.55, 0.53, 0.5, 0.35), 0.3)
 
 
 func explosion(g: Vector2, radius: float, color := Color(1.0, 0.55, 0.2), big := true) -> void:

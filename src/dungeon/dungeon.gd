@@ -39,6 +39,9 @@ var painted_cells := {}   # Vector2i -> true: covered by a room painting, no til
 var drops := {}           # Vector2i -> true: `_` cells, the face of a drop to a lower floor (void, never a pit)
 var stairs := {}          # Vector2i -> true: `/` cells, walkable stairs drawn by Terrace (no tile)
 var tall_walls := {}      # Vector2i -> true: back walls drawn 6 m tall (see _is_back_wall)
+var enclose := false      # set by World from the layout: wall in every open floor edge
+var auto_walls := {}      # Vector2i -> true: walls added by _enclose_floor (not in the layout)
+var near_walls := {}      # Vector2i -> true: camera-side walls; they fade out near the player
 var start_cell := Vector2i.ZERO
 var exit_cell := Vector2i(-1, -1)
 var flow := {}
@@ -111,6 +114,8 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 					stairs[c] = true
 				"z":
 					shock_cells.append(c)
+	if enclose:
+		_enclose_floor()
 	_cut_near_walls()
 	_orient_bridges()
 	_build_floor()
@@ -124,8 +129,35 @@ func build(layout: Array, entities_: Node2D, decals_: Node2D) -> void:
 const CUT_KIND := 9   # "cut" in the wall sheet: a waist-high wall
 
 
+## The world doesn't stop where the play area does: every empty cell touching walkable
+## floor (pits, drops between floor levels and bridges over pits excepted) becomes a wall,
+## so rooms and corridors are enclosed on all sides instead of floating in the abyss.
+## Back walls among them render tall (_is_back_wall), camera-side ones are near walls that
+## fade out around the player (_cut_near_walls, _fade_occluders).
+func _enclose_floor() -> void:
+	var pits := {}
+	for c in PitFire.find_pits(self):
+		pits[c] = true
+	var add := {}
+	for c in floor_kind:
+		if not is_floor(c):
+			continue
+		for o in NEIGH8:
+			var n: Vector2i = c + o
+			if floor_kind.has(n) or pits.has(n) or drops.has(n) or add.has(n):
+				continue
+			add[n] = true
+	for n in add:
+		floor_kind[n] = 0
+		block[n] = Block.WALL
+		# plain frieze wall, a column at every third cell along each edge
+		block_kind[n] = 1 if (n.x + n.y) % 3 == 0 else 0
+		auto_walls[n] = true
+
+
 ## Walls on the near side of a room (the room behind them, open abyss in front) are
-## drawn as waist-high walls, so they never hide the floor. They still block like walls.
+## near walls: full walls that fade out when the player comes close behind them, so the
+## room stays enclosed without ever hiding the fight. They block like any wall.
 func _cut_near_walls() -> void:
 	var front := [Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)]
 	var back := [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(-1, -1)]
@@ -134,8 +166,10 @@ func _cut_near_walls() -> void:
 			continue
 		if front.any(func(o): return is_floor(c + o)):
 			continue
-		if back.any(func(o): return is_floor(c + o)):
-			block_kind[c] = CUT_KIND
+		if back.any(func(o): return is_floor(c + o) or stairs.has(c + o)):
+			near_walls[c] = true
+			if block_kind.get(c, 0) == 1:
+				block_kind[c] = 0   # no corner column in front of the room
 
 
 ## A bridge runs along whichever axis its neighbouring bridge cells lie on (a lone cell:
@@ -796,13 +830,18 @@ func _fade_occluders(pl, dt: float) -> void:
 	var p: Vector2 = pl.position
 	var pc := Iso.cell_of(pl.gpos)
 	var want := {}
-	for ox in range(-1, 4):
-		for oy in range(-1, 4):
+	for ox in range(-1, 6):
+		for oy in range(-1, 6):
 			var c := pc + Vector2i(ox, oy)
 			if not block_nodes.has(c) or block.get(c, 0) != Block.WALL:
 				continue
 			var n: Node2D = block_nodes[c]
 			var dy := n.position.y - p.y
+			if near_walls.has(c):
+				# a near wall clears a wide window around the player, like DreadHunter's
+				if dy > -40.0 and dy < 460.0 and absf(n.position.x - p.x) < 340.0:
+					want[c] = true
+				continue
 			var reach := 540.0 if tall_walls.has(c) else 300.0
 			if dy > 0.0 and dy < reach and absf(n.position.x - p.x) < 190.0:
 				want[c] = true
@@ -813,7 +852,7 @@ func _fade_occluders(pl, dt: float) -> void:
 			_faded.erase(c)
 			continue
 		var n: Node2D = block_nodes[c]
-		var target := 0.28 if want.has(c) else 1.0
+		var target := (0.12 if near_walls.has(c) else 0.28) if want.has(c) else 1.0
 		n.modulate.a = move_toward(n.modulate.a, target, dt * 4.0)
 		if target == 1.0 and n.modulate.a >= 1.0:
 			_faded.erase(c)

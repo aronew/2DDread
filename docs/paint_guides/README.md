@@ -41,6 +41,15 @@ moved to match). The `*_painted_sol.webp` files are the v3 versions (room 1:
 attach one of them as a style reference with the mockup, so the room comes out in the
 same style.
 
+**Repaint wanted (2026-11-27):** rooms are now enclosed (corridors between rooms, walls
+on every edge, camera-side walls that fade near the player) and the background is black.
+The current paintings predate that: the new walls keep their own art over them, and the
+right half of room 1 was never painted. Next guides to paint:
+`temple_east_01_guide.png` / `_lines.png` (room 1's right half, `--look=15.5,7.5
+--zoom=0.8 --no-paint`), then fresh guides of each room with its new walls. Ask SOL to
+paint the camera-side walls (the low dark blocks along the bottom edges of the guide) as
+solid temple walls seen from behind, and to keep the area beyond the walls pure black.
+
 ## Prompt for SOL
 
 Attach `temple_02_lines.png` (image 1) and `docs/concept/mockup_01_soul_fire_temple.webp`

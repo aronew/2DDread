@@ -24,11 +24,11 @@ enemies for health, and build around behaviour-changing legendaries.
 | Move | WASD | Left stick |
 | Aim | Mouse (soft-locks onto enemies under the cursor) | Right stick (aim assist) |
 | Fire weapon | LMB | RT |
-| Havoc grenade launcher | RMB | LT |
+| Hellfire Saber: tap / hold for the combo, right after a dash for a dash-slash | RMB / V | B / RB |
 | Dash (i-frames, 2 charges) | Space / Shift | A / LB |
 | Shock Nova | Q | X |
 | Seeker Swarm | E | Y |
-| Fury's Lash: tap to crack, hold to yank | F / V | B / RB |
+| Firebomb | F / G | LT |
 | Reload | R | R3 |
 | Switch weapon | 1 2 3 / mouse wheel | D-pad |
 | Inventory, attributes | Tab / I | Back |
@@ -64,15 +64,13 @@ Every attack is telegraphed on the ground before it lands.
 ### Abilities
 - **Shock Nova:** knocks enemies back, applies shock, and erases enemy projectiles.
 - **Seeker Swarm:** homing missiles.
-- **Fury's Lash** (bullwhip):
-  - **Crack (tap):** hits along a 5 m line. The far end of the reach is a sweet spot that
-    always crits. The rope snaps enemy projectiles out of the air.
-  - **Yank (hold):** pulls light enemies to point-blank range and dazes them, which sets
-    up the Blunderbuss. Heavy enemies pull you to them instead. Yanking a Legionnaire
-    from the front wrenches its shield aside. Flaming Skulls can't be yanked.
-  - **Execute:** cracking a staggered or nearly dead enemy drags it in for a
-    point-blank finishing shot that bursts into health.
-  - **Whirl:** pressing F during or just after a dash spins the whip in a full circle.
+- **Hellfire Saber** (RMB):
+  - **Combo:** slash, back-slash, heavy cleave. Every swing lunges you forward and snaps
+    onto an enemy in front, so pressing on enemies closes the gap.
+  - **Dash-slash:** RMB during or right after a dash pierces through a whole line.
+  - **Execute:** any swing on a staggered or nearly dead enemy finishes it in a burst of
+    health and ammo. Every sword kill spills ammo and health.
+  - **Deflect:** the slash cuts enemy shots out of the air.
 
 ### Loot and progression
 - **Rarities:** six, from Common to Mythic.
@@ -118,10 +116,10 @@ The original test level is still there with `--level=test`:
 ```
 src/autoload/   InputSetup, Events (signal bus), Game, Audio, VFX
 src/core/       Iso projection math, sprite-sheet loader, DamageInfo
-src/player/     Player controller + legs/torso compositor + live whip rope
+src/player/     Player controller + legs/torso compositor
 src/combat/     WeaponData/Weapon, ProjectileSystem, Combat, Build (stats+perk hooks), perks, hazards
 src/enemies/    EnemyData, Enemy base FSM, archetypes, elite affixes
-src/abilities/  Shock Nova, Seeker Swarm, Fury's Lash (whip)
+src/abilities/  Shock Nova, Seeker Swarm, Hellfire Saber
 src/loot/       Item, Loot generation, pickups
 src/dungeon/    Layout (ASCII), Dungeon (grid collision/raycasts/flow field/visuals), encounters, doors, hazards
 src/ui/         HUD, inventory

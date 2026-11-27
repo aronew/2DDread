@@ -1,16 +1,18 @@
 class_name Player
 extends Node2D
-## The hunter. Fast, momentum-preserving movement, dash with i-frames,
-## twin-stick aim (mouse or right stick with aim assist), 3 primary weapons +
-## Firebomb on RMB, Q/E abilities, F whip (Fury's Lash: crack / hold to yank / execute).
+## The hunter. Fast, momentum-preserving movement, a long dash with i-frames,
+## twin-stick aim (mouse or right stick with aim assist), 3 primary weapons,
+## RMB Hellfire Saber (combo / dash-slash / execute, see Blade), F Firebomb, Q/E abilities.
 
-const SPEED_M := 6.6
-const ACCEL_M := 75.0
-const DECEL_M := 60.0
-const DASH_SPEED_M := 25.0
-const DASH_TIME := 0.15
-const DASH_IFRAMES := 0.24
-const DASH_RECHARGE := 0.95
+const SPEED_M := 7.6
+const ACCEL_M := 100.0
+const DECEL_M := 85.0
+const DASH_SPEED_M := 34.0
+const DASH_TIME := 0.18           # 6.1 m
+const DASH_IFRAMES := 0.26
+const DASH_RECHARGE := 0.8
+const DASH_CARRY := 1.3           # you come out of a dash this much faster than a run
+const STEP_T := 0.26              # footstep dust while running
 const AMMO_MAX := {"light": 420, "shells": 64, "cells": 30}
 const BACKPACK_SIZE := 24
 
@@ -34,8 +36,7 @@ var gear := {&"armor": null, &"core": null, &"relic": null}
 var backpack: Array = []
 var build: Build
 var abilities: Array = []
-var lash: Lash
-var whip: WhipVisual
+var blade: Blade
 
 var dash_charges := 2
 var dash_max := 2
@@ -52,6 +53,7 @@ var _swap_t := 0.0
 var _launcher_t := 0.0
 var _afterimage_t := 0.0
 var _last_fire_t := 0.0
+var _step_t := 0.0
 var _move_input := Vector2.ZERO
 var _extern_motion := Vector2.ZERO
 var visual: PlayerVisual
@@ -68,10 +70,7 @@ func _ready() -> void:
 	weapons[2] = _starter(&"arc")
 	launcher = Weapon.new(WeaponDB.get_data(&"launcher"))
 	abilities = [ShockNova.new(), SeekerSwarm.new()]
-	whip = WhipVisual.new()
-	add_child(whip)
-	lash = Lash.new()
-	lash.visual = whip
+	blade = Blade.new()
 	build.recalc()
 	on_stats_changed()
 	hp = max_hp
@@ -108,11 +107,6 @@ func dash_recent(window: float) -> bool:
 
 func grant_iframes(t: float) -> void:
 	_iframes = maxf(_iframes, t)
-
-
-## Screen position of the whip hand (off-hand, chest height, follows the aim).
-func whip_hand_screen() -> Vector2:
-	return Iso.lift(gpos + aim_dir * Iso.m(0.28) + Iso.left_of(aim_dir) * Iso.m(0.24), 1.22) + visual.torso_offset
 
 
 func cur_weapon() -> Weapon:
@@ -173,6 +167,9 @@ func _timers(dt: float) -> void:
 		if _dash_recharge_t >= DASH_RECHARGE:
 			_dash_recharge_t = 0.0
 			dash_charges += 1
+			# a charge coming back: a quick cold glint at the feet
+			VFX.burst_sprite(VFX.T.ring, Iso.to_screen(gpos), Color(0.6, 1.0, 2.2, 0.6),
+				Vector2(0.15, 0.15 * Iso.K), Vector2(0.4, 0.4 * Iso.K), 0.18)
 	if launcher.mag < launcher.s_mag:
 		_launcher_t += dt
 		if _launcher_t >= launcher.data.reload_time:
@@ -233,14 +230,17 @@ func _update_move(s: Dictionary, dt: float) -> void:
 		_start_dash()
 	if _dash_t > 0.0:
 		_dash_t -= dt
-		vel = _dash_dir * Iso.m(DASH_SPEED_M)
+		# fast at first, easing at the end, so the dash snaps out and lands
+		var k := 1.0 - _dash_t / DASH_TIME
+		vel = _dash_dir * Iso.m(DASH_SPEED_M) * lerpf(1.25, 0.7, k)
 		_afterimage_t -= dt
 		if _afterimage_t <= 0.0:
-			_afterimage_t = 0.03
-			VFX.afterimage(visual.sprites(), Color(0.5, 0.75, 2.2, 0.55))
+			_afterimage_t = 0.022
+			VFX.afterimage(visual.sprites(), Color(1.5, 1.35, 1.25, 0.5), 0.26)
 		if _dash_t <= 0.0:
-			vel = _dash_dir * _max_speed()
+			vel = _dash_dir * _max_speed() * DASH_CARRY
 			_since_dash = 0.0
+			VFX.emit("smoke", Iso.lift(gpos, 0.1), (_dash_dir).angle(), Color(0.45, 0.45, 0.48, 0.45), 0.3)
 			build.on_dash(_dash_from, gpos)
 			Events.dashed.emit(_dash_from, gpos)
 	else:
@@ -249,6 +249,7 @@ func _update_move(s: Dictionary, dt: float) -> void:
 		if target.dot(vel) < 0.0:
 			accel *= 1.7
 		vel = vel.move_toward(target, accel * dt)
+	_footsteps(dt)
 	var motion := vel * dt + _extern_motion
 	_extern_motion = Vector2.ZERO
 	var before := gpos
@@ -260,6 +261,17 @@ func _update_move(s: Dictionary, dt: float) -> void:
 		var actual := (gpos - before) / dt
 		if actual.length() < vel.length() * 0.5 and _dash_t <= 0.0:
 			vel = vel.lerp(actual, 0.5)
+
+
+func _footsteps(dt: float) -> void:
+	if dashing() or vel.length() < Iso.m(SPEED_M * 0.6):
+		_step_t = minf(_step_t, 0.05)
+		return
+	_step_t -= dt
+	if _step_t <= 0.0:
+		_step_t = STEP_T
+		VFX.emit("puff", Iso.lift(gpos - vel.normalized() * Iso.m(0.2), 0.05), (-vel).angle(),
+			Color(0.42, 0.42, 0.44, 0.3), 0.4)
 
 
 func _max_speed() -> float:
@@ -276,9 +288,19 @@ func _start_dash() -> void:
 	_iframes = DASH_IFRAMES
 	_dash_from = gpos
 	_dash_dir = _move_input.normalized() if _move_input.length() > 0.1 else aim_dir
-	Audio.play("dash", gpos)
-	VFX.emit("smoke", Iso.lift(gpos, 0.2), (-_dash_dir).angle(), Color(0.5, 0.55, 0.65, 0.5), 0.35)
-	VFX.light_flash(Iso.lift(gpos, 1.0), Color(0.4, 0.6, 1.0), 1.4, 3.0, 0.2)
+	_afterimage_t = 0.0
+	Audio.play("dash", gpos, 0.0, randf_range(0.95, 1.08))
+	var sdir := Iso.to_screen(_dash_dir).normalized()
+	var feet := Iso.to_screen(gpos)
+	# kick-off: dust thrown back, a flattened shock ring, a streak along the path
+	VFX.emit("smoke", Iso.lift(gpos, 0.15), (-_dash_dir).angle(), Color(0.5, 0.5, 0.55, 0.55), 0.5)
+	VFX.burst_sprite(VFX.T.ring, feet, Color(1.6, 1.5, 1.4, 0.55), Vector2(0.12, 0.12 * Iso.K), Vector2(0.55, 0.55 * Iso.K), 0.2)
+	VFX.burst_sprite(VFX.T.spark, feet + sdir * Iso.m(3.0) + Vector2(0, -Iso.h(0.9)), Color(1.4, 1.3, 1.2, 0.35),
+		Vector2(1.0, 0.25), Vector2(Iso.m(6.0) / 32.0, 0.06), 0.22, true, sdir.angle())
+	VFX.light_flash(Iso.lift(gpos, 1.0), Color(0.9, 0.8, 0.7), 1.0, 3.0, 0.15)
+	if VFX.camera:
+		VFX.camera.punch(0.012)
+		VFX.kick(sdir, 5.0)
 
 
 func _push_from_enemies(_dt: float) -> void:
@@ -308,7 +330,7 @@ func _update_weapons(s: Dictionary, dt: float) -> void:
 		switch_weapon(want)
 	if s.get("reload", false) and cur_weapon():
 		cur_weapon().start_reload(self)
-	var can_fire := _swap_t <= 0.0 and not dashing()
+	var can_fire := _swap_t <= 0.0 and not dashing() and not blade.blocks_fire()
 	for i in 3:
 		var w: Weapon = weapons[i]
 		if w == null:
@@ -380,16 +402,14 @@ func _update_abilities(s: Dictionary, dt: float) -> void:
 		abilities[0].try_use(self)
 	if s.get("ability_2", false):
 		abilities[1].try_use(self)
-	lash.set_held(s.get("melee_held", false))
-	if s.get("melee", false):
-		lash.try_use(self)
-	lash.process(dt, self)
+	blade.process(dt, self)
+	blade.input(self, s.get("melee", false), s.get("melee_held", false))
 
 
 func reset_cooldowns() -> void:
 	for a in abilities:
 		a.cd_left = 0.0
-	lash.cd_left = 0.0
+	blade.cd_left = 0.0
 
 
 # ------------------------------------------------------------------ health
@@ -430,7 +450,7 @@ func heal(amount: float, show := true) -> void:
 func _die() -> void:
 	alive = false
 	hp = 0.0
-	lash.cancel()
+	blade.cancel()
 	VFX.gore(gpos, Color(0.8, 0.1, 0.1), 2.0)
 	VFX.explosion(gpos, Iso.m(2.0), Color(0.4, 0.6, 1.0), false)
 	visual.visible = false

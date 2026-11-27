@@ -8,8 +8,9 @@ produced, how the code is organised and how to test changes. Deeper docs:
 
 ## 0. Where we are and how a room gets made (read this first)
 
-**Latest work is on branch `claude/practical-clarke-pigy57`** (it already contains
-everything from `ccr-4c0e7f51-x2cob7`; `main` is older). Work from there.
+**Work on branch `claude/practical-clarke-pigy57`**; it reaches `main` through pull
+requests (main and the branch were level on 2026-11-27, at PR #2). Before starting, fetch
+and fast-forward it to `origin/main` in case main moved.
 
 **The owner's goal:** a whole dungeon that looks like mockup 01 (Hades-style soul-fire
 temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple.gd`
@@ -23,7 +24,9 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 | 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | painted in two halves (`assets/rooms/stair_01` = the gallery, `undercroft_01` = everything below the terrace's top edge; each was masked to its half with `clip_paint.py` so they meet along that edge). SOL painted the gallery only to column 76; the painted right end was shifted out one cell to cover column 77 (see the paint guide README). L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
 | 5 | THE HALL OF SHADES (`shades`) | 84-99, rows 4-16 | painted (`assets/rooms/shades_01`, one painting for the whole hall, guide `--look=90.55,9.05 --zoom=0.525`; the Undercroft corner of the frame was clipped out). A big square hall after the Undercroft (bridge from its right edge at row 14, entering through a doorway in the left wall), modelled on a Hades chamber the owner shared: four hooded shrine blocks around an open central field between gold bands, emblem plates, niche-and-mural walls; three waves ending with a frenzied elite; drops a chest and holds the exit portal |
 
-Each room's right edge has a gold bridge (row 3) across the abyss to the next; the last
+Rooms are joined by 3-wide stone corridors (map rows 2-4, and rows 13-15 into room 5;
+they were gold bridges until 2026-11-27), and `ENCLOSE` walls in every open floor edge
+(`Dungeon._enclose_floor`), so the world reads as one building, not islands; the last
 room holds the exit portal (`X`, and `"exit": true` in its `ROOMS` entry), which
 descends to the next depth (the same rooms, harder). When adding a room after it, move
 the `X` and the exit flag. New rooms
@@ -175,18 +178,20 @@ All of this is playable, and a bot plays the whole route without errors:
   - Three weapon slots: Twin Hellfire Revolvers (alternating barrels), Hellmouth
     Blunderbuss, Stormcaller (heat-based chain lightning).
   - Longshot (charge rail) as loot.
-  - RMB Firebomb.
-- **Abilities:** Q Shock Nova, E Seeker Swarm, F **Fury's Lash** (bullwhip, `lash.gd`):
-  - Tap: crack along the aim line (5 m reach). The last 1.5 m is a sweet spot that always
-    crits. The rope snaps enemy shots out of the air.
-  - Hold: the tip latches on. Light enemies are yanked to point-blank range and dazed.
-    Heavies (mass ≥ 3) pull the player to them instead, and a frontal yank wrenches the
-    Legionnaire's shield aside. Flaming Skulls can't be yanked (`EnemyData.yankable`).
-  - Cracking a staggered (or nearly dead) enemy drags it in for a point-blank execute
-    shot that bursts into health.
-  - F during or just after a dash spins the whip in a full circle.
-  - The rope is drawn live (`player/whip_visual.gd`, two Line2Ds), not a sprite sheet.
-    The coiled whip on the left hip is part of the legs render.
+  - F Firebomb (was RMB until 2026-11-27).
+  - Movement (owner: "should feel as satisfying as DreadHunter / Hades"): 7.6 m/s with
+    snappy accel/stops; dash 6.1 m (bursts out, eases into the landing, exits at 1.3x run
+    speed), with dust, a shock ring, a speed streak, dense afterimages and a camera push.
+- **Abilities:** Q Shock Nova, E Seeker Swarm, RMB **Hellfire Saber** (`blade.gd`; the
+  owner found the old whip pointless, so it was removed 2026-11-27). Melee is part of
+  moving, so it sits on RMB for fast presses:
+  - Tap or hold for slash, back-slash, heavy cleave. Each swing lunges forward and snaps
+    onto an enemy in front within 4 m; the next swing can cancel the end of the last.
+  - RMB during or right after a dash: a piercing dash-slash.
+  - Any swing on a staggered (or nearly dead) enemy executes it for health and ammo;
+    every sword kill spills ammo and health (the DOOM loop: diving in is how you refill).
+  - The slash cuts enemy shots out of the air. Drawn by `vfx/slash_fx.gd` (a hellfire
+    crescent swept on the ground plane).
 - **Enemies** (internal ids stay `mite/spitter/brute/bloater`; names and art are themed):
   - **Hellhound** (`mite`): flanking swarmer, pounce.
   - **Hex Witch** (`spitter`): flying caster, shard fans.
@@ -243,10 +248,10 @@ All of this is playable, and a bot plays the whole route without errors:
 src/world.gd        Scene root: layers, environment, level build/rebuild, enemy factory, graphics presets, dev flags
 src/autoload/       InputSetup (all bindings) · Events (signal bus) · Game (refs, hit-stop, settings) · Audio · VFX
 src/core/           iso.gd (projection math) · sheet_db.gd (sprite sheets) · damage_info.gd
-src/player/         player.gd (controller, weapons, inventory) · player_visual.gd (legs+torso compositor) · whip_visual.gd (live rope)
+src/player/         player.gd (controller, movement, dash, weapons, inventory) · player_visual.gd (legs+torso compositor)
 src/combat/         weapon_data/weapon/weapon_db · projectile(_system) · combat.gd (hit/explode) · build.gd (stats + perk hooks) · perks/
 src/enemies/        enemy_data · enemy.gd (base FSM, armour, stagger, status, death) · mite/spitter/brute/bloater · elite.gd
-src/abilities/      shock_nova · seeker_swarm · lash (F whip: crack / yank / execute / whirl)
+src/abilities/      shock_nova · seeker_swarm · blade (RMB saber: combo / dash-slash / execute)
 src/loot/           item · loot (generation/drops) · pickup
 src/dungeon/        layout_test (ASCII + rooms/beats) · layout_temple (mockup look-test room) · dungeon.gd (grid collision, DDA raycast, flow field, floor/walls/lights) · pit_fire (soul-fire in enclosed chasms) · terrace (drops and stairs between floor levels) · encounter_director · prop · doors/portal/shock floor
 src/ui/             hud.gd (procedural HUD + minimap) · inventory_ui.gd
@@ -409,9 +414,14 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
   that tile point, no encounters start and the camera has no mouse look-ahead. Use it
   with `--shots` (the first shot is at 2 s) to compare a room against concept art:
   `-- --level=temple --look=5.5,8.5 --shots=/tmp/s --shot-every=5 --quit-after=2.2`.
-- **Near walls are cut low:** a wall with the room behind it and nothing walkable in front
-  (`dungeon._cut_near_walls()`) is drawn with the waist-high `cut` wall sprite so it never
-  hides the floor; it still blocks movement and shots like any wall.
+- **Near walls fade:** a wall with the room behind it and nothing walkable in front
+  (`dungeon._cut_near_walls()` marks it in `near_walls`) is a full wall that fades out in
+  a wide window around the player (`_fade_occluders`), DreadHunter-style, so rooms are
+  enclosed on the camera side too without hiding the fight. Paint guides show them solid.
+- **Enclosure:** with `ENCLOSE` in the layout, every empty cell touching walkable floor
+  becomes a wall (`_enclose_floor`; pits and drops excepted). Walls added this way aren't
+  in room paintings, so `RoomPaint` leaves them with their own art; repaint rooms from
+  new guides to get them painted. The background beyond the walls is black.
 - **Chasms:** void cells enclosed by walkable floor on all four sides become soul-fire
   pits automatically (`pit_fire.gd`), built after the owner's pit pack: a narrow row of
   capstones at floor level, plain masonry dropping 1.4 m, and green fire burning low

@@ -241,6 +241,8 @@ func _fire(owner, charge_factor: float) -> void:
 	var ms: Vector2 = owner.muzzle_screen()
 	VFX.muzzle(ms, dir, {"color": data.muzzle_color, "scale": data.muzzle_scale, "wide": data.muzzle_wide,
 		"light": data.muzzle_light, "range": 3.5 + data.muzzle_scale * 2.0, "sparks": 0.25 if data.pellets > 1 else 0.0})
+	if not data.hitscan and data.proj_kind != "grenade":
+		VFX.casing(ms - Iso.to_screen(dir).normalized() * 16.0, dir, data.pellets > 1)
 	Audio.play(data.sound_fire, owner.gpos)
 	owner.on_weapon_fired(self, charge_factor)
 
