@@ -23,13 +23,16 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 | 3 | THE BONE ALTAR (`altar`) | 42-54 | painted (`assets/rooms/altar_01`); no pit: a ritual hall with a central altar, three bone nests that spawn hounds until broken, fire urns, then a shielded elite Legionnaire; drops a chest and opens the exit portal. Props follow the painting (its banners became plain frieze, braziers and candles became painted shrubs) |
 | 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | painted in two halves (`assets/rooms/stair_01` = the gallery, `undercroft_01` = everything below the terrace's top edge; each was masked to its half with `clip_paint.py` so they meet along that edge). SOL painted the gallery only to column 76; the painted right end was shifted out one cell to cover column 77 (see the paint guide README). L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
 | 5 | THE HALL OF SHADES (`shades`) | 84-99, rows 4-16 | painted (`assets/rooms/shades_01`, one painting for the whole hall, guide `--look=90.55,9.05 --zoom=0.525`; the Undercroft corner of the frame was clipped out). A big square hall after the Undercroft (bridge from its right edge at row 14, entering through a doorway in the left wall), modelled on a Hades chamber the owner shared: four hooded shrine blocks around an open central field between gold bands, emblem plates, niche-and-mural walls; three waves ending with a frenzied elite; drops a chest and holds the exit portal |
+| 6 | THE ISLES OF LETHE (`lethe`) | 100-122, rows 3-15 | laid out, guide `lethe_01` rendered (`--look=112.75,8.25 --zoom=0.49`, the whole room plus the corridor from room 5 in one frame), **waiting for the owner's SOL painting**. A new kind of room: a **soul-fire lake** (one big pit, `PitFire`) crossed by stone isles and gold bridges, joined to room 5 by a corridor (rows 7-9). West and east quays, a central isle (where the reward chest lands), a south isle with a bone nest, a back ledge with another nest (split by rubble, so the bridges are the only way across), a balustrade along the front. **Soul-fire geysers** (`SoulGeyser`, the layout's `GEYSERS`) erupt beside the three bridges in turn: red ring and hiss for 1.1 s, then a column that burns anyone on the bridge, enemies too. Hex Witches and Flaming Skulls fly over the fire; three waves end with a volatile elite; holds the exit portal |
 
 **Jade set (2026-11-27, current):** the owner repainted every room in a jade/teal palette
 with more irregular stone; rooms 2-5 from the round-2 guides (`docs/paint_guides/*_02_*`),
 with their enclosing walls. In the game as `assets/rooms/*_jade` (`LayoutTemple.PAINTS`);
 the previous set is `PAINTS_V3`, shown with `--paint-set=v3`. Each painting was clipped to
 its room's band of map columns with `tools/rooms/band_clip.py` (room 1: i < 24, room 2:
-24-40, room 3: 40-57, room 4: 57-82, room 5: 82+, cut mid-corridor; walls and props on the
+24-40, room 3: 40-57, room 4: 57-82, room 5: 82-102 (re-cut on 2026-11-28 for room 6's
+corridor: the painted near wall over the corridor opening was cut out with its full
+upright shape, not just its ground cells), room 6: 102+, cut mid-corridor; walls and props on the
 band keep their painted height) so neighbours never paint over each other; room 4's halves
 were also split along the terrace edge as before. Room 1's west painting has no enclosing
 walls, so its camera-side walls are still kit art.
@@ -185,7 +188,9 @@ All of this is playable, and a bot plays the whole route without errors:
 
 - **Player (gunslinger):**
   - Responsive movement and a 2-charge dash with i-frames.
-  - Twin-stick aim: mouse soft-lock, or stick with aim assist.
+  - Twin-stick aim: mouse soft-lock (onto enemies, and onto breakable props such as nests
+    and urns: shots fly at muzzle height, so without it a diagonal shot at a low prop
+    passes visually through it and misses), or stick with aim assist.
   - Three weapon slots: Twin Hellfire Revolvers (alternating barrels), Hellmouth
     Blunderbuss, Stormcaller (heat-based chain lightning).
   - Longshot (charge rail) as loot.
@@ -418,7 +423,7 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
 ```
 
 - **Rooms for `--start`:** temple dungeon (default) `temple sanctum altar gallery
-  undercroft shades`; with `--level=test`: `landing conduit vault hatchery spine reactor`.
+  undercroft shades lethe`; with `--level=test`: `landing conduit vault hatchery spine reactor`.
   `--level=temple` is still accepted (it is the default).
 - **Look test:** `--level=temple` builds a single room composed like the temple mockup
   (`layout_temple.gd`), laid out the mockup's way so the path runs left to right with
@@ -481,6 +486,17 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
   dark stone face over the pit). `Dungeon._orient_bridges()` picks the axis and end
   pieces from the neighbours, and the decks are drawn above the pit layers (z −17) so
   the fire glows under them. The pit side under a deck is "open": no masonry, just glow.
+- **Soul-fire lake and geysers (room 6):** a lake is just a big pit: every void cell must
+  have walkable (non-wall) floor within 8 cells in all four axis directions, or it isn't a
+  pit and becomes a wall or a hole (`PitFire.find_pits`). Isles, rubble islets (`x`) and a
+  front balustrade (`|`) close it; a wall on an isle's edge breaks the scan along that
+  line. Geysers (`src/dungeon/soul_geyser.gd`, layout `GEYSERS`: `from` a lake cell, `at`
+  the bridge cell it burns, `offset` in cycles) share one clock: idle 2.4 s, warn 1.1 s
+  (red ring, simmering lake, hiss), erupt 0.7 s (22 to the player, 55 + burn + knockback to
+  enemies, once per eruption). Dormant in paint guides. The bot steps out of and waits
+  outside warning rings (`SoulGeyser.danger_at`). In an enclosed level, flyers cross only
+  the level's own void (pits, lake, drops), never the void outside the walls
+  (`Dungeon.walk_blocked`).
 - **Terraces and stairs (floor levels):** the game has one flat ground plane, but at the
   2:1 camera a drop of 1.633 m (one "level") moves a point 128 px down on screen, exactly
   what one cell of depth does. So a floor one level lower is simply laid out one cell

@@ -198,6 +198,16 @@ func _update_aim(s: Dictionary) -> void:
 		if dd < maxf(best, e.radius * 0.9) and dd < best:
 			best = dd
 			locked = e
+	if locked == null and Game.dungeon:
+		# breakable props too (nests, urns, amphorae): shots fly at muzzle height, so a cursor
+		# on a low prop's body would otherwise send them past it on diagonal shots
+		var best_p := 46.0
+		for pr in Game.dungeon.props:
+			if pr.alive and pr.destructible() and pr.gpos.distance_to(gpos) < Iso.m(16.0):
+				var dd := Iso.lift(pr.gpos, 0.4).distance_to(mouse)
+				if dd < best_p:
+					best_p = dd
+					locked = pr
 	if locked:
 		aim_target = locked.gpos
 	else:

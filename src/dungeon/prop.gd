@@ -147,8 +147,19 @@ func _update_nest(dt: float) -> void:
 	if _spawn_t <= 0.0:
 		_spawn_t = 4.5
 		if Game.living_enemies() < 26 and Game.world:
-			var off := Vector2.from_angle(randf() * TAU) * (radius + Iso.m(0.6))
-			Game.world.spawn_enemy("mite", gpos + off, {"from_nest": true})
+			# drop the hound on walkable floor (a nest on a ledge by a soul-fire lake would
+			# otherwise drop some into the fire, where they can't move)
+			var a0 := randf() * TAU
+			var at := Vector2.INF
+			for k in 8:
+				var g := gpos + Vector2.from_angle(a0 + k * TAU / 8.0) * (radius + Iso.m(0.6))
+				var gc := Iso.cell_of(g)
+				if dungeon.is_floor(gc) and not dungeon.walk_blocked(gc) and not dungeon.props_by_cell.has(gc):
+					at = g
+					break
+			if at == Vector2.INF:
+				return
+			Game.world.spawn_enemy("mite", at, {"from_nest": true})
 			VFX.gore(gpos, Color(0.4, 1.0, 0.45), 0.6)
 
 

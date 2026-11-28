@@ -152,6 +152,12 @@ func build_level() -> void:
 		var df := DoorField.new()
 		df.setup(c, dungeon)
 		entities.add_child(df)
+	# soul-fire geysers erupting over bridges (room 6); dormant in paint guides, which
+	# must show the room itself, not a moment of its hazards
+	for gd in ([] if OS.get_cmdline_user_args().has("--paint-guide") else layout.get("geysers", [])):
+		var gy := SoulGeyser.new()
+		gy.setup(gd)
+		hazards.add_child(gy)
 	if not dungeon.shock_cells.is_empty():
 		var sf := ShockFloor.new()
 		sf.setup(dungeon.shock_cells)
@@ -179,7 +185,7 @@ func _layout() -> Dictionary:
 		return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
 	var paints: Array = LayoutTemple.PAINTS_V3 if OS.get_cmdline_user_args().has("--paint-set=v3") else LayoutTemple.PAINTS
 	return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS, "paints": paints,
-		"terraces": LayoutTemple.TERRACES, "enclose": LayoutTemple.ENCLOSE}
+		"terraces": LayoutTemple.TERRACES, "enclose": LayoutTemple.ENCLOSE, "geysers": LayoutTemple.GEYSERS}
 
 
 func _layer(n: String, z: int) -> Node2D:

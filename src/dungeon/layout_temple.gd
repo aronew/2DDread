@@ -68,23 +68,35 @@ extends RefCounted
 ## Legionnaire, skulls and witches; a frenzied elite Legionnaire with hounds), then a
 ## chest and the portal.
 
+## Room 6, THE ISLES OF LETHE (columns 100-122, rows 3-15): a different kind of room, a
+## soul-fire lake. A corridor (rows 7-9) from the Hall of Shades' right edge enters the west
+## quay; bridges run from it to a central isle (the reward chest lands there) and on to
+## the east quay with the exit portal between two braziers. A back ledge carries a bone
+## nest and is split by rubble, so walkers must take the bridges; a second nest sits on a
+## little south isle reached by its own bridge. A balustrade closes the front of the lake.
+## Soul-fire geysers (GEYSERS) erupt beside the three bridges in turn, burning anyone on
+## them, enemies included. Hex Witches and Flaming Skulls fly over the fire. Fight: hounds
+## on the isle and witches on the far quay with the nests live; a shielded elite
+## Legionnaire with skulls; a volatile elite with hounds; then the chest and the portal.
+## (The lake must stay enclosed: see CLAUDE.md, "Soul-fire lake and geysers".)
+
 const MAP := [
 	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OPPPOPWPOPPPO    OPMPOPWPOWMWOPWPOMO",
 	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:    P:::::k:::::::k::::",
 	"M:::::::::::::::::::::::::P::O:  ::O::::::P::O:::::O:::::::P::::::::::::::::::",
-	"W::::::::::::::::k:::::::::::::  ::::::::::hhhh:=l::::::::::hhhhhhh:l:::::::::",
-	"M::::::::o:::::::::p:::::::::::BB:::::::::::::::=:::::::::::::o:::::::::::n:::      OMWMOPWPOMWMOPWO",
-	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b      W:k:::n:::n:::k:",
-	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::      Mb::::::::::*X*:",
-	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::      O::hhhhhhhhhhh::",
-	"M::::S::::::::::::::::      ::::::           ::::::::           _____///______      W:::W:n:::::W:::",
-	"Wn  B  B    ::::w:::::                                           _____///______     M:::::::::::::::",
-	"M:  B  B    :::::::::                                              P:k::::k:::::    W:::::::o:::::::",
-	"W:::::::::::::::::::k:                                             M::::::::::::    O:::::::::::::b:",
-	"M::Q::,::::::::::::::                                              P::::o:::::::    M:::::::::::::::",
-	"W:n:::::::::::w::::n                                               M::O:::::O:::::::W:::W:::::n:W:=:",
-	" :::Q:::::,:::::::::                                               W:::::=:::::::::::::hhhhhhhhhhh::",
-	"   ::::::::::::::::                                                Ok::::=::::::::::::::o:::o:::o:k:",
+	"W::::::::::::::::k:::::::::::::  ::::::::::hhhh:=l::::::::::hhhhhhh:l:::::::::                          OMWMOPWMOWMWOPWMOPO",
+	"M::::::::o:::::::::p:::::::::::BB:::::::::::::::=:::::::::::::o:::::::::::n:::      OMWMOPWPOMWMOPWO    W:n::k::xxxe::::::k",
+	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b      W:k:::n:::n:::k:    M:::    x       :::",
+	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::      Mb::::::::::*:*:    W:o:   ::::    :*::",
+	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::      O::hhhhhhhhhhh:::::::::    :::Q:   :X::",
+	"M::::S::::::::::::::::      ::::::           ::::::::           _____///______      W:::W:n:::::W:::::::::::BBB:::::   :*::",
+	"Wn  B  B    ::::w:::::                                           _____///______     M:::::::::::::::::::::::   :*:::BBB::k:",
+	"M:  B  B    :::::::::                                              P:k::::k:::::    W:::::::o:::::::    W::    :Qo::   ::::",
+	"W:::::::::::::::::::k:                                             M::::::::::::    O:::::::::::::b:    M:n    :::::   :n::",
+	"M::Q::,::::::::::::::                                              P::::o:::::::    M:::::::::::::::    Wb:       B     ::b",
+	"W:n:::::::::::w::::n                                               M::O:::::O:::::::W:::W:::::n:W:=:    O:k      :::    :::",
+	" :::Q:::::,:::::::::                                               W:::::=:::::::::::::hhhhhhhhhhh::    W::      :e:     ::",
+	"   ::::::::::::::::                                                Ok::::=::::::::::::::o:::o:::o:k:       ||||||||||||||",
 	"      ::::::::::                                                   W::O:::::O:::    ::::::::::::::::",
 	"                                                                   M:b:::::::k::",
 	"                                                                   P:::::::::n::",
@@ -164,8 +176,29 @@ const ROOMS := [
 			{"trigger": {"remaining": 2}, "spawn": [["brute", 1, {"elite": ["frenzied"]}], ["mite", 4], ["bloater", 1]], "far": true},
 		],
 		"reward": "chest",
+	},
+	{
+		# a soul-fire lake: the west quay and the east quay are joined only by bridges over a
+		# central isle; Hex Witches and Flaming Skulls cross the fire, everyone else uses the
+		# bridges, where the geysers (GEYSERS) erupt in turn
+		"id": "lethe", "name": "THE ISLES OF LETHE", "rect": [105, 4, 122, 14], "lock": false,
+		"beats": [
+			{"trigger": "enter", "spawn": [["mite", 4, {"area": [111, 6, 115, 11]}], ["spitter", 2, {"area": [119, 4, 122, 14]}]], "far": true, "nests": true},
+			{"trigger": {"remaining": 2}, "spawn": [["brute", 1, {"elite": ["shielded"], "area": [111, 6, 115, 11]}], ["bloater", 3], ["spitter", 2, {"area": [119, 4, 122, 14]}]], "far": true},
+			{"trigger": {"remaining": 2}, "spawn": [["brute", 1, {"elite": ["volatile"], "area": [119, 4, 122, 14]}], ["mite", 4], ["bloater", 2]], "far": true},
+		],
+		"reward": "chest",
 		"exit": true,
 	},
+]
+
+## Soul-fire geysers (SoulGeyser): each erupts out of a lake cell ("from") over the bridge
+## cell beside it ("at"), on a cycle with a red ground warning first; they take turns so a
+## bridge is never blocked for long, and they burn enemies as well as the player.
+const GEYSERS: Array = [
+	{"from": [109, 7], "at": [109, 8], "offset": 0.0},    # west bridge
+	{"from": [117, 10], "at": [117, 9], "offset": 0.5},   # east bridge
+	{"from": [113, 12], "at": [114, 12], "offset": 0.25}, # south bridge, to the nest isle
 ]
 
 ## Changes of floor level (Terrace): room 4's gallery drops two levels (3.27 m) to the

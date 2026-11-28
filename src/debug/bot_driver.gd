@@ -160,6 +160,15 @@ func _log() -> void:
 			if is_instance_valid(e) and e.alive:
 				left.append("%s@%s:%s" % [e.data.id, Iso.cell_of(e.gpos), Enemy.S.keys()[e.state]])
 		print("[bot]   left: ", ", ".join(left))
+	# active nests keep a room from clearing: where they are and how hurt
+	var ns: Array = []
+	for pr in Game.dungeon.props:
+		if pr.alive and pr.nest_active:
+			ns.append("%s hp %d" % [Iso.cell_of(pr.gpos), int(pr.hp)])
+	if not ns.is_empty():
+		var t = _pick_target(pl)
+		var tn: String = "-" if t == null else ("nest" if t is Prop else String(t.data.id))
+		print("[bot]   nests: ", ", ".join(ns), "  target: ", tn)
 
 
 # ------------------------------------------------------------------ brain
@@ -179,8 +188,28 @@ func state(p) -> Dictionary:
 		_fight(p, target, s, dt)
 	else:
 		_navigate(p, s, dt)
+	_avoid_geysers(p, s)
 	s["melee_held"] = _hold_t > 0.0
 	return s
+
+
+## Like a player reading the red ring: don't step into a geyser that is warning or erupting,
+## and get out of one (dash if it is about to blow) when standing in it.
+func _avoid_geysers(p, s: Dictionary) -> void:
+	var mv: Vector2 = s["move"]
+	var here := SoulGeyser.danger_at(get_tree(), p.gpos, p.radius + Iso.m(0.3))
+	if here:
+		var away: Vector2 = (p.gpos - here.hit_g).normalized()
+		if away == Vector2.ZERO:
+			away = Vector2.RIGHT
+		# leave along the way we were going if that also leads out, else straight out
+		s["move"] = (mv * 0.6 + away).normalized() if mv.dot(away) > -0.2 else away
+		if not no_dodge and p.dash_charges > 0 and _dash_t <= 0.0 and here._phase == 1 and here._state(here._t).y > 0.6:
+			s["dash"] = true
+			_dash_t = 0.6
+		return
+	if mv != Vector2.ZERO and SoulGeyser.danger_at(get_tree(), p.gpos + mv * Iso.m(1.2), p.radius):
+		s["move"] = Vector2.ZERO   # wait at the bridge end for it to pass
 
 
 func _pick_target(p):
@@ -249,8 +278,8 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 	var want := 0
 	if dist < Iso.m(4.0):
 		want = 1
-	elif dist < Iso.m(8.0) and p.weapons[2] and not p.weapons[2].overheated:
-		want = 2
+	elif dist < Iso.m(8.0) and p.weapons[2] and not p.weapons[2].overheated and not t is Prop:
+		want = 2   # (the Stormcaller's arcs only find enemies: nests and urns need bullets)
 	if p.cur != want and p.weapons[want] != null:
 		s["weapon_%d" % (want + 1)] = true
 	var w = p.cur_weapon()
