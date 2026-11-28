@@ -380,6 +380,14 @@ func _navigate(p, s: Dictionary, dt: float) -> void:
 			nest_c = Iso.cell_of(pr.gpos)
 	if nest_c.x != -999:
 		target_cell = nest_c
+	# enemies left but none in sight (behind a column): go and find the nearest one
+	if target_cell.x == -999 and dir_node.active != null:
+		var best_d := INF
+		for e in Game.enemies:
+			if e.alive and not e.data.flying and not Game.dungeon.walk_blocked(Iso.cell_of(e.gpos)) \
+					and e.gpos.distance_to(p.gpos) < best_d:
+				best_d = e.gpos.distance_to(p.gpos)
+				target_cell = Iso.cell_of(e.gpos)
 	while target_cell.x == -999 and _route_i < _route.size():
 		var id: String = _route[_route_i]
 		if id == "exit":

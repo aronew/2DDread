@@ -187,7 +187,10 @@ They are reference only and not shipped art.
 All of this is playable, and a bot plays the whole route without errors:
 
 - **Player (gunslinger):**
-  - Responsive movement and a 2-charge dash with i-frames.
+  - Responsive movement and a 2-charge dash with i-frames. The dash's speed carries into the
+    run and bleeds off gently (`DASH_CARRY`, `CARRY_DECAY_M`), presses are buffered so dashes
+    chain (`DASH_BUFFER`), and a kill during or just after a dash refunds a charge
+    (`DASH_KILL_WINDOW`).
   - Twin-stick aim: mouse soft-lock (onto enemies, and onto breakable props such as nests
     and urns: shots fly at muzzle height, so without it a diagonal shot at a low prop
     passes visually through it and misses), or stick with aim assist.
@@ -236,6 +239,24 @@ All of this is playable, and a bot plays the whole route without errors:
   modular (pits from any void shape, bridges from `B` cells, walls by legend).
 - **Presentation:**
   - Pooled VFX: particles, lights, decals, telegraphs.
+  - **Combat feel (2026-11-28, the owner asked for exaggerated, epic, satisfying combat):**
+    - Muzzle flashes are layered and big (`VFX.muzzle`, `MUZZLE_BOOST`): a fire cone, a hot
+      inner tongue, a white-hot cross flare (`T.star`), a bloom and a burst of light. They use
+      pooled, animated flash layers (`VFX.flash_layer`, 48 sprites), never new nodes per shot.
+      Rapid-fire guns get less light so the floor doesn't glow constantly.
+    - Bullets and pellets draw a tapering ribbon of light along their path
+      (`ProjectileSystem.TRAIL_LEN`, `_ribbon`); a spent bullet's trail lingers for
+      `AFTERGLOW_T`. The rail beam is thicker and lasts 0.45 s; lightning has a soft halo
+      (`VFX.LIGHTNING_BOOST`). Impacts use star flashes and more sparks.
+    - Hits squash and stretch the enemy (`Enemy._hit_punch`). Kills fling the corpse along
+      the blow with a hop and a spin while it burns away, pop a white-hot star and a ring,
+      and send green soul motes arcing into the gunslinger (`VFX.soul_streaks`).
+    - `KillFeel` (`src/vfx/kill_feel.gd`): 3+ kills within 0.8 s call out CARNAGE /
+      MASSACRE / ANNIHILATION / APOCALYPSE with a forced hit-stop and a camera punch; an
+      elite's death and the last kill of an encounter trigger `Game.slowmo` (real-time
+      slow-motion that eases back to full speed; hit-stops still freeze on top of it).
+    - The gunslinger leans into runs and stretches into dashes (`PlayerVisual`), a dash
+      leaves a golden light streak (`DashStreak`), and the camera leads along the run.
   - Hit-stop, trauma shake, HDR glow, post FX.
   - Normal-mapped dynamic 2D lights.
   - Green soul-fire abyss shader.
@@ -292,7 +313,9 @@ data/weapons, data/enemies   .tres definitions — tune numbers here, not in cod
 - **Collision:** custom grid collision and DDA raycasts (not physics bodies) for actors
   and projectiles. Enemy AI uses a flow field toward the player plus soft separation;
   stepping into a cell with a standing prop costs more (`Dungeon.PROP_FLOW_COST`), so
-  enemies walk around props instead of getting stuck pushing into them. Still keep props
+  enemies walk around props instead of getting stuck pushing into them, and they only walk
+  straight at the player when a body-wide corridor is clear (`Enemy._clear_walk`), so they
+  don't grind against a column's corner. Still keep props
   from boxing in corners: the bot log prints where the last enemies are (`left:`) when a
   room stalls.
 - **Combat routing:** all player damage goes through `Combat.hit_enemy()`, so the
@@ -555,7 +578,9 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
 - **Don't break the light model:**
   - Sprites are pre-shaded, so `CanvasModulate` ambient stays near-neutral (0.9–1.0).
   - Lights add highlights only.
-  - Explosion and ring VFX must stay modest. HDR bloom turns big additive sprites into
+  - Explosion and ring VFX must stay modest (the 2026-11-28 feel pass made flashes,
+    tracers and kills deliberately big but short-lived: keep new effects brief, so the fight
+    stays readable). HDR bloom turns big additive sprites into
     screen-filling blobs.
 - **Readability rules learned the hard way:**
   - Decorative floor art must never look like telegraphs (red rings) or pickups

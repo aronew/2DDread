@@ -35,6 +35,9 @@ var user_chose_preset := false   # true once a preset was saved/picked; disables
 
 var _hitstop_until := 0
 var _hitstop_cooldown_until := 0
+var _slowmo_start := 0
+var _slowmo_until := 0
+var _slowmo_scale := 1.0
 
 
 func _ready() -> void:
@@ -44,10 +47,33 @@ func _ready() -> void:
 
 
 func _process(_dt: float) -> void:
-	if _hitstop_until > 0 and Time.get_ticks_msec() >= _hitstop_until:
-		Engine.time_scale = 1.0
+	var now := Time.get_ticks_msec()
+	if _hitstop_until > 0 and now >= _hitstop_until:
 		_hitstop_until = 0
+		Engine.time_scale = 1.0
+	if _hitstop_until == 0 and _slowmo_until > 0:
+		if now >= _slowmo_until:
+			_slowmo_until = 0
+			Engine.time_scale = 1.0
+		else:
+			# hold the slow-motion, then ease back to full speed over the last 40%
+			var total := float(_slowmo_until - _slowmo_start)
+			var k := clampf(float(_slowmo_until - now) / maxf(1.0, total * 0.4), 0.0, 1.0)
+			Engine.time_scale = lerpf(1.0, _slowmo_scale, k)
 	grid.rebuild(enemies)
+
+
+## A short dramatic slow-motion (real seconds), for big moments only: the last kill of an
+## encounter, a massacre. Hit-stops still freeze on top of it.
+func slowmo(duration: float, scale := 0.3) -> void:
+	if not hitstop_enabled:
+		return
+	var now := Time.get_ticks_msec()
+	_slowmo_start = now
+	_slowmo_until = now + int(duration * 1000.0)
+	_slowmo_scale = scale
+	if _hitstop_until == 0:
+		Engine.time_scale = scale
 
 
 ## Freeze-frame on impact. Kept short, shallow and rare: frequent freezes read

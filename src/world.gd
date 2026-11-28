@@ -170,6 +170,9 @@ func build_level() -> void:
 		player.get_parent().remove_child(player)
 	entities.add_child(player)
 	player.spawn_at(Iso.cell_center(dungeon.start_cell))
+	var kf := KillFeel.new()
+	kf.name = "KillFeel"
+	level_root.add_child(kf)
 	director = EncounterDirector.new()
 	director.name = "Director"
 	level_root.add_child(director)

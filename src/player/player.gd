@@ -11,7 +11,10 @@ const DASH_SPEED_M := 34.0
 const DASH_TIME := 0.18           # 6.1 m
 const DASH_IFRAMES := 0.26
 const DASH_RECHARGE := 0.8
-const DASH_CARRY := 1.3           # you come out of a dash this much faster than a run
+const DASH_CARRY := 1.45          # you come out of a dash this much faster than a run...
+const CARRY_DECAY_M := 8.0        # ...and keep that momentum, bleeding it off at this m/s^2
+const DASH_BUFFER := 0.16         # a dash pressed this soon before one is possible still fires
+const DASH_KILL_WINDOW := 0.45    # a kill during or this soon after a dash refunds a charge
 const STEP_T := 0.26              # footstep dust while running
 const AMMO_MAX := {"light": 420, "shells": 64, "cells": 30}
 const BACKPACK_SIZE := 24
@@ -52,6 +55,8 @@ var _regen_delay := 0.0
 var _swap_t := 0.0
 var _launcher_t := 0.0
 var _afterimage_t := 0.0
+var _dash_buffer := 0.0
+var _streak: DashStreak
 var _last_fire_t := 0.0
 var _step_t := 0.0
 var _move_input := Vector2.ZERO
@@ -75,6 +80,7 @@ func _ready() -> void:
 	on_stats_changed()
 	hp = max_hp
 	visual.set_torso(weapons[cur].data.torso)
+	Events.enemy_killed.connect(_on_enemy_killed)
 
 
 func _starter(id: StringName) -> Weapon:
@@ -236,8 +242,15 @@ func _aim_assist(d: Vector2) -> Vector2:
 func _update_move(s: Dictionary, dt: float) -> void:
 	var mv: Vector2 = s.get("move", Vector2.ZERO)
 	_move_input = mv.limit_length(1.0)
-	if s.get("dash", false) and dash_charges > 0 and _dash_t <= 0.0:
+	# buffered dash: a press during a dash (or just before a charge is back) still fires,
+	# so dashes chain without frame-perfect timing
+	if s.get("dash", false):
+		_dash_buffer = DASH_BUFFER
+	_dash_buffer -= dt
+	if _dash_buffer > 0.0 and dash_charges > 0 and _dash_t <= 0.0:
+		_dash_buffer = 0.0
 		_start_dash()
+	_update_streak()
 	if _dash_t > 0.0:
 		_dash_t -= dt
 		# fast at first, easing at the end, so the dash snaps out and lands
@@ -255,10 +268,16 @@ func _update_move(s: Dictionary, dt: float) -> void:
 			Events.dashed.emit(_dash_from, gpos)
 	else:
 		var target := _move_input * _max_speed()
-		var accel := Iso.m(ACCEL_M) if _move_input.length() > 0.05 else Iso.m(DECEL_M)
-		if target.dot(vel) < 0.0:
-			accel *= 1.7
-		vel = vel.move_toward(target, accel * dt)
+		var spd := vel.length()
+		if spd > _max_speed() * 1.02 and _move_input.length() > 0.3 and vel.normalized().dot(_move_input.normalized()) > 0.3:
+			# riding the dash's momentum: steer it toward the stick, bleed the extra off gently
+			var keep := move_toward(spd, _max_speed(), Iso.m(CARRY_DECAY_M) * dt)
+			vel = vel.normalized().slerp(_move_input.normalized(), minf(1.0, dt * 9.0)) * keep
+		else:
+			var accel := Iso.m(ACCEL_M) if _move_input.length() > 0.05 else Iso.m(DECEL_M)
+			if target.dot(vel) < 0.0:
+				accel *= 1.7
+			vel = vel.move_toward(target, accel * dt)
 	_footsteps(dt)
 	var motion := vel * dt + _extern_motion
 	_extern_motion = Vector2.ZERO
@@ -307,12 +326,35 @@ func _start_dash() -> void:
 	VFX.burst_sprite(VFX.T.ring, feet, Color(1.6, 1.5, 1.4, 0.55), Vector2(0.12, 0.12 * Iso.K), Vector2(0.55, 0.55 * Iso.K), 0.2)
 	VFX.burst_sprite(VFX.T.spark, feet + sdir * Iso.m(3.0) + Vector2(0, -Iso.h(0.9)), Color(1.4, 1.3, 1.2, 0.35),
 		Vector2(1.0, 0.25), Vector2(Iso.m(6.0) / 32.0, 0.06), 0.22, true, sdir.angle())
-	VFX.light_flash(Iso.lift(gpos, 1.0), Color(0.9, 0.8, 0.7), 1.0, 3.0, 0.15)
+	VFX.light_flash(Iso.lift(gpos, 1.0), Color(1.0, 0.8, 0.5), 1.6, 3.6, 0.18)
+	VFX.flash_layer(VFX.T.star, Iso.lift(gpos, 0.9), sdir.angle(), Color(2.4, 2.0, 1.4, 0.8),
+		Vector2(0.3, 0.2), Vector2(1.2, 0.5), 0.12)
 	if VFX.camera:
 		VFX.camera.punch(0.012)
 		VFX.kick(sdir, 5.0)
 	if VFX.post:
 		VFX.post.shockwave(feet, 70.0, 0.2, 0.45)
+
+
+## The golden light streak a dash leaves (it outlives the dash by a moment).
+func _update_streak() -> void:
+	if not is_instance_valid(_streak):
+		if VFX.fx == null or not is_instance_valid(VFX.fx):
+			return
+		_streak = DashStreak.new()
+		VFX.fx.add_child(_streak)
+	_streak.feed(Iso.lift(gpos, 0.9), dashing())
+
+
+## Killing on the move refunds a dash: aggression keeps you mobile.
+func _on_enemy_killed(_e, _info) -> void:
+	if not alive or dash_charges >= dash_max:
+		return
+	if dashing() or _since_dash < DASH_KILL_WINDOW:
+		dash_charges += 1
+		_dash_recharge_t = 0.0
+		VFX.flash_layer(VFX.T.ring, Iso.to_screen(gpos), 0.0, Color(2.2, 1.7, 0.8, 0.8),
+			Vector2(0.15, 0.15 * Iso.K), Vector2(0.6, 0.6 * Iso.K), 0.22)
 
 
 func _push_from_enemies(_dt: float) -> void:

@@ -240,7 +240,8 @@ func _fire(owner, charge_factor: float) -> void:
 			Game.projectiles.spawn(p)
 	var ms: Vector2 = owner.muzzle_screen()
 	VFX.muzzle(ms, dir, {"color": data.muzzle_color, "scale": data.muzzle_scale, "wide": data.muzzle_wide,
-		"light": data.muzzle_light, "range": 3.5 + data.muzzle_scale * 2.0, "sparks": 0.25 if data.pellets > 1 else 0.0})
+		"light": data.muzzle_light, "range": 3.5 + data.muzzle_scale * 2.0, "sparks": 0.25 if data.pellets > 1 else 0.0,
+		"rapid": data.fire_interval < 0.15})
 	if data.muzzle_fx != "":
 		VFX.muzzle_fx(data.muzzle_fx, ms, dir, data.muzzle_color, charge_factor)
 	if not data.hitscan and data.proj_kind != "grenade":
