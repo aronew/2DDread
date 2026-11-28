@@ -1,0 +1,17 @@
+{
+ "name": "player_idle",
+ "frame_w": 260,
+ "frame_h": 290,
+ "origin": [
+  130,
+  240
+ ],
+ "rows": 16,
+ "cols": 6,
+ "files": {
+  "color": "player_idle_c.png",
+  "normal": "player_idle_n.png"
+ },
+ "dirs": 16,
+ "frames": 6
+}

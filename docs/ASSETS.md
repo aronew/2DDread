@@ -87,6 +87,8 @@ that matches Godot's `Light2D.height` model:
 | `player/player_saber_<light\|heavy\|thrust>` | 16 dirs × 5 / 6 / 2 frames | torso shown while the saber swings (`PlayerVisual.SWING_SEQ` maps swing time to frames; the return cut plays `light` backwards); has an emission layer (the blade's molten edge) |
 | `player/player_dash` | 16 dirs × 3 frames (push off, flight, landing) | the whole body, shown on the legs sprite with the torso hidden while dashing |
 | `player/player_death` | 16 dirs × 5 frames (hit, knees buckle, falling, hits the ground, lying) | the whole body, shown on the legs sprite with the torso hidden; row = the direction he faces (toward the killing blow), he falls away from it |
+| `player/player_hit` | 16 dirs × 3 frames (the blow lands, stagger, recover) | the whole body flinching; row = the direction he faces (toward the attacker) |
+| `player/player_idle` | 16 dirs × 6 frames (a loop) | the whole body at rest with the twin pistols lowered; row = the aim direction |
 | `ui/portrait.png` | single image (256×256) | HUD portrait shown in the gold diamond (the inscribed diamond is visible); made from character art with `tools/ui/portrait_from_art.py` |
 | `enemies/<name>_<anim>` | 16 dirs × N frames | names come from `EnemyData.sheet_move` / `sheet_attack` (hound, witch, legion, skull) |
 | `env/floor_tiles` | 1 row × N kinds | 264×184 frames, origin (132,70); slab sides hang below the diamond so platform edges form automatically |

@@ -402,6 +402,22 @@ func _parse_args() -> void:
 				elif pr.destructible():
 					var d := DamageInfo.make(9999.0, DamageInfo.Type.PHYSICAL, player)
 					pr.take_damage(d))
+	if opts.has("hit-at"):
+		# dev: a 10-damage hit from where the player aims after N seconds, then every 1.5 s
+		# (to look at the hit reaction)
+		var hit_fn := func():
+			if player.alive:
+				var d := DamageInfo.make(10.0, DamageInfo.Type.PHYSICAL, null)
+				d.direction = -player.aim_dir
+				d.knockback = Iso.m(2.0)
+				player.take_damage(d)
+		get_tree().create_timer(float(opts["hit-at"])).timeout.connect(func():
+			hit_fn.call()
+			var tm := Timer.new()
+			tm.wait_time = 1.5
+			tm.timeout.connect(hit_fn)
+			add_child(tm)
+			tm.start())
 	if opts.has("die-at"):
 		# dev: the player drops dead after N seconds, knocked back from where he aims (to
 		# look at the death animation; with --look it plays in an empty room)

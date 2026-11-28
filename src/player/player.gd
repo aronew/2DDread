@@ -426,7 +426,7 @@ func switch_weapon(i: int) -> void:
 
 func on_weapon_fired(w: Weapon, charge: float) -> void:
 	_last_fire_t = 0.0
-	visual.end_swing()
+	visual.fired()
 	visual.muzzle_alt = not visual.muzzle_alt
 	visual.kick(w.data.recoil_kick * (0.5 + charge * 0.5), aim_dir)
 	VFX.shake(w.data.shake * (0.5 + charge * 0.5))
@@ -497,6 +497,7 @@ func take_damage(info: DamageInfo) -> void:
 		_last_hit_dir = info.direction
 	_regen_delay = 4.0
 	if not info.is_dot:
+		visual.hit(info.direction, amt)
 		_hurt_iframes = 0.12 if amt < 20.0 else 0.35
 		vel += info.direction * info.knockback * 0.6
 		Audio.play("player_hurt", gpos)

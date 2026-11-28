@@ -10,6 +10,8 @@ saber  : torso swapped in while the Hellfire Saber swings: light (5 frames), hea
 dash   : the whole body in a low lunge, 16 directions x 3 frames, shown instead of both
          layers while dashing                        (-- dash)
 death  : the whole body falling onto its back, 16 directions x 5 frames (-- death)
+hit    : the whole body flinching from a blow, 16 directions x 3 frames  (-- hit)
+idle   : the whole body at rest, pistols lowered, breathing, 16 x 6 loop (-- idle)
 
 Both layers share the same origin (feet) so they composite exactly.
 """
@@ -468,9 +470,9 @@ DEATH_POSES = (
 )
 
 
-def pose_death(M, pelvis, legs, tails, troot, t, head, hat, scarf_tails, pose):
-    """Pose the whole body for one death frame; returns the objects it made (arms,
-    pistols, the scarf spread on the ground)."""
+def pose_body(M, pelvis, legs, tails, troot, t, head, hat, scarf_tails, pose):
+    """Pose the whole body for one full-body frame (death, hit reaction); returns the
+    objects it made (arms, pistols, the scarf spread on the ground)."""
     fwd, pz, pitch, lean = pose["fwd"], pose["pz"], pose["pitch"], pose["lean"]
     pelvis.location = (fwd, 0, pz)
     pelvis.rotation_euler = (0, -pitch, 0)
@@ -507,7 +509,8 @@ def pose_death(M, pelvis, legs, tails, troot, t, head, hat, scarf_tails, pose):
         for side, hand in ((-1, pose["hands"][0]), (1, pose["hands"][1])):
             _arm(M, t, (0.0, 0.27 * side, 0.54), Vector(hand), side)
             if pose["guns"]:
-                _pistol_in_hand(M, t, hand, (0.3 * side, 0.7, 1.3 * side))   # flung out, pointing down
+                gr = pose.get("gun_rot", (0.3, 0.7, 1.3))   # default: flung out, pointing down
+                _pistol_in_hand(M, t, hand, (gr[0] * side, gr[1], gr[2] * side))
             else:   # dropped beside him, lying on their sides
                 g = _pistol(M, troot, Vector((fwd - 0.45, 0.82 * side, 0.03)), "gun_dropped")
                 g.rotation_euler = (math.pi / 2, 0, 0.9 * side + 0.3)
@@ -521,7 +524,62 @@ def pose_death(M, pelvis, legs, tails, troot, t, head, hat, scarf_tails, pose):
     return _created_by(make)
 
 
-def render_death():
+# The hit reaction (full body, facing the attacker): the blow snaps him back, he
+# staggers, and recovers toward his aiming stance. Same keys as DEATH_POSES; gun_rot
+# turns the pistols (default: flung out, pointing down).
+HIT_POSES = (
+    dict(fwd=-0.08, pz=0.9, pitch=0.1, lean=-0.3, head=-0.35, L=(-0.1, 0.25, 0.0), R=(0.35, 0.3, 0.0),
+         hands=((0.12, -0.5, 0.38), (0.1, 0.5, 0.42)), guns=True, hat=None),                # the blow lands
+    dict(fwd=-0.12, pz=0.86, pitch=0.0, lean=0.12, head=0.2, L=(-0.3, 0.55, 0.0), R=(0.3, 0.5, 0.0),
+         hands=((0.2, -0.36, 0.22), (0.2, 0.36, 0.26)), guns=True, hat=None,
+         gun_rot=(0.2, 0.9, 0.6)),                                                           # stagger, hunched
+    dict(fwd=-0.1, pz=0.91, pitch=0.03, lean=0.02, head=0.0, L=(-0.15, 0.25, 0.0), R=(0.15, 0.2, 0.0),
+         hands=((0.35, -0.22, 0.28), (0.33, 0.22, 0.3)), guns=True, hat=None,
+         gun_rot=(0.0, 0.3, 0.1)),                                                           # recovering
+)
+BODY_FRAME = (260, 290, (130, 240))   # idle and hit: standing, so a smaller frame
+IDLE_FRAMES = 6
+
+
+def _rot_about(ob, pivot, euler):
+    """Turn an object whose mesh sits in its parent's space about `pivot` (parent space)."""
+    from mathutils import Euler
+    R = Euler(euler).to_matrix()
+    P = Vector(pivot)
+    ob.rotation_euler = euler
+    ob.location = P - R @ P
+
+
+def pose_idle(M, pelvis, legs, tails, troot, t, head, hat, scarf_tails, f):
+    """One frame of the idle loop: the pistols lowered at his sides like the design, a slow
+    breath (chest rising, head nodding), the coat and scarf stirring in a draught."""
+    p = 2 * math.pi * f / IDLE_FRAMES
+    pose_legs(pelvis, legs, 0, idle=True, tails=tails)
+    pelvis.location = (0, 0, 0.93 + 0.006 * math.sin(p))
+    for i, tl in enumerate(tails):
+        b = tl.rotation_euler
+        tl.rotation_euler = (b[0] + 0.035 * math.sin(p + i * 1.1), b[1] + 0.03 * math.sin(p + i * 0.7 + 1.0), 0)
+    t.location = (0, 0, 0.98 + 0.015 * math.sin(p))
+    t.rotation_euler = (0, 0.015 * math.sin(p), 0)
+    head.rotation_euler = (0, -0.08 + 0.025 * math.sin(p + 0.6), 0)
+    hat.parent = head
+    hat.location = (-0.01, 0, 0.095)
+    hat.rotation_euler = (0, -0.14, 0)
+    for k, st in enumerate(scarf_tails):
+        st.hide_render = False
+        _rot_about(st, (-0.06, 0.0, 0.66), (0.12 * math.sin(p + k), 0.08 * math.sin(p + 1.0 + k),
+                                             0.17 * math.sin(p + 0.5 + k * 0.8)))
+
+    def make():
+        for side, hand in ((-1, (0.05, -0.32, -0.03 + 0.008 * math.sin(p))), (1, (0.05, 0.32, -0.02 + 0.008 * math.sin(p)))):
+            _arm(M, t, (0.0, 0.27 * side, 0.54), Vector(hand), side)
+            _pistol_in_hand(M, t, hand, (0.0, 1.4, 0.12 * side))   # barrel down, like the design
+    return _created_by(make)
+
+
+def _render_body(name, frame, n, poser):
+    """Render a full-body sheet (16 dirs x n frames): poser(f, parts) poses frame f and
+    returns the objects to remove after it."""
     C.reset_scene()
     C.setup_lights()
     M = materials()
@@ -530,20 +588,32 @@ def render_death():
     head = [o for o in t.children if o.name.startswith("head")][0]
     hat = [o for o in head.children if o.name.startswith("hat")][0]
     scarf_tails = [o for o in t.children if o.get("scarf_tail")]
-    fw, fh, org = DEATH_FRAME
+    parts = (M, pelvis, legs, tails, troot, t, head, hat, scarf_tails)
+    fw, fh, org = frame
     C.setup_camera(fw, fh, org)
-    sw = C.SheetWriter("player", "player_death", fw, fh, org, LEG_DIRS, len(DEATH_POSES),
-                       meta={"dirs": LEG_DIRS, "frames": len(DEATH_POSES)})
-    for f, pose in enumerate(DEATH_POSES):
-        objs = pose_death(M, pelvis, legs, tails, troot, t, head, hat, scarf_tails, pose)
+    sw = C.SheetWriter("player", name, fw, fh, org, LEG_DIRS, n, meta={"dirs": LEG_DIRS, "frames": n})
+    for f in range(n):
+        objs = poser(f, parts)
         for d in range(LEG_DIRS):
             a = C.yaw_for_ground_angle(d * 2 * math.pi / LEG_DIRS)
             lroot.rotation_euler = (0, 0, a)
             troot.rotation_euler = (0, 0, a)
             sw.put(d, f, C.render_stylized())
         _remove(objs)
-        print("death frame", f, flush=True)
+        print(name, "frame", f, flush=True)
     sw.save()
+
+
+def render_death():
+    _render_body("player_death", DEATH_FRAME, len(DEATH_POSES), lambda f, P: pose_body(*P, DEATH_POSES[f]))
+
+
+def render_hit():
+    _render_body("player_hit", BODY_FRAME, len(HIT_POSES), lambda f, P: pose_body(*P, HIT_POSES[f]))
+
+
+def render_idle():
+    _render_body("player_idle", BODY_FRAME, IDLE_FRAMES, lambda f, P: pose_idle(*P, f))
 
 
 def render_swings(kinds=("light", "heavy", "thrust")):
@@ -687,3 +757,7 @@ if __name__ == "__main__":
         render_dash()
     if "death" in what:
         render_death()
+    if "hit" in what:
+        render_hit()
+    if "idle" in what:
+        render_idle()
