@@ -48,6 +48,8 @@ func _ready() -> void:
 	T.shard = TexGen.shard()
 	T.flash = TexGen.flash(5)
 	T.flash_wide = TexGen.flash(9)
+	T.star = TexGen.star(4)
+	T.star6 = TexGen.star(6)
 	T.slash = TexGen.slash()
 	T.smoke = TexGen.smoke(64, 3)
 	T.light = Dungeon.make_light_texture()
@@ -128,15 +130,16 @@ func setup(fx_: Node2D, lit_: Node2D, decals_: Node2D, overlay_: Node2D) -> void
 		lb.pivot_offset = Vector2(80, 25)
 		overlay.add_child(lb)
 		_numbers.append(lb)
-	for i in 10:
+	# pooled, animated flash layers (muzzle flashes fire ~11 times a second: no new nodes)
+	for i in 48:
 		var s := Sprite2D.new()
 		s.texture = T.flash
 		s.material = add_mat
 		s.visible = false
 		s.offset = Vector2(44, 0)
 		fx.add_child(s)
-		_flashes.append({"s": s, "t": 0.0})
-	for i in 18:
+		_flashes.append({"s": s, "t": 0.0, "dur": 0.05, "s0": Vector2.ONE, "s1": Vector2.ONE, "a": 1.0})
+	for i in 48:
 		var ln := Line2D.new()
 		ln.material = add_mat
 		ln.width = 5.0
@@ -246,8 +249,14 @@ func _process(dt: float) -> void:
 	for f in _flashes:
 		if f["t"] > 0.0:
 			f["t"] -= dt
+			var fs: Sprite2D = f["s"]
 			if f["t"] <= 0.0:
-				f["s"].visible = false
+				fs.visible = false
+			else:
+				# burst out fast, fade late: reads as a hot flash, not a sprite growing
+				var k: float = 1.0 - f["t"] / f["dur"]
+				fs.scale = f["s0"].lerp(f["s1"], 1.0 - pow(1.0 - k, 3.0))
+				fs.modulate.a = f["a"] * (1.0 - k * k)
 	for b in _bolts:
 		if b["t"] > 0.0:
 			b["t"] -= dt
@@ -356,30 +365,60 @@ func decal(g: Vector2, tex: Texture2D, color: Color, size: float) -> void:
 
 # ------------------------------------------------------------------ composite effects
 
-## Weapon muzzle flash. style: {color, scale, light, range}
-func muzzle(screen_pos: Vector2, gdir: Vector2, style: Dictionary) -> void:
-	var sdir := Iso.to_screen(gdir).normalized()
-	var ang := sdir.angle()
+## One pooled flash layer: a sprite that bursts from s0 to s1 and fades over dur.
+## `off` is the texture offset (the directional flash's origin sits 44 px off centre).
+func flash_layer(tex: Texture2D, screen_pos: Vector2, rot: float, color: Color, s0: Vector2, s1: Vector2,
+		dur: float, off := Vector2.ZERO) -> void:
+	if _flashes.is_empty():
+		return
 	var f: Dictionary = _flashes[_flash_i]
 	_flash_i = (_flash_i + 1) % _flashes.size()
 	var s: Sprite2D = f["s"]
 	s.visible = true
-	s.texture = T.flash_wide if style.get("wide", false) else T.flash
+	s.texture = tex
+	s.offset = off
 	s.position = screen_pos
-	s.rotation = ang + randf_range(-0.08, 0.08)
-	var sc: float = style.get("scale", 1.0) * randf_range(0.85, 1.15)
-	s.scale = Vector2(sc, sc * randf_range(0.8, 1.1))
+	s.rotation = rot
+	s.scale = s0
+	s.modulate = color
+	f["t"] = dur
+	f["dur"] = dur
+	f["s0"] = s0
+	f["s1"] = s1
+	f["a"] = color.a
+
+
+## Weapon muzzle flash. style: {color, scale, light, range, wide, sparks}
+## Big and layered on purpose (the owner wants gunfire to feel epic): a forward cone of
+## fire, a white-hot cross flare, a bloom, a burst of light and a wisp of smoke. It lasts
+## only ~4 frames, so it never hides the fight.
+const MUZZLE_BOOST := 1.75
+
+func muzzle(screen_pos: Vector2, gdir: Vector2, style: Dictionary) -> void:
+	var sdir := Iso.to_screen(gdir).normalized()
+	var ang := sdir.angle()
 	var col: Color = style.get("color", Color(1, 0.8, 0.5))
-	s.modulate = col * 2.0
-	f["t"] = style.get("dur", 0.045)
-	light_flash(screen_pos, col, style.get("light", 1.6), style.get("range", 4.0), 0.07, 60.0)
-	# a hot bloom at the barrel and a wisp of gun smoke drifting off it
-	var gk: float = style.get("scale", 1.0)
-	burst_sprite(T.glow, screen_pos + sdir * 10.0 * gk, col * Color(1.6, 1.4, 1.2, 0.9), Vector2(0.18, 0.18) * gk,
-		Vector2(0.5, 0.42) * gk, 0.08)
-	emit("puff", screen_pos + sdir * 18.0 * gk, ang, Color(0.62, 0.6, 0.58, 0.28), 0.25 + 0.25 * minf(gk, 1.5))
-	if style.get("sparks", 0.0) > 0.0:
-		emit("sparks", screen_pos, ang, col * 2.5, style["sparks"])
+	var gk: float = style.get("scale", 1.0) * MUZZLE_BOOST
+	var wide: bool = style.get("wide", false)
+	var dur: float = style.get("dur", 0.07)
+	var j := randf_range(0.85, 1.15)
+	# the cone of fire, punching forward
+	flash_layer(T.flash_wide if wide else T.flash, screen_pos, ang + randf_range(-0.07, 0.07), col * Color(2.4, 2.2, 2.0, 1.0),
+		Vector2(0.55, 0.5) * gk * j, Vector2(1.15, 0.85 if wide else 0.7) * gk * j, dur, Vector2(44, 0))
+	# a second, hotter and thinner tongue inside it
+	flash_layer(T.flash, screen_pos, ang + randf_range(-0.04, 0.04), Color(2.8, 2.5, 2.1, 0.9),
+		Vector2(0.4, 0.22) * gk, Vector2(0.9, 0.3) * gk, dur * 0.7, Vector2(44, 0))
+	# white-hot cross flare at the barrel
+	flash_layer(T.star, screen_pos, ang + PI * 0.25 + randf_range(-0.3, 0.3), Color(3.0, 2.7, 2.3, 1.0),
+		Vector2(0.25, 0.25) * gk, Vector2(0.75, 0.75) * gk, dur * 0.8)
+	# bloom
+	flash_layer(T.glow, screen_pos + sdir * 14.0 * gk, 0.0, col * Color(1.9, 1.6, 1.3, 0.85),
+		Vector2(0.3, 0.26) * gk, Vector2(1.0, 0.85) * gk, dur * 1.7)
+	# rapid-fire guns keep their light lit almost constantly: boost only the big single shots
+	var lk := 0.75 if style.get("rapid", false) else 1.35
+	light_flash(screen_pos, col, style.get("light", 1.6) * lk, style.get("range", 4.0) * (1.0 if style.get("rapid", false) else 1.3), 0.1, 60.0)
+	emit("puff", screen_pos + sdir * 22.0 * gk, ang, Color(0.62, 0.6, 0.58, 0.32), 0.3 + 0.25 * minf(gk, 2.0))
+	emit("sparks", screen_pos, ang, col * 2.6, maxf(style.get("sparks", 0.0), 0.12))
 
 
 ## Per-weapon flourish on top of the flash (WeaponData.muzzle_fx).
@@ -402,6 +441,56 @@ func muzzle_fx(kind: String, screen_pos: Vector2, gdir: Vector2, col: Color, cha
 				post.shockwave(screen_pos, 150.0, 0.28, 0.8 * charge)
 
 
+## Souls pulled out of a kill into the gunslinger: green motes arcing to the player.
+func soul_streaks(from: Vector2, n: int) -> void:
+	if fx == null or Game.player == null:
+		return
+	for i in n:
+		var m := SoulMote.new()
+		m.texture = T.core
+		m.material = add_mat
+		m.setup(from, i)
+		fx.add_child(m)
+
+
+## One soul mote: a bright green spark on a curve from a kill to the player, with a
+## short streak behind it; a little flash where it arrives.
+class SoulMote extends Sprite2D:
+	var from := Vector2.ZERO
+	var ctrl := Vector2.ZERO
+	var dur := 0.5
+	var t := 0.0
+	var _prev := Vector2.ZERO
+
+	func setup(from_: Vector2, i: int) -> void:
+		from = from_
+		position = from
+		_prev = from
+		ctrl = from + Vector2(randf_range(-150.0, 150.0), randf_range(-190.0, -70.0))
+		dur = randf_range(0.38, 0.6) + i * 0.035
+		t = -i * 0.03
+		modulate = Color(0.7, 2.6, 1.2)
+		scale = Vector2(0.26, 0.26)
+
+	func _process(dt: float) -> void:
+		t += dt
+		var pl = Game.player
+		if pl == null or not is_instance_valid(pl):
+			queue_free()
+			return
+		var u := clampf(t / dur, 0.0, 1.0)
+		var e := u * u
+		var to: Vector2 = pl.position + Vector2(0.0, -Iso.h(1.0))
+		_prev = position
+		position = from.lerp(ctrl, e).lerp(ctrl.lerp(to, e), e)
+		scale = Vector2.ONE * lerpf(0.3, 0.16, u)
+		rotation = (position - _prev).angle()
+		scale.x *= 1.0 + minf(3.0, (position - _prev).length() / 9.0)
+		if u >= 1.0:
+			VFX.flash_layer(VFX.T.glow, to, 0.0, Color(0.6, 2.4, 1.1, 0.7), Vector2(0.2, 0.2), Vector2(0.6, 0.6), 0.12)
+			queue_free()
+
+
 ## Souls leaving a body: green motes rising, more for bigger deaths.
 func souls(g: Vector2, h_m: float, amount := 0.4) -> void:
 	emit("souls", Iso.lift(g, h_m), -PI / 2, Color(0.6, 2.4, 1.1), amount)
@@ -414,32 +503,37 @@ func casing(screen_pos: Vector2, gdir: Vector2, shell := false) -> void:
 	emit("casings", screen_pos, ang, Color(0.85, 0.2, 0.15) if shell else Color(1.0, 0.78, 0.35))
 
 
-## Bullet/beam impact at ground point g and visual height h_m.
+## Bullet/beam impact at ground point g and visual height h_m. Exaggerated: a hit should
+## pop even in a crowd (a star flash, a burst of sparks or blood, a short flare of light).
 func impact(g: Vector2, h_m: float, normal_g: Vector2, style := "metal", color := Color.WHITE) -> void:
 	var sp := Iso.lift(g, h_m)
 	var ang := Iso.to_screen(normal_g).angle() if normal_g != Vector2.ZERO else -PI / 2
+	var rot := randf() * TAU
 	match style:
 		"flesh":
-			emit("blood", sp, ang, color, 0.45)
-			burst_sprite(T.core, sp, color * 2.0, Vector2(0.25, 0.25), Vector2(0.8, 0.8), 0.09)
-			# a sharp white-hot star on contact: the hit reads even in a crowd
-			burst_sprite(T.flash, sp, Color(2.2, 1.9, 1.5, 0.9), Vector2(0.2, 0.2), Vector2(0.5, 0.42), 0.06, true, randf() * TAU)
+			emit("blood", sp, ang, color, 0.6)
+			emit("sparks", sp, ang, Color(3.0, 2.2, 1.4), 0.18)
+			flash_layer(T.glow, sp, 0.0, color * Color(2.2, 2.2, 2.2, 0.9), Vector2(0.3, 0.3), Vector2(1.1, 1.0), 0.1)
+			flash_layer(T.star, sp, rot, Color(2.8, 2.4, 1.9, 1.0), Vector2(0.3, 0.3), Vector2(0.85, 0.85), 0.07)
 		"armor":
-			emit("sparks", sp, ang, Color(3.0, 2.5, 1.6), 0.7)
-			burst_sprite(T.core, sp, Color(3, 2.6, 2.0), Vector2(0.3, 0.3), Vector2(1.0, 1.0), 0.08)
+			emit("sparks", sp, ang, Color(3.0, 2.5, 1.6), 0.9)
+			flash_layer(T.star6, sp, rot, Color(3.2, 2.8, 2.2, 1.0), Vector2(0.35, 0.35), Vector2(1.1, 1.1), 0.08)
+			flash_layer(T.glow, sp, 0.0, Color(2.4, 2.0, 1.4, 0.8), Vector2(0.3, 0.3), Vector2(1.0, 1.0), 0.1)
+			light_flash(sp, Color(1.0, 0.85, 0.6), 1.0, 2.0, 0.08)
 		"energy":
-			emit("electric", sp, ang, Color(1.2, 1.8, 4.0), 0.6)
-			burst_sprite(T.glow, sp, Color(1.2, 1.8, 4.0), Vector2(0.15, 0.15), Vector2(0.6, 0.6), 0.1)
+			emit("electric", sp, ang, Color(1.2, 1.8, 4.0), 0.8)
+			flash_layer(T.glow, sp, 0.0, Color(1.2, 1.8, 4.0, 0.9), Vector2(0.25, 0.25), Vector2(1.1, 1.1), 0.12)
+			flash_layer(T.star, sp, rot, Color(2.0, 2.6, 4.0, 1.0), Vector2(0.3, 0.3), Vector2(0.9, 0.9), 0.08)
 		"shard":
-			emit("sparks", sp, ang, Color(2.6, 0.6, 1.6), 0.4)
-			burst_sprite(T.glow, sp, Color(2.2, 0.5, 1.3), Vector2(0.2, 0.2), Vector2(0.8, 0.8), 0.12)
+			emit("sparks", sp, ang, Color(2.6, 0.6, 1.6), 0.5)
+			flash_layer(T.glow, sp, 0.0, Color(2.2, 0.5, 1.3, 0.9), Vector2(0.25, 0.25), Vector2(1.0, 1.0), 0.13)
 		"acid":
 			emit("blood", sp, -PI / 2, Color(0.5, 1.0, 0.25), 0.5)
-			burst_sprite(T.glow, sp, Color(1.0, 2.6, 0.6), Vector2(0.2, 0.2), Vector2(0.9, 0.9), 0.15)
+			flash_layer(T.glow, sp, 0.0, Color(1.0, 2.6, 0.6, 0.9), Vector2(0.25, 0.25), Vector2(1.0, 1.0), 0.15)
 		_:
-			emit("sparks", sp, ang, color * Color(3.0, 2.2, 1.2), 0.45)
-			burst_sprite(T.core, sp, Color(3, 2.5, 1.8), Vector2(0.2, 0.2), Vector2(0.7, 0.7), 0.07)
-			burst_sprite(T.flash, sp, Color(2.4, 2.0, 1.4, 0.8), Vector2(0.15, 0.15), Vector2(0.42, 0.34), 0.05, true, ang)
+			emit("sparks", sp, ang, color * Color(3.0, 2.2, 1.2), 0.6)
+			flash_layer(T.star, sp, rot, Color(3.0, 2.6, 1.9, 1.0), Vector2(0.25, 0.25), Vector2(0.8, 0.8), 0.07)
+			flash_layer(T.glow, sp, 0.0, Color(2.4, 2.0, 1.4, 0.8), Vector2(0.2, 0.2), Vector2(0.8, 0.75), 0.09)
 			emit("puff", sp, ang, Color(0.55, 0.53, 0.5, 0.35), 0.3)
 
 
@@ -487,7 +581,17 @@ func debris(g: Vector2, size: float, _count: int) -> void:
 	emit("smoke", sp, -PI / 2, Color(0.25, 0.24, 0.24, 0.6), clampf(size * 0.3, 0.2, 1.0))
 
 
+## A lightning bolt: a wide soft halo under a thicker crackling core, and a flash of light
+## where it strikes.
+const LIGHTNING_BOOST := 1.6
+
 func lightning(a: Vector2, b: Vector2, color: Color, width := 5.0, dur := 0.12, jag := 1.0) -> void:
+	_bolt(a, b, color * Color(0.8, 0.9, 1.2, 0.3), width * LIGHTNING_BOOST * 3.6, dur * 1.2, jag * 0.45)
+	_bolt(a, b, color, width * LIGHTNING_BOOST, dur, jag)
+	light_flash(b, color * 0.4, 0.5, 1.8, 0.06)
+
+
+func _bolt(a: Vector2, b: Vector2, color: Color, width: float, dur: float, jag: float) -> void:
 	if _bolts.is_empty():
 		return
 	var e: Dictionary = _bolts[_bolt_i]
@@ -596,11 +700,17 @@ func popup(g: Vector2, h_m: float, text: String, color: Color, size := 30) -> vo
 	lb.text = text
 	lb.modulate = color
 	lb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lb.size = Vector2(400, 50)
-	lb.position = Iso.lift(g, h_m) - Vector2(200, 25)
+	var box := Vector2(maxf(400.0, size * 16.0), size * 1.6)
+	lb.size = box
+	lb.pivot_offset = box * 0.5
+	lb.position = Iso.lift(g, h_m) - box * 0.5
 	overlay.add_child(lb)
 	var tw := lb.create_tween()
 	tw.set_parallel(true)
+	if size >= 44:
+		# big call-outs (CARNAGE...) slam in
+		lb.scale = Vector2(1.6, 1.6)
+		tw.tween_property(lb, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_property(lb, "position:y", lb.position.y - 60.0, 1.1).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tw.tween_property(lb, "modulate:a", 0.0, 0.4).set_delay(0.8)
 	tw.chain().tween_callback(lb.queue_free)

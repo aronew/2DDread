@@ -42,6 +42,7 @@ var stairs := {}          # Vector2i -> true: `/` cells, walkable stairs drawn b
 var tall_walls := {}      # Vector2i -> true: back walls drawn 6 m tall (see _is_back_wall)
 var enclose := false      # set by World from the layout: wall in every open floor edge
 var auto_walls := {}      # Vector2i -> true: walls added by _enclose_floor (not in the layout)
+var pit_cells := {}       # Vector2i -> true: soul-fire pits (enclosed void), when enclosed
 var near_walls := {}      # Vector2i -> true: camera-side walls; they fade out near the player
 var start_cell := Vector2i.ZERO
 var exit_cell := Vector2i(-1, -1)
@@ -139,6 +140,7 @@ func _enclose_floor() -> void:
 	var pits := {}
 	for c in PitFire.find_pits(self):
 		pits[c] = true
+	pit_cells = pits
 	var add := {}
 	for c in floor_kind:
 		if not is_floor(c):
@@ -222,7 +224,11 @@ func is_floor(c: Vector2i) -> bool:
 
 func walk_blocked(c: Vector2i, flying := false) -> bool:
 	if not floor_kind.has(c):
-		return not flying
+		# flyers cross the level's own void (pits, the lake, terrace drops), but in an enclosed
+		# level not the void outside it, or a witch could drift out where nobody can reach her
+		if not flying:
+			return true
+		return not auto_walls.is_empty() and not pit_cells.has(c) and not drops.has(c)
 	var b: int = block.get(c, Block.NONE)
 	if b == Block.NONE:
 		return false

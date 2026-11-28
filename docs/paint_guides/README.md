@@ -12,6 +12,7 @@ the architecture where it is.
 | `temple_02_guide.png` | **current** 1536×1024 frame of the temple room (`--level=temple`), tall back walls, no HUD, no player |
 | `temple_02_lines.png` | the same frame as line art, for generators that follow outlines more strictly |
 | `temple_02_guide.json` | where the frame looks: `world_to_image` maps game positions to image pixels |
+| `lethe_01_guide.png` / `_lines.png` / `_guide.json` | **room 6, THE ISLES OF LETHE** (`--look=112.75,8.25 --zoom=0.49`: the whole room, the corridor from room 5 and room 5's doorway walls in one frame). `lethe_01_painted_sol_jade.webp` is the owner's SOL painting, in the game as `assets/rooms/lethe_jade`. Prompt below |
 | `shades_01_guide.png` / `_lines.png` / `_guide.json` | **room 5, THE HALL OF SHADES** (`--look=90.55,9.05 --zoom=0.525`, the whole hall in one frame). `shades_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/shades_01` (everything left of column 80, i.e. the Undercroft, clipped out). Prompt below |
 | `stair_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, upper half: THE GREAT STAIR** (the gallery and the stair down; `--look=65.94,2.44 --zoom=0.62`). `stair_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/stair_01` (gallery only). It stops at column 76; before import its painted right end (columns 75-76 and the edge lip) was copied one cell further along +i, so the floor reaches column 77 |
 | `undercroft_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, lower half: THE UNDERCROFT** (the hall two levels down; `--look=71.94,12.98 --zoom=0.66`). `undercroft_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/undercroft_01` (everything below the terrace's top edge) |
@@ -286,6 +287,48 @@ python3 tools/rooms/import_room_paint.py /tmp/under.png docs/paint_guides/underc
 few pixels were patched with the step beside them.) Both are in `LayoutTemple.PAINTS`,
 the lower one last. A repainted `stair_01` that includes the gallery's right end
 (columns 76-77: amphorae by the back wall, a fire urn near the edge) would finish the room.
+
+## Prompt for SOL: room 6, the Isles of Lethe
+
+Attach `lethe_01_lines.png` (image 1), the mockup (image 2), `lethe_01_guide.png` (image 3)
+and one of the jade room paintings, e.g. `shades_02_painted_sol_jade.webp` (image 4), so it
+comes out in the current style. Use the temple prompt above with "in the exact style of
+image 4 (image 2 is the overall mood)" and this list:
+
+> What things are:
+> - A temple hall flooded with a lake of bright green soul-fire, the Isles of Lethe. The
+>   large dark areas in image 3 are the lake: paint them as a glowing pool of green flame
+>   a little below the floor, with low stone rims and flames licking up their inner walls,
+>   not as black holes.
+> - The two long walls at the back (top, and left) are towering temple walls, about three
+>   times a person's height: hooded-figure murals with gold laurel branches, arched niches
+>   with green soul-fire, gold Greek-key bands, dark stone blocks up to a heavy cornice,
+>   tall fluted columns against them. A narrow stone ledge runs along the foot of the back
+>   wall; the grey heap in the middle of it is fallen rubble, and a small rubble islet
+>   stands in the fire just below it.
+> - The floor at the far left is the west quay, entered by a stone corridor from the
+>   previous room at the top left. The floor at the far right is the east quay. The big
+>   floor in the middle is the central isle, with two broken columns, a bronze tripod
+>   brazier and laurel-and-skull floor plates. The small floor at the bottom middle is a
+>   little isle.
+> - The three narrow strips edged in gold, with gold sunburst plates at their ends, are
+>   stone bridges over the fire: quay to isle, isle to quay, isle to the little isle.
+> - The white railing along the front is a low stone balustrade at the edge of the lake.
+> - The two low heaps of bones and roots (on the ledge and on the little isle) are bone
+>   nests with a faint green glow. The vase pairs are red-orange Greek amphorae, the lidded
+>   urns are sealed fire urns, the small clusters are lit candles; the two bronze tripod
+>   bowls on the east quay are soul braziers, and the floor between them stays plain stone
+>   (a portal glows there).
+> - The tall walls at the bottom left and right edges are the near walls of the room; keep
+>   them as they are.
+>
+> Light: the lake lights everything green from below; warm pools around the candles; dark
+> corners and a dark ceiling.
+
+Then check alignment with `lethe_01_lines.png`, clip it to room 6's band with
+`tools/rooms/band_clip.py PAINTING docs/paint_guides/lethe_01_guide.json OUT 102 200`,
+import it with `lethe_01_guide.json` as `lethe_jade` with `walls`, and add
+`"res://assets/rooms/lethe_jade"` to `LayoutTemple.PAINTS`.
 
 ## Prompt for SOL: room 5, the Hall of Shades
 

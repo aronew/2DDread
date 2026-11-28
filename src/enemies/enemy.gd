@@ -60,6 +60,11 @@ var _flank := 0.0
 var _affix_t := 0.0
 var yank_to := Vector2.ZERO   # whip drag destination (Lash keeps it next to the player)
 var _yank_t := 0.0
+var _base_scale := Vector2.ONE   # body scale before hit squash
+var _hit_punch := 0.0            # 1 on a hit, decays: squash and stretch
+var _death_vel := Vector2.ZERO   # the corpse is flung along the killing blow
+var _death_spin := 0.0
+var _death_t := 0.0
 
 
 func setup(d: EnemyData, g: Vector2, opts := {}) -> void:
@@ -100,6 +105,7 @@ func _ready() -> void:
 	body.material = mat
 	body.self_modulate = data.body_tint
 	body.scale = Vector2(vs, vs)
+	_base_scale = body.scale
 	add_child(body)
 	glow = Sprite2D.new()
 	glow.region_enabled = true
@@ -146,7 +152,19 @@ func _spawn_fx() -> void:
 
 func _process(dt: float) -> void:
 	if state == S.DEAD:
-		_dissolve = minf(1.0, _dissolve + dt / 0.45)
+		# the corpse flies off along the killing blow, hops and spins while it burns away
+		_death_t += dt
+		if _death_vel != Vector2.ZERO:
+			gpos = Game.dungeon.move_circle(gpos, _death_vel * dt, radius * 0.5, true)
+			_death_vel *= exp(-5.0 * dt)
+			position = Iso.to_screen(gpos)
+		body.rotation += _death_spin * dt
+		_death_spin *= exp(-3.0 * dt)
+		var hop := sin(minf(1.0, _death_t / 0.32) * PI) * 0.35 * clampf(_death_vel.length() / Iso.m(8.0), 0.3, 1.0)
+		body.position.y = -Iso.h(hop)
+		glow.position = body.position
+		glow.rotation = body.rotation
+		_dissolve = minf(1.0, _dissolve + dt / 0.6)
 		mat.set_shader_parameter("dissolve", _dissolve)
 		glow.modulate.a = maxf(0.0, 1.0 - _dissolve * 3.0)
 		shadow.modulate.a = 0.75 * (1.0 - _dissolve)
@@ -214,13 +232,22 @@ func steer_to(target: Vector2, speed: float, dt: float) -> void:
 	var to := target - gpos
 	if to.length() < 4.0:
 		dir = Vector2.ZERO
-	elif data.flying or not Game.dungeon.raycast(gpos, target, "walk").hit:
+	elif data.flying or _clear_walk(target):
 		dir = to.normalized()
 	else:
 		dir = Game.dungeon.flow_dir(gpos)
 		if dir == Vector2.ZERO:
 			dir = to.normalized()
 	desire(dir * speed, dt)
+
+
+## A straight walk to `target` only if a corridor as wide as the body is clear: a thin ray
+## slips past a column's corner that the body then grinds against forever.
+func _clear_walk(target: Vector2) -> bool:
+	var side := (target - gpos).orthogonal().normalized() * radius * 0.9
+	var d := Game.dungeon
+	return not d.raycast(gpos, target, "walk").hit and not d.raycast(gpos + side, target + side, "walk").hit \
+		and not d.raycast(gpos - side, target - side, "walk").hit
 
 
 func desire(v: Vector2, dt: float) -> void:
@@ -287,6 +314,12 @@ func _update_visual(dt: float) -> void:
 		body.region_rect = _sheet_move.region(d, f)
 	glow.region_rect = body.region_rect
 	_flash = maxf(0.0, _flash - dt * 9.0)
+	if _hit_punch > 0.0:
+		# squash on the hit, spring back: hits land with weight
+		_hit_punch = maxf(0.0, _hit_punch - dt * 7.0)
+		var q := sin(_hit_punch * PI * 1.5) * _hit_punch
+		body.scale = _base_scale * Vector2(1.0 + 0.16 * q, 1.0 - 0.12 * q)
+		glow.scale = body.scale
 	var fl := _flash
 	if state == S.STAGGER:
 		fl = maxf(fl, 0.25 + 0.2 * sin(state_t * 30.0))
@@ -380,6 +413,8 @@ func take_damage(info: DamageInfo) -> float:
 			Elite.shield_broken(self)
 	hp -= amt
 	_flash = 1.0 if not info.is_dot else maxf(_flash, 0.35)
+	if not info.is_dot:
+		_hit_punch = minf(1.0, 0.55 + amt / maxf(1.0, max_hp) * 2.5)
 	_show_bar_t = 3.0
 	if info.knockback > 0.0 and info.direction != Vector2.ZERO:
 		var kb := info.knockback / maxf(0.3, data.mass)
@@ -542,6 +577,17 @@ func die(info: DamageInfo) -> void:
 	_attack_frame = -1.0
 	var big := data.death_size >= 2.0 or is_elite
 	var size := data.death_size * (1.4 if info.crit or info.is_explosion or info.execute else 1.0) * (1.3 if is_elite else 1.0)
+	# fling the corpse along the blow (harder for crits and blasts, less for heavies)
+	var dir := info.direction if info.direction != Vector2.ZERO else Vector2.from_angle(randf() * TAU)
+	var force := Iso.m(9.0) * (1.6 if info.crit or info.is_explosion or info.execute else 1.0) / sqrt(maxf(0.5, data.mass))
+	_death_vel = dir * force
+	_death_spin = randf_range(2.5, 5.0) * (1.0 if randf() < 0.5 else -1.0) / sqrt(maxf(0.5, data.mass))
+	_hit_punch = 1.0
+	var core := Iso.lift(gpos, hit_height)
+	VFX.flash_layer(VFX.T.star6, core, randf() * TAU, Color(3.2, 3.0, 2.6, 1.0), Vector2(0.4, 0.4) * size, Vector2(1.6, 1.6) * size, 0.14)
+	VFX.flash_layer(VFX.T.glow, core, 0.0, blood_color * Color(2.4, 2.4, 2.4, 0.9), Vector2(0.5, 0.5) * size, Vector2(2.2, 2.0) * size, 0.22)
+	VFX.ring(gpos, Iso.m(1.3) * size, blood_color.lerp(Color.WHITE, 0.35) * 1.1, 0.28, 0.15)
+	VFX.soul_streaks(core, clampi(int(2 + size * 2.0), 2, 8))
 	VFX.gore(gpos, blood_color, size, info.direction)
 	VFX.light_flash(Iso.lift(gpos, hit_height), blood_color, 1.6 if not big else 3.0, 2.0 + size, 0.3)
 	Audio.play("enemy_death_big" if big else "enemy_death", gpos)

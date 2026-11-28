@@ -114,6 +114,23 @@ static func flash(spikes := 5) -> Texture2D:
 
 
 ## Crescent slash arc for melee, opening toward +X.
+## A centred star with thin rays (a lens-flare cross): the white-hot heart of a muzzle
+## flash or a kill pop.
+static func star(spikes := 4) -> Texture2D:
+	var size := 128
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var c := size * 0.5
+	for y in size:
+		for x in size:
+			var p := Vector2(x - c + 0.5, y - c + 0.5)
+			var r := p.length() / c
+			var ang := atan2(p.y, p.x)
+			var ray := pow(absf(cos(ang * spikes * 0.5)), 40.0)
+			var a := exp(-r * r * 30.0) + ray * clampf(1.0 - r, 0, 1) * 0.9
+			img.set_pixel(x, y, Color(1, 1, 1, clampf(a, 0, 1)))
+	return ImageTexture.create_from_image(img)
+
+
 static func slash() -> Texture2D:
 	var size := 256
 	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)

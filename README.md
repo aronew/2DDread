@@ -88,8 +88,10 @@ painted in the style of the concept art, joined by gold bridges over the abyss:
 3. The Bone Altar: bone nests spawn hounds until you break them.
 4. The Great Stair and the Undercroft: a gallery, a grand stair down, and a sunken hall
    where witches shoot down from above.
-5. The Hall of Shades: a big shrine hall with three waves and the descent portal to the
-   next depth, where enemies are stronger.
+5. The Hall of Shades: a big shrine hall with three waves.
+6. The Isles of Lethe: a lake of soul-fire crossed by isles and bridges, where geysers
+   erupt over the bridges in turn (watch for the red ring) and burn enemies too; it holds
+   the descent portal to the next depth, where enemies are stronger.
 
 The original test level is still there with `--level=test`:
 
@@ -154,7 +156,7 @@ godot --path . -- --level=test --start=reactor
 ```
 
 Rooms you can pass to `--start`: `temple`, `sanctum`, `altar`, `gallery`, `undercroft`,
-`shades` (temple dungeon); with `--level=test`: `landing`, `conduit`, `vault`, `hatchery`,
+`shades`, `lethe` (temple dungeon); with `--level=test`: `landing`, `conduit`, `vault`, `hatchery`,
 `spine`, `reactor`.
 
 ## Performance & graphics presets

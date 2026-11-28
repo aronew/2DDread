@@ -23,6 +23,7 @@ var _recoil_dir := Vector2.ZERO
 var _cur_torso := ""
 var muzzle_alt := false   # twin revolvers alternate barrels
 var _bob: Array = []
+var _lean := 0.0
 
 
 func _ready() -> void:
@@ -112,11 +113,15 @@ func update(dt: float, vel: Vector2, aim_dir: Vector2, dashing: bool) -> void:
 	torso_offset = Vector2(0, -bob * Iso.HPX_PER_M) + _recoil_dir * recoil
 	torso.position = torso_offset
 	torso_glow.position = torso_offset
-	var lean := 0.0
-	if dashing:
-		lean = 0.08
-	legs.skew = lean
-	torso.skew = lean
+	# lean into the run (and hard into a dash), toward where we're going on screen
+	var sv := Iso.to_screen(vel)
+	var lean := clampf(sv.x / Iso.m(8.0), -1.4, 1.4) * (0.15 if dashing else 0.06)
+	_lean = lerpf(_lean, lean, 1.0 - exp(-18.0 * dt))
+	legs.skew = _lean
+	torso.skew = _lean
+	# a stretch along the dash, settling back after it
+	var want := Vector2(1.07, 0.94) if dashing else Vector2.ONE
+	scale = scale.lerp(want, 1.0 - exp(-20.0 * dt))
 
 
 func set_flash(v: float, color := Color(1, 1, 1)) -> void:

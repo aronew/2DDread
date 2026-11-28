@@ -50,6 +50,9 @@ func _process(dt: float) -> void:
 			want += la.limit_length(300.0)
 		elif pl and pl.alive:
 			want += Iso.to_screen(pl.aim_dir) * 120.0
+		if pl and pl.alive:
+			# lead the camera along the run, so speed reads and you see where you're going
+			want += Iso.to_screen(pl.vel).limit_length(Iso.m(14.0)) * 0.11
 		global_position = global_position.lerp(want, 1.0 - exp(-16.0 * dt))
 	trauma = maxf(0.0, trauma - dt * 1.6)
 	var s := trauma * trauma

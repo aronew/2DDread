@@ -182,8 +182,8 @@ func clip_quad(ci: CanvasItem, p: Vector2, a: Vector2, b: Vector2, uv0: Vector2,
 		if not box.intersects(h[1]):
 			continue
 		for poly in Geometry2D.intersect_polygons(quad, h[0]):
-			if poly.size() < 3:
-				continue
+			if poly.size() < 3 or Geometry2D.triangulate_polygon(poly).is_empty():
+				continue   # slivers where a quad grazes a pit corner can't be triangulated
 			var uvs := PackedVector2Array()
 			var cols := PackedColorArray()
 			for q in poly:

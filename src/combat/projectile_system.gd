@@ -5,6 +5,12 @@ extends Node2D
 
 var list: Array = []
 var beams: Array = []
+var afterglow: Array = []   # light trails of spent bullets, fading out where they died
+
+## Bullet light trails: points kept per kind (one per frame), so every shot draws a
+## tapering ribbon of light behind it (the owner asked for exaggerated tracers).
+const TRAIL_LEN := {&"bolt": 8, &"pellet": 5}
+const AFTERGLOW_T := 0.14
 
 
 func _ready() -> void:
@@ -20,6 +26,7 @@ func spawn(p: Projectile) -> void:
 func clear_all() -> void:
 	list.clear()
 	beams.clear()
+	afterglow.clear()
 
 
 func _process(dt: float) -> void:
@@ -28,6 +35,10 @@ func _process(dt: float) -> void:
 		var p: Projectile = list[i]
 		_step(p, dt)
 		if p.dead:
+			if p.trail.size() >= 2 and TRAIL_LEN.has(p.kind):
+				var pts: PackedVector2Array = p.trail.duplicate()
+				pts.append(Iso.lift(p.pos, p.height))
+				afterglow.append({"pts": pts, "color": p.color, "width": p.width, "t": AFTERGLOW_T})
 			list[i] = list[list.size() - 1]
 			list.pop_back()
 		else:
@@ -35,6 +46,9 @@ func _process(dt: float) -> void:
 	for b in beams:
 		b["t"] -= dt
 	beams = beams.filter(func(b): return b["t"] > 0.0)
+	for a in afterglow:
+		a["t"] -= dt
+	afterglow = afterglow.filter(func(a): return a["t"] > 0.0)
 	queue_redraw()
 
 
@@ -55,7 +69,11 @@ func _step(p: Projectile, dt: float) -> void:
 		p.height += p.vz * dt
 	var from := p.pos
 	var to := p.pos + p.vel * dt
-	if p.kind == &"missile" or p.lob:
+	if TRAIL_LEN.has(p.kind):
+		p.trail.append(Iso.lift(p.pos, p.height))
+		if p.trail.size() > TRAIL_LEN[p.kind]:
+			p.trail.remove_at(0)
+	elif p.kind == &"missile" or p.lob:
 		p.trail.append(Iso.lift(p.pos, p.height))
 		if p.trail.size() > 14:
 			p.trail.remove_at(0)
@@ -306,7 +324,8 @@ func fire_rail(owner, w, origin: Vector2, mh: float, dir: Vector2, info: DamageI
 	var a: Vector2 = owner.muzzle_screen()
 	var b := Iso.lift(end, mh)
 	var col: Color = w.data.proj_color
-	beams.append({"a": a, "b": b, "color": col, "width": 7.0 + 9.0 * charge, "t": 0.28, "dur": 0.28})
+	beams.append({"a": a, "b": b, "color": col, "width": 11.0 + 14.0 * charge, "t": 0.45, "dur": 0.45})
+	VFX.flash_layer(VFX.T.star6, b, randf() * TAU, col * Color(2.6, 2.4, 2.4, 1.0), Vector2(0.4, 0.4), Vector2(1.6, 1.6) * (0.6 + charge * 0.6), 0.16)
 	VFX.lightning(a, b, col * 1.5, 2.0, 0.12, 0.35)
 	if wall["hit"]:
 		VFX.impact(wall["point"], mh, wall["normal"], "energy")
@@ -356,14 +375,33 @@ func _draw() -> void:
 				var l := minf(p.length, p.traveled + 12.0)
 				var tail := head - sdir * l
 				var c: Color = p.color
-				var gw: float = p.width * 4.5
-				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(gw, gw), Vector2(gw, gw) * 2.0), false, c * Color(1.5, 1.4, 1.3, 0.55))
-				draw_line(tail, head, c * Color(1, 1, 1, 0.35), p.width * 3.2, true)
-				draw_line(tail.lerp(head, 0.25), head, c * Color(2.4, 2.4, 2.4, 1), p.width * 1.15, true)
-				draw_circle(head, p.width * 0.8, Color(3.5, 3.5, 3.5))
+				var ember: bool = p.kind == &"pellet"
+				# the light trail behind it, then the hot streak and head
+				if p.trail.size() >= 2:
+					var pts: PackedVector2Array = p.trail.duplicate()
+					pts.append(head)
+					_ribbon(pts, c, p.width * (0.9 if ember else 1.0), 1.0 if not ember else 0.8 + 0.2 * sin(p.age * 70.0))
+				var gw: float = p.width * 6.0
+				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(gw, gw), Vector2(gw, gw) * 2.0), false, c * Color(1.7, 1.5, 1.3, 0.6))
+				draw_line(tail, head, c * Color(1, 1, 1, 0.4), p.width * 3.6, true)
+				draw_line(tail.lerp(head, 0.2), head, c * Color(2.6, 2.5, 2.4, 1), p.width * 1.4, true)
+				draw_circle(head, p.width * 1.0, Color(3.8, 3.6, 3.3))
+	for a in afterglow:
+		_ribbon(a["pts"], a["color"], a["width"], a["t"] / AFTERGLOW_T)
 	for b in beams:
 		var k: float = b["t"] / b["dur"]
 		var c: Color = b["color"]
 		draw_line(b["a"], b["b"], c * Color(1.2, 1.2, 1.2, 0.35 * k), b["width"] * 2.8 * k, true)
 		draw_line(b["a"], b["b"], c * Color(2.5, 2.5, 2.5, k), b["width"] * k, true)
 		draw_line(b["a"], b["b"], Color(4, 4, 4, k), b["width"] * 0.3 * k, true)
+
+
+## A tapering ribbon of light through screen points (oldest first): a wide soft glow and
+## a hot core, both fading to nothing at the tail.
+func _ribbon(pts: PackedVector2Array, c: Color, w: float, a: float) -> void:
+	var n := pts.size()
+	for k in range(1, n):
+		var u := float(k) / (n - 1)
+		var fade := u * u * a
+		draw_line(pts[k - 1], pts[k], c * Color(1.3, 1.2, 1.1, 0.32 * fade), w * (1.2 + 3.4 * u), true)
+		draw_line(pts[k - 1], pts[k], c * Color(2.4, 2.2, 2.0, 0.95 * fade), w * (0.25 + 0.9 * u), true)
