@@ -8,6 +8,8 @@ GUIDE_JSON  the guide's camera file (world_to_image), written by --paint-guide
 NAME        output name: assets/rooms/NAME.png and assets/rooms/NAME.json
 holes=LAYOUT  (the Phlegethon) lone void cells inside an island in that layout file are
             sinkholes: dark painted pixels in them are keyed out so the lava shows
+pits=LAYOUT   (the hub) every soul-fire pit cell in that layout file: dark painted pixels
+            in it are keyed out so the game's green fire burns there
 walls       the painting includes the walls the game adds around rooms (ENCLOSE): those
             walls then draw it; without it they keep their own art (older paintings
             show abyss where they stand)
@@ -53,7 +55,7 @@ def key_abyss(rgb):
 HOLE_LUM = 0.1       # sinkholes: darker than this inside an interior void cell = see-through
 
 
-def key_holes(rgb, guide, layout):
+def key_holes(rgb, guide, layout, pits=False):
     """The Phlegethon's sinkholes: lone void cells inside an island show the game's lava
     through the painting. Dark painted pixels inside such a cell's diamond are keyed out."""
     import re
@@ -71,7 +73,18 @@ def key_holes(rgb, guide, layout):
         for i, ch in enumerate(row):
             if ch != " ":
                 continue
-            if all(get(i + di, j + dj) != " " for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+            if pits:
+                # a soul-fire pit (PitFire.find_pits): non-wall floor within 8 cells all four ways
+                def closed(di, dj):
+                    for k in range(1, 9):
+                        ch2 = get(i + di * k, j + dj * k)
+                        if ch2 != " ":
+                            return ch2 not in "PWMIRKOQU"
+                    return False
+                inside = all(closed(di, dj) for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            else:
+                inside = all(get(i + di, j + dj) != " " for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            if inside:
                 dr.polygon([to_img(i, j), to_img(i + 1, j), to_img(i + 1, j + 1), to_img(i, j + 1)], fill=255)
                 n += 1
     holes = (np.asarray(cut) > 0) & (lum < HOLE_LUM)
@@ -79,7 +92,7 @@ def key_holes(rgb, guide, layout):
     return 1.0 - np.asarray(soft).astype(np.float32) / 255.0
 
 
-def main(painting, guide_json, name, walls=False, holes=None):
+def main(painting, guide_json, name, walls=False, holes=None, pits=None):
     guide = json.load(open(guide_json))
     w, h = guide["size"]
     im = Image.open(painting).convert("RGB")
@@ -89,6 +102,8 @@ def main(painting, guide_json, name, walls=False, holes=None):
     alpha = key_abyss(rgb)
     if holes:
         alpha = np.minimum(alpha, key_holes(rgb, guide, holes))
+    if pits:
+        alpha = np.minimum(alpha, key_holes(rgb, guide, pits, pits=True))
     out = np.dstack([rgb, alpha * 255.0])
     mh, mw = h // MASK_STEP, w // MASK_STEP
     coarse = alpha[:mh * MASK_STEP, :mw * MASK_STEP].reshape(mh, MASK_STEP, mw, MASK_STEP).mean((1, 3))
@@ -107,7 +122,8 @@ def main(painting, guide_json, name, walls=False, holes=None):
 if __name__ == "__main__":
     extra = sys.argv[4:]
     holes = [e[6:] for e in extra if e.startswith("holes=")]
-    if len(sys.argv) < 4 or any(e != "walls" and not e.startswith("holes=") for e in extra):
+    pits = [e[5:] for e in extra if e.startswith("pits=")]
+    if len(sys.argv) < 4 or any(e != "walls" and not e.startswith(("holes=", "pits=")) for e in extra):
         print(__doc__)
         sys.exit(1)
-    main(*sys.argv[1:4], walls="walls" in extra, holes=holes[0] if holes else None)
+    main(*sys.argv[1:4], walls="walls" in extra, holes=holes[0] if holes else None, pits=pits[0] if pits else None)

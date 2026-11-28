@@ -30,16 +30,21 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 temple's exit portal no longer just goes one depth deeper: it throws the gunslinger out at
 the hub, Charon's tavern on his dock at the dead end of the Styx (the owner liked both "a
 void dock where souls linger" and "a bar", so it is both: the dead who couldn't pay the obol
-drink there on credit). Not painted yet (kit art; guide `docs/paint_guides/hub_guide.png`,
-`--look=13.5,7.2 --zoom=0.43`, prompt in the paint guide README; list the painting in
-`LayoutHub.PAINTS`). Weapons and abilities are holstered there (`Game.in_hub`); **E**
+drink there on credit). **Painted (2026-11-28):** the owner's painting
+(`assets/rooms/hub_01`, original `docs/paint_guides/hub_painted_sol.webp`, guide `hub_guide`,
+`--look=13.5,7.2 --zoom=0.43`): violet stone, flower planters, a compass rose, and Charon's
+green-sailed ship moored at the quay's front with a gangplank, where the ferry is now used
+(the code-drawn boat only shows on the unpainted kit). It turned the pier into a balustrade,
+so the landing (where the portal drops you) is reached along the back walkway. Imported with
+`walls` and `pits=src/dungeon/layout_hub.gd` (`import_room_paint.py`: dark paint in pit
+cells is keyed out, so the soul-fire glints through the lake). Weapons and abilities are holstered there (`Game.in_hub`); **E**
 (`interact`) uses whatever `Hub` (`src/hub/hub.gd`) has in reach:
 - **Charon's bar** (`HubMenu` "bar"): one drink per crossing from `Meta.DRINKS`, a stat bonus
   until you come back; talking to him tells the story a line at a time (`LayoutHub.CHARON_LINES`).
 - **The Soul Forge** ("forge"): permanent upgrades from `Meta.UPGRADES`, bought with souls.
 - **Lingering souls** (`Shade`, `LayoutHub.SHADES`): each says its lines in turn.
-- **The ferry** ("ferry"): back to the temple at any depth up to `Meta.best_depth + 1`
-  (`World.sail`); the "Second Shore" is listed, locked, for the next biome.
+- **The ferry** ("ferry", the painted ship's gangplank): to the temple or the Phlegethon at
+  any depth up to `Meta.best_depth + 1` (`World.sail`).
 Figures and set pieces are drawn procedurally until there is art (`Shade`: souls, the smith
 and Charon; `HubProp`: anvil, bar bottles, the moored ferry), and hidden in paint guides.
 **Souls** (`src/core/meta.gd`, static, saved to `user://progress.cfg`): `Meta.kill_value`

@@ -35,6 +35,9 @@ func setup(entities: Node2D) -> void:
 			"ferry":
 				var b := HubProp.new()
 				b.setup("ferry", st["at_g"])
+				# the owner's painting has the ship (moored at the quay's front): only the
+				# unpainted kit hub draws the stand-in boat
+				b.visible = LayoutHub.PAINTS.is_empty() or OS.get_cmdline_user_args().has("--no-paint")
 				entities.add_child(b)
 				st["node"] = b
 		stations.append(st)

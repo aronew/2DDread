@@ -131,7 +131,7 @@ are holstered there; walk up to things and press **E**:
   speed, an extra dash charge). Every kill sends souls into you (more for heavies, elites and
   bosses, more at depth), and every cleared room banks a few more.
 - **The lingering souls** at the tables: the dead who couldn't pay the obol. They talk.
-- **The ferry** at the end of the pier: back to the temple at any depth up to one past your
+- **The ferry**, Charon's green-sailed ship moored at the quay,: back to the temple at any depth up to one past your
   deepest.
 
 Souls, forge levels, the drink, the shores you have reached and your deepest depth are saved

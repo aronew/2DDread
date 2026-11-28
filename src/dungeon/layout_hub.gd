@@ -13,26 +13,29 @@ extends RefCounted
 ## back walls). No encounters: weapons and abilities are holstered here (Player.in_hub).
 
 const ENCLOSE := true
-## Paintings laid over the hub (none yet: guide docs/paint_guides/hub_guide.png,
-## --look=13.5,7.2 --zoom=0.43; prompt in docs/paint_guides/README.md).
-const PAINTS := []
+## The owner's painting (2026-11-28, guide docs/paint_guides/hub_guide.png, --look=13.5,7.2
+## --zoom=0.43): violet stone, flower planters, a compass rose, and Charon's green-sailed
+## ship moored at the quay's front with a gangplank (so the ferry is used there). It turned
+## the pier into a balustrade, so the landing is reached along the back walkway. Imported with
+## `walls` and `pits=` (the lake's dark paint is keyed out so the green soul-fire shows).
+const PAINTS := ["res://assets/rooms/hub_01"]
 
 const MAP := [
 	"OPPMPPOPPMPPOPPPMPPOPPPMPPOP",
-	"Wk::::::k:*::*::::::::::::: ",
-	"M:::::::::::::p        ::k: ",
+	"Wk::::k:::k::::::::k::::::: ",
+	"M::::::::::::::        :::: ",
 	"W:======:w:::::   xx   :::: ",
-	"O:::::::n:::kk:   xx   ::,: ",
-	"Wn,::::::::::::        :w:: ",
-	"M::::::=::w::::        :::* ",
-	"W:n=:::::::::::        :::: ",
-	"O::::o::::::,::BBBBBBBB:S:: ",
+	"O::::::::::::::   xx   ::,: ",
+	"W:,::::::::::::        :w:: ",
+	"M:::::::=:w::::        :::: ",
+	"W::=:::::::::::        :::: ",
+	"O::::o::::::,::||||||||:S:: ",
 	"W:,:::,,:::::::        :::: ",
-	"M:::::,::=n::::        :::* ",
+	"M:::::,::=:::::        :::: ",
 	"W:::=::::::::w:  xx    ::o: ",
-	"O::w:::::::,,::  xx    :,:: ",
-	"Wk::::::::::::p        :::k ",
-	"M:::::n::::::::||||||||:::: ",
+	"O::w:::::::,,k:  xx    :,:: ",
+	"W::::::::::::::        :::: ",
+	"M::::::::::::::||||||||:::: ",
 	"                            ",
 	"                            ",
 ]
@@ -42,7 +45,7 @@ const MAP := [
 const STATIONS := [
 	{"kind": "bar", "name": "THE LAST OBOL", "at": [4.6, 2.0], "use": [4.6, 4.3], "reach": 2.4},
 	{"kind": "forge", "name": "THE SOUL FORGE", "at": [11.5, 2.4], "use": [11.5, 3.6], "reach": 2.2},
-	{"kind": "ferry", "name": "THE FERRY", "at": [21.0, 11.7], "use": [23.6, 10.8], "reach": 2.4},
+	{"kind": "ferry", "name": "THE FERRY", "at": [11.2, 15.6], "use": [13.4, 14.4], "reach": 2.2},
 ]
 
 ## Lingering souls: where they drift, and what they say when you talk to them (E).
