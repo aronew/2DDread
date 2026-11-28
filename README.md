@@ -92,7 +92,7 @@ painted in the style of the concept art, joined by gold bridges over the abyss:
 6. The Isles of Lethe: a lake of soul-fire crossed by isles and bridges, where geysers
    erupt over the bridges in turn (watch for the red ring) and burn enemies too.
 7. The Weaver's Deep: the boss arena. Arachne, the Titan Weaver, a colossal spider with
-   an armoured masked front and a soul-fire heart at its rear: circle it, bait its charge
+   an armoured masked front and a glowing amber heart at its rear: circle it, bait its charge
    into a column, dash through its rings of fire. Killing it opens the descent portal to
    the next depth, where enemies are stronger.
 

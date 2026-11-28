@@ -223,18 +223,19 @@ All of this is playable, and a bot plays the whole route without errors:
     back, slam + charge, stuns itself on walls.
   - **Flaming Skull** (`bloater`): flying kamikaze that hurts enemies too.
   - **Elite affix layer:** frenzied, shielded, volatile, molten.
-  - **Boss: Arachne, the Titan Weaver** (`titan`, `src/enemies/titan.gd`, room 7): a
-    colossal underworld spider (~7 m), modelled after a titan reference the owner shared but
-    made Greek-underworld: dark chitin, a bone skull mask with soul-fire eyes, great ivory
-    tusks, gold-rimmed bronze shields on its back and a soul-fire heart glowing at its rear.
+  - **Boss: Arachne, the Titan Weaver** (`titan`, `src/enemies/titan.gd`, room 7), after
+    **the owner's own titan design** (a mockup they made, 2026-11-28; follow it closely): a
+    colossal spider (~7 m) of purple chitin with glowing magenta cracks, a bone skull mask
+    with magenta eyes, huge ivory tusks sweeping out and up, big yellow-gold plates arching
+    along its back, and an amber heart glowing out of its rear and through its belly.
     Its masked front is armoured (`front_armor`, breakable) and it turns slowly; the heart is
     the weak point (`back_mult` 2.2), so the fight is about circling it. Attacks, all
     telegraphed: **stomp** (red circle in front), **charge** (red lane; a wall or column in
     the way stuns it for a long opening), **venom volleys** (fans of shards); from phase 2
-    (below 60%) a **soul-fire nova** (`SoulRing`, a ring racing out across the floor: dash
+    (below 60%) a **magenta fire nova** (`SoulRing`, a ring racing out across the floor: dash
     through it or outrun it) and **brood** (hounds from its abdomen); phase 3 (below 25%)
     enrages it (faster, shorter cooldowns, double charges and rings). The HUD shows a boss
-    bar with phase marks; its death is a slow-motion chain of soul-fire blasts. Sheets are
+    bar with phase marks; its death is a slow-motion chain of amber and magenta blasts. Sheets are
     8 directions and colour + emission only (no normal map) to keep VRAM down;
     `Enemy._update_visual` reads the direction count from the sheet.
 - **Loot:** six rarities, stat affixes, behaviour affixes and legendary/mythic perks.

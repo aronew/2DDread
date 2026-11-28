@@ -1,8 +1,9 @@
 class_name Titan
 extends Enemy
-## ARACHNE, THE TITAN WEAVER: the temple dungeon's boss (room 7, the arena). A colossal
-## underworld spider. Its masked front is plated (front_armor, breakable like the
-## Legionnaire's shield) and it turns slowly; the soul-fire heart glowing out of its rear
+## ARACHNE, THE TITAN WEAVER: the temple dungeon's boss (room 7, the arena), after the
+## owner's own design: a colossal purple spider with magenta cracks, huge ivory tusks and
+## yellow-gold plates on its back. Its masked front is plated (front_armor, breakable like
+## the Legionnaire's shield) and it turns slowly; the amber heart glowing out of its rear
 ## is the weak point (back_mult). So the fight is about moving: dodge around it, bait its
 ## charge into a pillar, shoot the heart.
 ##
@@ -11,7 +12,7 @@ extends Enemy
 ##   Charge  mid range: a red lane across the arena, then it runs it down; a wall or pillar
 ##           in the way stuns it (STUNNED, a long stagger: free hits on the heart).
 ##   Volley  range: fans of magenta venom shards, three to five in a row.
-##   Nova    phase 2+: a red circle under it and a roar, then a ring of soul-fire races
+##   Nova    phase 2+: a red circle under it and a roar, then a ring of magenta fire races
 ##           out across the arena (SoulRing): dash through it (i-frames) or outrun it.
 ##   Brood   phase 2+: rears up and births hellhounds from its abdomen.
 ## Phases: 1 above 60% health, 2 below (nova and brood join in, a little faster), 3 below
@@ -51,7 +52,7 @@ func _ready() -> void:
 	VFX.shake(0.5)
 	if VFX.camera:
 		VFX.camera.punch(0.06)
-	VFX.ring(gpos, Iso.m(6.0), Color(0.5, 1.6, 0.8), 0.9, 0.1)
+	VFX.ring(gpos, Iso.m(6.0), Color(1.6, 0.5, 1.5), 0.9, 0.1)
 
 
 func _speed_k() -> float:
@@ -160,7 +161,7 @@ func _windup(p, dt: float) -> void:
 				enter(S.ATTACK)
 		"nova":
 			set_attack_frame(0.55 * minf(1.0, state_t / 1.0))
-			VFX.emit("souls", Iso.lift(gpos, 0.4), -PI / 2, Color(0.6, 2.4, 1.1), 0.08)
+			VFX.emit("embers", Iso.lift(gpos, 0.4), -PI / 2, Color(2.6, 0.7, 2.4), 0.08)
 			if state_t >= 1.0:
 				clear_telegraph()
 				_nova()
@@ -278,7 +279,7 @@ func _nova() -> void:
 	var ring := SoulRing.new()
 	ring.setup(gpos, Iso.m(15.0), 1.6 / _speed_k(), data.damage * dmg_mult * 0.85, self)
 	Game.world.add_hazard(ring)
-	VFX.light_flash(Iso.lift(gpos, 0.6), Color(0.4, 1.0, 0.6), 3.0, 6.0, 0.35)
+	VFX.light_flash(Iso.lift(gpos, 0.6), Color(1.0, 0.35, 0.9), 3.0, 6.0, 0.35)
 	VFX.shake(0.4)
 	if VFX.post:
 		VFX.post.shockwave(Iso.to_screen(gpos), Iso.m(6.0), 0.5, 0.8)
@@ -296,8 +297,8 @@ func _brood() -> void:
 		if e and room:
 			e.room = room
 			room.enemies.append(e)
-	VFX.gore(gpos - facing * radius, Color(0.45, 1.0, 0.6), 2.2)
-	VFX.popup(gpos, 4.0, "THE BROOD WAKES", Color(0.5, 1.0, 0.6), 30)
+	VFX.gore(gpos - facing * radius, Color(0.9, 0.35, 1.0), 2.2)
+	VFX.popup(gpos, 4.0, "THE BROOD WAKES", Color(1.0, 0.5, 0.9), 30)
 	_cool["brood"] = 13.0 * _cd_k()
 
 
@@ -322,12 +323,12 @@ func _check_phase() -> void:
 
 
 func on_death(info: DamageInfo) -> void:
-	# the titan bursts apart: a chain of soul-fire blasts across its body
+	# the titan bursts apart: a chain of blasts from its amber heart across its body
 	for k in 6:
 		var t := get_tree().create_timer(0.12 + k * 0.16)
 		var at := gpos + Vector2.from_angle(randf() * TAU) * randf_range(0.0, radius * 1.1)
 		t.timeout.connect(func():
-			VFX.explosion(at, Iso.m(2.2), Color(0.45, 1.0, 0.6), k == 5)
+			VFX.explosion(at, Iso.m(2.2), Color(1.0, 0.6, 0.2) if k % 2 == 0 else Color(1.0, 0.3, 0.85), k == 5)
 			VFX.souls(at, 1.0, 1.0))
 	VFX.soul_streaks(Iso.lift(gpos, hit_height), 14)
 	Events.message.emit("ARACHNE FALLS", Color(1.0, 0.8, 0.4))

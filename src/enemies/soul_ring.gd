@@ -1,6 +1,6 @@
 class_name SoulRing
 extends Node2D
-## The titan's nova: a ring of soul-fire racing out across the ground from where it
+## The titan's nova: a ring of magenta fire racing out across the ground from where it
 ## stood. It burns the player once as it passes, unless they dash through it (i-frames)
 ## or outrun it. The titan's red circle and roar telegraph it a second ahead.
 
@@ -51,7 +51,7 @@ func _process(dt: float) -> void:
 	if _ember_t <= 0.0:
 		_ember_t = 0.05
 		var a := randf() * TAU
-		VFX.emit("embers", Iso.to_screen(center + Vector2.from_angle(a) * r), -PI / 2, Color(0.5, 2.6, 1.0), 0.06)
+		VFX.emit("embers", Iso.to_screen(center + Vector2.from_angle(a) * r), -PI / 2, Color(2.6, 0.6, 2.4), 0.06)
 	queue_redraw()
 
 
@@ -63,6 +63,6 @@ func eta(d: float) -> float:
 func _draw() -> void:
 	var w := Iso.m(WIDTH_M)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, Iso.K))
-	draw_arc(Vector2.ZERO, r, 0.0, TAU, 96, Color(0.3, 1.6, 0.7, 0.35 * _fade), w * 2.2, true)
-	draw_arc(Vector2.ZERO, r, 0.0, TAU, 96, Color(0.6, 2.8, 1.3, 0.9 * _fade), w * 0.7, true)
-	draw_arc(Vector2.ZERO, r, 0.0, TAU, 96, Color(2.4, 3.2, 2.4, _fade), w * 0.18, true)
+	draw_arc(Vector2.ZERO, r, 0.0, TAU, 96, Color(1.6, 0.3, 1.5, 0.35 * _fade), w * 2.2, true)
+	draw_arc(Vector2.ZERO, r, 0.0, TAU, 96, Color(2.8, 0.6, 2.6, 0.9 * _fade), w * 0.7, true)
+	draw_arc(Vector2.ZERO, r, 0.0, TAU, 96, Color(3.2, 2.4, 3.2, _fade), w * 0.18, true)
