@@ -6,6 +6,7 @@ extends CanvasLayer
 
 var draw_root: HudDraw
 var inventory: InventoryUI
+var hub_menu: HubMenu
 
 
 func _ready() -> void:
@@ -21,12 +22,22 @@ func _ready() -> void:
 	inventory.set_anchors_preset(Control.PRESET_FULL_RECT)
 	inventory.visible = false
 	add_child(inventory)
+	hub_menu = HubMenu.new()
+	hub_menu.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hub_menu.visible = false
+	add_child(hub_menu)
+
+
+func open_hub_menu(kind: String) -> void:
+	hub_menu.open(kind)
 
 
 var paused_menu := false
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if hub_menu.visible:
+		return
 	if event.is_action_pressed("inventory") or (inventory.visible and event.is_action_pressed("pause")):
 		if not paused_menu:
 			toggle_inventory()
@@ -103,6 +114,7 @@ class HudDraw extends Control:
 	var _hp_shown := 1.0
 	var _hint_t := 14.0
 	var _fps_t := 0.0
+	var _souls_pulse := 0.0
 
 	var portrait: Texture2D
 
@@ -120,6 +132,7 @@ class HudDraw extends Control:
 		HUD.set_game_cursor(true)
 		Events.message.connect(func(t, c): messages.append({"t": 0.0, "text": t, "c": c}))
 		Events.item_picked.connect(_on_item)
+		Events.souls_changed.connect(func(_t, d): if d > 0: _souls_pulse = 1.0)
 
 	func _on_item(it) -> void:
 		feed.push_front({"t": 0.0, "text": "%s  ·  %s" % [it.display_name(), it.rarity_name()], "c": it.color()})
@@ -129,6 +142,7 @@ class HudDraw extends Control:
 	func _process(dt: float) -> void:
 		_t += dt
 		_hint_t -= dt
+		_souls_pulse = maxf(0.0, _souls_pulse - dt * 3.0)
 		for m in messages:
 			m["t"] += dt
 		messages = messages.filter(func(m): return m["t"] < 3.2)
@@ -166,7 +180,11 @@ class HudDraw extends Control:
 		_draw_messages(vs)
 		_draw_feed(vs)
 		_draw_room(vs)
-		if _hint_t > 0.0:
+		_draw_souls(vs)
+		if Game.in_hub:
+			_text(Vector2(0, 30), "THE LAST OBOL   ·   WASD move · SPACE dash · E talk / use · TAB inventory   ·   weapons are holstered here",
+				17, Color(0.75, 0.95, 0.88, 0.85), null, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
+		elif _hint_t > 0.0:
 			var a := clampf(_hint_t / 2.0, 0.0, 1.0)
 			_text(Vector2(0, 30), "WASD move · Mouse aim · LMB fire · RMB sword (hold: combo, after a dash: thrust) · SPACE dash · F firebomb · Q nova · E seekers · R reload · 1-3 weapons · TAB inventory",
 				17, Color(0.8, 0.85, 0.9, 0.85 * a), null, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
@@ -260,6 +278,16 @@ class HudDraw extends Control:
 		if pl.build.attr_points > 0:
 			lv += "    +%d points  [Tab]" % pl.build.attr_points
 		_text(Vector2(x + 30 + pl.dash_max * 24, xy + 29), lv, 16, GOLD if pl.build.attr_points > 0 else Color(0.82, 0.8, 0.75), font)
+
+	# -------------------------------------------------------------- souls (the currency)
+
+	func _draw_souls(vs: Vector2) -> void:
+		var c := Vector2(186, vs.y - 160)
+		var k := 1.0 + 0.35 * _souls_pulse
+		var d := PackedVector2Array([c + Vector2(0, -13) * k, c + Vector2(9, 0) * k, c + Vector2(0, 13) * k, c + Vector2(-9, 0) * k])
+		draw_colored_polygon(d, Color(0.45, 1.0, 0.7).lerp(Color(1.6, 2.4, 1.9), _souls_pulse))
+		_gold_frame(d, 1.4)
+		_text(Vector2(c.x + 18, c.y + 8), "%d" % Meta.souls, 22, Color(0.75, 1.0, 0.85).lerp(Color.WHITE, _souls_pulse), font)
 
 	# -------------------------------------------------------------- abilities (diamonds)
 

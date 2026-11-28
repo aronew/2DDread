@@ -36,6 +36,7 @@ var _fire_toggle := false
 var _bfs_cache := {}
 var _stuck_t := 0.0
 var _last_g := Vector2.ZERO
+var _hub_i := 0          # the hub tour: forge, bar, a lingering soul, then the ferry
 var stats := {"kills": 0, "deaths": 0, "dmg_taken": 0.0, "shots": 0, "items": 0, "levels": 0, "elite_kills": 0}
 
 
@@ -73,7 +74,15 @@ func _ready() -> void:
 	Events.item_picked.connect(func(_i): stats["items"] += 1)
 	Events.level_up.connect(func(_l): stats["levels"] += 1)
 	Events.room_cleared.connect(func(r): print("[bot] cleared ", r.id, " at ", _elapsed(), "s"))
-	Events.depth_changed.connect(func(d): print("[bot] descended to depth ", d); _route_i = 0)
+	Events.depth_changed.connect(func(d):
+		_route_i = 0
+		_bfs_cache.clear()
+		_hub_i = 0
+		if Game.in_hub:
+			print("[bot] at the hub (The Last Obol), souls %d" % Meta.souls)
+		else:
+			print("[bot] sailed to depth ", d)
+			_route = Game.world.director.rooms.map(func(r): return r.id) + ["exit"])
 
 
 var _game_t := 0.0
@@ -377,7 +386,45 @@ func _fight(p, t, s: Dictionary, dt: float) -> void:
 		_dash_t = 0.8
 
 
+## At the hub: buy what it can at the forge, pour a drink, talk to a soul, then take the
+## ferry one depth deeper (through the stations' own logic, not their menus).
+func _hub_tour(p, s: Dictionary, dt: float) -> void:
+	var hub = Game.world.hub
+	if hub == null:
+		return
+	var stops := ["forge", "bar", "talk", "ferry"]
+	if _hub_i >= stops.size():
+		return
+	var stop: String = stops[_hub_i]
+	var goal: Vector2 = hub.shades[0].gpos if stop == "talk" else hub.station(stop)["use_g"]
+	if p.gpos.distance_to(goal) < Iso.m(1.2):
+		match stop:
+			"forge":
+				for id in Meta.UPGRADES:
+					if Meta.buy(id):
+						print("[bot] forge: bought %s (level %d), %d souls left" % [id, Meta.level(id), Meta.souls])
+			"bar":
+				for id in Meta.DRINKS:
+					if Meta.pour(id):
+						print("[bot] bar: poured %s" % id)
+						break
+				hub.interact(hub.station("bar"))
+				Game.hud.hub_menu.close()
+			"talk":
+				hub.interact(hub.shades[0])
+			"ferry":
+				p.build.recalc()
+				p.on_stats_changed()
+				hub.sail(maxi(Game.depth + 1, 1))
+		_hub_i += 1
+		return
+	_walk_to(p, s, dt, Iso.cell_of(goal), goal)
+
+
 func _navigate(p, s: Dictionary, dt: float) -> void:
+	if Game.in_hub:
+		_hub_tour(p, s, dt)
+		return
 	var dir_node = Game.world.director
 	var target_cell := Vector2i(-999, -999)
 	# loot first: walk over nearby items it can walk straight to (an altar or a brazier in
@@ -429,6 +476,10 @@ func _navigate(p, s: Dictionary, dt: float) -> void:
 		break
 	if target_cell.x == -999:
 		return
+	_walk_to(p, s, dt, target_cell, Iso.cell_center(target_cell))
+
+
+func _walk_to(p, s: Dictionary, dt: float, target_cell: Vector2i, target_g: Vector2) -> void:
 	var field := _bfs(target_cell)
 	var c := Iso.cell_of(p.gpos)
 	var best := c
@@ -440,7 +491,7 @@ func _navigate(p, s: Dictionary, dt: float) -> void:
 				continue
 			best_d = field[n]
 			best = n
-	var goal := Iso.cell_center(best) if best != c else Iso.cell_center(target_cell)
+	var goal := Iso.cell_center(best) if best != c else target_g
 	s["move"] = (goal - p.gpos).normalized()
 	s["mouse"] = Iso.lift(p.gpos + s["move"] * Iso.m(4.0), 1.2)
 	# unstick

@@ -289,6 +289,43 @@ few pixels were patched with the step beside them.) Both are in `LayoutTemple.PA
 the lower one last. A repainted `stair_01` that includes the gallery's right end
 (columns 76-77: amphorae by the back wall, a fire urn near the edge) would finish the room.
 
+## Prompt for SOL: the hub, The Last Obol (Charon's tavern on the Styx)
+
+Attach `hub_lines.png` (image 1), the mockup (image 2), `hub_guide.png` (image 3) and one of
+the jade room paintings, e.g. `lethe_01_painted_sol_jade.webp` (image 4). Use the temple
+prompt above with "in the exact style of image 4 (image 2 is the overall mood)" and this list:
+
+> What things are:
+> - A tavern at the dead end of the river Styx, deep in the underworld, where Charon the
+>   ferryman stopped ferrying and opened a bar on his old stone dock. Souls who could not
+>   pay the coin linger here. Warm and moody, a place to rest between fights, but still the
+>   same dark green temple stone, gold trim and green soul-fire as the dungeon.
+> - The big stone floor on the left is the tavern quay: worn, warm-lit slabs, a few rugs
+>   and spilled-wine stains, the laurel-skull plate set in the floor.
+> - The row of six low blocks near the back wall is the bar counter: dark polished stone
+>   topped with old wood, gold trim along its edge. Behind it, on the back wall, paint
+>   shelves of bottles and amphorae between the niches. The four single low blocks are
+>   tavern tables of stone and wood, with a stool or two.
+> - In the back corner between the two bronze braziers is the Soul Forge: paint the floor
+>   there scorched, with a coal pit glowing orange. Leave the spot itself plain (an anvil
+>   is drawn there by the game).
+> - The two long walls at the back (top, and left) are towering temple walls: hooded-figure
+>   murals with gold laurels, arched niches with green soul-fire, gold Greek-key bands.
+> - The burning pit on the right is the river Styx: green soul-fire water in a stone basin,
+>   glowing from below. The long gold-edged walkway across it is a pier of old stone and
+>   wood; the two rubble islets are broken statues half-sunk in the fire. The white
+>   railing at the front is a stone balustrade along the water.
+> - The stone strip on the far right is the ferry landing, with mooring posts. Leave the
+>   water beside its lower end calm (Charon's boat is drawn there by the game).
+> - The walls along the bottom and right edges are the near walls; keep them as they are.
+> - Paint NO people, ghosts or figures anywhere: the game draws Charon and the souls.
+>
+> Light: warm candle and lantern pools in the tavern, cold green glow from the Styx,
+> orange from the forge, dark corners.
+
+Then check alignment with `hub_lines.png`, import it with `hub_guide.json` as `hub_jade`
+with `walls`, and add `"res://assets/rooms/hub_jade"` to `LayoutHub.PAINTS`.
+
 ## Prompt for SOL: room 7, the Weaver's Deep (the boss arena)
 
 Attach `arena_01_lines.png` (image 1), the mockup (image 2), `arena_01_guide.png` (image 3)

@@ -56,6 +56,10 @@ func recalc() -> void:
 				_add(k, it.stats[k])
 	for b in buffs:
 		_add(b["stat"], b["value"] * b["stacks"])
+	# the Soul Forge's permanent upgrades and Charon's drink for this crossing
+	var mb: Dictionary = Meta.stat_bonus()
+	for k in mb:
+		_add(k, mb[k])
 	# perks from gear (global) and weapons (bound to that weapon)
 	perks.clear()
 	for slot in player.gear:

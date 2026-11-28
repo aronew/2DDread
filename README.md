@@ -27,7 +27,7 @@ enemies for health, and build around behaviour-changing legendaries.
 | Hellfire Saber: tap / hold for the combo, right after a dash for a dash-slash | RMB / V | B / RB |
 | Dash (i-frames, 2 charges) | Space / Shift | A / LB |
 | Shock Nova | Q | X |
-| Seeker Swarm | E | Y |
+| Seeker Swarm (in the hub: talk / use a station) | E | Y |
 | Firebomb | F / G | LT |
 | Reload | R | R3 |
 | Switch weapon | 1 2 3 / mouse wheel | D-pad |
@@ -47,7 +47,10 @@ Each weapon is a data-driven `WeaponData` resource in `data/weapons/`.
 | **Hellmouth Blunderbuss** | 10 pellets, loads shell by shell, huge knockback, falls off hard at range. |
 | **Stormcaller** | Lightning that chains between targets. Runs on heat, never ammo. |
 | **Longshot** | Charged rune bolt that pierces everything in a line. Loot drop. |
-| **Firebomb** (RMB) | Lobbed bombs on recharging charges. |
+| **Nyx Repeater** | Fast magenta void-bolts that skip off walls once. Loot drop (starts in the backpack). |
+| **Styx Lance** | Heavy blue bolts, semi-auto, each pierces three enemies. Loot drop (starts in the backpack). |
+| **Erebus Scattergun** | Tight fan of violet pellets that ricochet. Loot drop (starts in the backpack). |
+| **Firebomb** (F) | Lobbed bombs on recharging charges. |
 
 ### Enemies
 Every attack is telegraphed on the ground before it lands.
@@ -116,6 +119,23 @@ The original test level is still there with `--level=test`:
 - Post-processing: chromatic aberration kicks, low-health pulse.
 - Two-layer music that rises with combat intensity.
 
+## The hub: The Last Obol
+
+The exit portal at the bottom of the temple throws you out at **The Last Obol**, the tavern
+Charon opened on his dock at the dead end of the Styx when the dead stopped paying. Weapons
+are holstered there; walk up to things and press **E**:
+
+- **Charon's bar**: one drink per crossing (a bonus that lasts until you come back), and a
+  little of the story each time you talk to him.
+- **The Soul Forge**: permanent upgrades bought with **souls** (health, damage, armour, crit,
+  speed, an extra dash charge). Every kill sends souls into you (more for heavies, elites and
+  bosses, more at depth), and every cleared room banks a few more.
+- **The lingering souls** at the tables: the dead who couldn't pay the obol. They talk.
+- **The ferry** at the end of the pier: back to the temple at any depth up to one past your
+  deepest.
+
+Souls, forge levels, the drink and your deepest depth are saved in `user://progress.cfg`.
+
 ## Project layout
 
 ```
@@ -153,6 +173,11 @@ godot --path . --fixed-fps 30 -- --bot --start=altar --shots=/tmp/shots --shot-e
 
 # jump straight to a room / depth while playing
 godot --path . -- --start=gallery --depth=2
+
+# the hub (The Last Obol); --souls=N to try the forge, --hub-menu=forge|bar|ferry to open a screen
+godot --path . -- --level=hub --souls=300
+# a blank save for this session (bot runs, stills and paint guides never touch the save)
+godot --path . -- --fresh
 
 # start with the three void guns in your slots (any weapon ids from data/weapons)
 godot --path . -- --weapons=repeater,lance,scatter

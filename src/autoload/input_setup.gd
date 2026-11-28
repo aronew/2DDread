@@ -33,6 +33,8 @@ func _enter_tree() -> void:
 	_mouse("melee", MOUSE_BUTTON_RIGHT)      # Hellfire Saber
 	_key("melee", [KEY_V])
 	_joy("melee", [JOY_BUTTON_B, JOY_BUTTON_RIGHT_SHOULDER])
+	_key("interact", [KEY_E])                 # hub only (E is the seeker swarm in a fight)
+	_joy("interact", [JOY_BUTTON_Y])
 	_key("reload", [KEY_R])
 	_joy("reload", [JOY_BUTTON_RIGHT_STICK])
 	_key("inventory", [KEY_TAB, KEY_I])

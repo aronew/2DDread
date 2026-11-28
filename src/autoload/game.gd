@@ -24,6 +24,7 @@ var enemies: Array = []
 var grid := CombatGrid.new()
 var rng := RandomNumberGenerator.new()
 var depth := 1
+var in_hub := false   # at The Last Obol (the hub): weapons and abilities are holstered
 var debug := false
 var bot_mode := false  # automated playtest driver active
 var damage_taken_mult := 1.0  # debug: --dmg-mult=N
@@ -111,7 +112,11 @@ func living_enemies() -> int:
 
 ## Difficulty scaling for deeper dungeon runs.
 func depth_hp_mult() -> float:
-	return 1.0 + 0.45 * (depth - 1)
+	return depth_hp_mult_at(depth)
+
+
+func depth_hp_mult_at(d: int) -> float:
+	return 1.0 + 0.45 * (d - 1)
 
 
 func depth_dmg_mult() -> float:

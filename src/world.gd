@@ -18,6 +18,8 @@ var projectiles: ProjectileSystem
 var hud: HUD
 var post: PostFX
 var portal: ExitPortal
+var hub: Hub                 # the hub's stations and figures, when the level is the hub
+var level_kind := "temple"   # "temple" (the dungeon), "hub" (The Last Obol) or "test"
 var bot: BotDriver
 var _bg_mat: ShaderMaterial
 var _bg_rect: ColorRect
@@ -35,6 +37,13 @@ var _t := 0.0
 
 func _ready() -> void:
 	Game.world = self
+	Meta.load_save()
+	var args := OS.get_cmdline_user_args()
+	if args.has("--level=test"):
+		level_kind = "test"
+	elif args.has("--level=hub"):
+		level_kind = "hub"
+	Game.in_hub = level_kind == "hub"
 	_setup_environment()
 	_setup_background()
 	_cm = CanvasModulate.new()
@@ -63,12 +72,22 @@ func _ready() -> void:
 	hud = HUD.new()
 	add_child(hud)
 	Events.player_died.connect(_on_player_died)
+	# souls: every kill sends some into the gunslinger, every cleared room banks a few more
+	Events.enemy_killed.connect(func(e, _info):
+		if e and not Game.in_hub:
+			Meta.add_souls(Meta.kill_value(e)))
+	Events.room_cleared.connect(func(_r):
+		Meta.add_souls(3 + 2 * Game.depth)
+		Meta.save())
 	Audio.start_music()
 	Game.graphics_changed.connect(apply_graphics)
 	get_window().size_changed.connect(_apply_render_cap)
 	_parse_args()
 	apply_graphics()
-	Events.message.emit("DEPTH %d" % Game.depth, Color(0.85, 0.9, 1.0))
+	if Game.in_hub:
+		Events.message.emit("THE LAST OBOL", Color(0.55, 1.0, 0.8))
+	else:
+		Events.message.emit("DEPTH %d" % Game.depth, Color(0.85, 0.9, 1.0))
 
 
 func _setup_environment() -> void:
@@ -178,6 +197,14 @@ func build_level() -> void:
 	director.name = "Director"
 	level_root.add_child(director)
 	director.setup(layout["rooms"], dungeon, self)
+	hub = null
+	if level_kind == "hub":
+		hub = Hub.new()
+		hub.name = "Hub"
+		level_root.add_child(hub)
+		hub.setup(entities)
+		if OS.get_cmdline_user_args().has("--paint-guide"):
+			hub.hide_figures()   # guides show the room only: Charon, the souls and the drawn props stay out
 	if camera:
 		camera.snap()
 
@@ -185,7 +212,9 @@ func build_level() -> void:
 ## Which hand-authored level to build: the temple dungeon (LayoutTemple, the owner's painted
 ## rooms) by default; --level=test opens the original test level (LayoutTest).
 func _layout() -> Dictionary:
-	if OS.get_cmdline_user_args().has("--level=test"):
+	if level_kind == "hub":
+		return {"map": LayoutHub.MAP, "rooms": [], "enclose": LayoutHub.ENCLOSE, "paints": LayoutHub.PAINTS}
+	if level_kind == "test":
 		return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
 	var paints: Array = LayoutTemple.PAINTS_V3 if OS.get_cmdline_user_args().has("--paint-set=v3") else LayoutTemple.PAINTS
 	return {"map": LayoutTemple.MAP, "rooms": LayoutTemple.ROOMS, "paints": paints,
@@ -340,10 +369,34 @@ func _on_player_died() -> void:
 	Events.message.emit("RESPAWNED AT CHECKPOINT", Color(0.7, 0.85, 1.0))
 
 
+## The exit portal at the bottom of a dive: the temple throws you out at the hub (The Last
+## Obol); the old test level still just goes one depth deeper.
 func descend() -> void:
-	Game.depth += 1
 	VFX.screen_flash(Color(0.6, 0.85, 1.0, 0.9), 0.6)
 	Audio.play("level_up")
+	if level_kind == "temple":
+		Meta.best_depth = maxi(Meta.best_depth, Game.depth)
+		Meta.crossings += 1
+		Meta.drink = ""          # the drink wears off: pour another before the next crossing
+		Meta.save()
+		_go("hub", Game.depth)
+		return
+	Game.depth += 1
+	call_deferred("_rebuild")
+
+
+## Leave the hub on the ferry for the temple at a depth.
+func sail(depth: int) -> void:
+	VFX.screen_flash(Color(0.45, 1.0, 0.75, 0.9), 0.6)
+	Audio.play("level_up")
+	Meta.save()
+	_go("temple", depth)
+
+
+func _go(kind: String, depth: int) -> void:
+	level_kind = kind
+	Game.in_hub = kind == "hub"
+	Game.depth = depth
 	call_deferred("_rebuild")
 
 
@@ -355,8 +408,16 @@ func _rebuild() -> void:
 	Game.grid.rebuild([])
 	level_root.free()
 	build_level()
+	player.build.recalc()
+	player.on_stats_changed()
+	player.hp = player.max_hp
+	player.reset_cooldowns()
+	camera.snap()
 	Events.depth_changed.emit(Game.depth)
-	Events.message.emit("DEPTH %d — THE UNDERWORLD STIRS" % Game.depth, Color(1.0, 0.6, 0.3))
+	if Game.in_hub:
+		Events.message.emit("THE LAST OBOL", Color(0.55, 1.0, 0.8))
+	else:
+		Events.message.emit("DEPTH %d — THE UNDERWORLD STIRS" % Game.depth, Color(1.0, 0.6, 0.3))
 
 
 func _parse_args() -> void:
@@ -443,6 +504,11 @@ func _parse_args() -> void:
 		_bench_until = Time.get_ticks_msec() / 1000.0 + float(opts["bench"])
 		_bench_start_ms = Time.get_ticks_msec()
 		_bench_start_frames = Engine.get_frames_drawn()
+	if opts.has("hub-menu") and hub:
+		# dev: open a hub station's screen after a second (forge, bar or ferry), for screenshots
+		get_tree().create_timer(1.0).timeout.connect(func(): hud.open_hub_menu(opts["hub-menu"]))
+	if opts.has("souls"):
+		Meta.souls = int(opts["souls"])   # dev: start with this many souls (not saved by itself)
 	if opts.has("open-exit") and portal:
 		portal.activate()   # dev: open the descent portal now (to look at it)
 	if opts.has("dmg-mult"):

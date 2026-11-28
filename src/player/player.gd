@@ -171,6 +171,10 @@ func _process(dt: float) -> void:
 	if get_tree().paused:
 		return
 	var s := _input_state()
+	if Game.in_hub:
+		# the hub: no fighting, E talks and uses the stations (Hub)
+		for k in ["fire", "fire_pressed", "alt", "alt_pressed", "melee", "melee_held", "ability_1", "ability_2"]:
+			s[k] = false
 	build.process(dt)
 	_timers(dt)
 	_update_aim(s)

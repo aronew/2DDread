@@ -26,6 +26,36 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 | 6 | THE ISLES OF LETHE (`lethe`) | 100-122, rows 3-15 | painted (`assets/rooms/lethe_jade`, guide `lethe_01`, `--look=112.75,8.25 --zoom=0.49`: the whole room plus the corridor from room 5 in one frame). Clipped to columns 102+ with `band_clip.py`, plus the corridor floor and its side walls (101,6) and (101,10) copied back (`tools/rooms/restore_cells.py`), and the strip behind the corridor opening that room 5's painting lost when its wall was cut out. Props follow the painting (the west quay's fire urn became amphorae, the east quay's urn and corner amphora were dropped, so the room has no explosive urns). A new kind of room: a **soul-fire lake** (one big pit, `PitFire`) crossed by stone isles and gold bridges, joined to room 5 by a corridor (rows 7-9). West and east quays, a central isle (where the reward chest lands), a south isle with a bone nest, a back ledge with another nest (split by rubble, so the bridges are the only way across), a balustrade along the front. **Soul-fire geysers** (`SoulGeyser`, the layout's `GEYSERS`) erupt beside the three bridges in turn: red ring and hiss for 1.1 s, then a column that burns anyone on the bridge, enemies too. Hex Witches and Flaming Skulls fly over the fire; three waves end with a volatile elite; holds the exit portal |
 | 7 | THE WEAVER'S DEEP (`arena`) | 127-148, rows 3-18 | **the boss arena**, painted (`assets/rooms/arena_jade`, guide `arena_01`, `--look=136.5,11.5 --zoom=0.46`, clipped to columns 125+; it lined up as painted, props unchanged). A corridor (rows 10-12, cut through room 6's painted wall with `tools/rooms/cut_walls.py`) leads into a big open floor with four freestanding columns. The boss **Arachne, the Titan Weaver** (`Titan`, `data/enemies/titan.tres`, sheets `titan_walk`/`titan_attack`) rises in the middle; drops a legendary chest and holds the exit portal |
 
+**The hub, THE LAST OBOL (2026-11-28, `src/dungeon/layout_hub.gd`, `--level=hub`):** the
+temple's exit portal no longer just goes one depth deeper: it throws the gunslinger out at
+the hub, Charon's tavern on his dock at the dead end of the Styx (the owner liked both "a
+void dock where souls linger" and "a bar", so it is both: the dead who couldn't pay the obol
+drink there on credit). Not painted yet (kit art; guide `docs/paint_guides/hub_guide.png`,
+`--look=13.5,7.2 --zoom=0.43`, prompt in the paint guide README; list the painting in
+`LayoutHub.PAINTS`). Weapons and abilities are holstered there (`Game.in_hub`); **E**
+(`interact`) uses whatever `Hub` (`src/hub/hub.gd`) has in reach:
+- **Charon's bar** (`HubMenu` "bar"): one drink per crossing from `Meta.DRINKS`, a stat bonus
+  until you come back; talking to him tells the story a line at a time (`LayoutHub.CHARON_LINES`).
+- **The Soul Forge** ("forge"): permanent upgrades from `Meta.UPGRADES`, bought with souls.
+- **Lingering souls** (`Shade`, `LayoutHub.SHADES`): each says its lines in turn.
+- **The ferry** ("ferry"): back to the temple at any depth up to `Meta.best_depth + 1`
+  (`World.sail`); the "Second Shore" is listed, locked, for the next biome.
+Figures and set pieces are drawn procedurally until there is art (`Shade`: souls, the smith
+and Charon; `HubProp`: anvil, bar bottles, the moored ferry), and hidden in paint guides.
+**Souls** (`src/core/meta.gd`, static, saved to `user://progress.cfg`): `Meta.kill_value`
+per kill (1, heavies 3, elites +8, a boss 120, +25% per depth), plus a few per cleared room;
+the HUD shows them over the health bar. `Build.recalc` adds `Meta.stat_bonus()`. Bot runs,
+`--look`/`--shots` stills and paint guides never load or save progress; `--fresh` starts a
+blank save. Dev: `--souls=N`, `--hub-menu=forge|bar|ferry`. The bot tours the hub (forge,
+bar, a soul, ferry) and sails one depth deeper.
+
+**The story so far (owner approved 2026-11-28):** the gunslinger sold his soul for the
+blessed Hellfire revolvers, then walked into the underworld, guns drawn, to take it back.
+His contract was torn into pieces, each guarded by the keeper of a shore (Arachne, the
+Titan Weaver, holds the first thread). Charon stopped ferrying when the dead stopped paying;
+his boat still knows the way if it is fed souls. Each new biome is a new shore with its
+keeper as the boss.
+
 **Jade set (2026-11-27, current):** the owner repainted every room in a jade/teal palette
 with more irregular stone; rooms 2-5 from the round-2 guides (`docs/paint_guides/*_02_*`),
 with their enclosing walls. In the game as `assets/rooms/*_jade` (`LayoutTemple.PAINTS`);
@@ -43,7 +73,8 @@ Rooms are joined by 3-wide stone corridors (map rows 2-4, and rows 13-15 into ro
 they were gold bridges until 2026-11-27), and `ENCLOSE` walls in every open floor edge
 (`Dungeon._enclose_floor`), so the world reads as one building, not islands; the last
 room holds the exit portal (`X`, and `"exit": true` in its `ROOMS` entry), which
-descends to the next depth (the same rooms, harder). When adding a room after it, move
+throws you out at the hub (The Last Obol, below), where the ferry goes back down a depth
+deeper (the same rooms, harder). When adding a room after it, move
 the `X` and the exit flag. New rooms
 go further right in the **same map**: only ever add columns to the right or rows at the
 bottom, never insert any before existing ones, or every painting's camera stops
@@ -344,7 +375,7 @@ All of this is playable, and a bot plays the whole route without errors:
 - A boss with phases.
 - Skill tree (reuse `Build.stat()` and perk hooks).
 - Procedural room stitching.
-- Options menu and save/load.
+- Options menu (progress is saved: `Meta`, user://progress.cfg).
 - Painted-art pass over the renders.
 - Tuning by human playtest.
 
@@ -360,7 +391,9 @@ src/enemies/        enemy_data · enemy.gd (base FSM, armour, stagger, status, d
 src/abilities/      shock_nova · seeker_swarm · blade (RMB saber: combo / dash-slash / execute)
 src/loot/           item · loot (generation/drops) · pickup
 src/dungeon/        layout_test (ASCII + rooms/beats) · layout_temple (mockup look-test room) · dungeon.gd (grid collision, DDA raycast, flow field, floor/walls/lights) · pit_fire (soul-fire in enclosed chasms) · terrace (drops and stairs between floor levels) · encounter_director · prop · doors/portal/shock floor
-src/ui/             hud.gd (procedural HUD + minimap) · inventory_ui.gd
+src/ui/             hud.gd (procedural HUD + minimap) · inventory_ui.gd · hub_menu.gd (forge / bar / ferry screens)
+src/hub/            hub.gd (stations, prompt) · shade.gd (souls, Charon) · hub_prop.gd (anvil, bar, ferry)
+src/core/meta.gd    souls, forge levels, drink, save (user://progress.cfg)
 src/vfx/            shaders/ (entity, glow_rim, post, post_lite, void_bg) · camera · post_fx · telegraph · tex_gen · glow_mat
 src/debug/          bot_driver.gd (automated playtester)
 data/weapons, data/enemies   .tres definitions — tune numbers here, not in code
@@ -515,6 +548,7 @@ godot --headless --path . --fixed-fps 60 -- --bot --bot-human --bot-nododge --qu
 godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to a room / depth / preset while playing
 ```
 
+- **The hub:** `--level=hub` starts at The Last Obol (section 0).
 - **Rooms for `--start`:** temple dungeon (default) `temple sanctum altar gallery
   undercroft shades lethe arena`; with `--level=test`: `landing conduit vault hatchery spine reactor`.
   `--level=temple` is still accepted (it is the default).
