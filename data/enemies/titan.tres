@@ -6,13 +6,13 @@
 script = ExtResource("1")
 id = &"titan"
 display_name = "Arachne, the Titan Weaver"
-max_hp = 5200.0
+max_hp = 9000.0
 speed_m = 3.2
 accel_m = 10.0
 radius_m = 2.1
 hit_height_m = 1.9
 mass = 30.0
-stagger_threshold = 900.0
+stagger_threshold = 1400.0
 stagger_time = 2.2
 front_armor = 0.55
 back_mult = 2.2

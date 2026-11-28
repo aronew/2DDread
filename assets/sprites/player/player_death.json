@@ -1,0 +1,17 @@
+{
+ "name": "player_death",
+ "frame_w": 360,
+ "frame_h": 300,
+ "origin": [
+  180,
+  214
+ ],
+ "rows": 16,
+ "cols": 5,
+ "files": {
+  "color": "player_death_c.png",
+  "normal": "player_death_n.png"
+ },
+ "dirs": 16,
+ "frames": 5
+}

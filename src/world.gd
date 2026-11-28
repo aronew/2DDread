@@ -43,6 +43,7 @@ func _ready() -> void:
 	camera = GameCamera.new()
 	add_child(camera)
 	camera.add_child(AmbientMotes.new())
+	camera.add_child(GroundFog.new())
 	player = Player.new()
 	player.name = "Player"
 	var plight := PointLight2D.new()
@@ -165,7 +166,7 @@ func build_level() -> void:
 	if dungeon.exit_cell.x >= 0:
 		portal = ExitPortal.new()
 		portal.setup(Iso.cell_center(dungeon.exit_cell))
-		hazards.add_child(portal)
+		entities.add_child(portal)   # an upright gateway: y-sorted with walls and actors
 	if player.get_parent():
 		player.get_parent().remove_child(player)
 	entities.add_child(player)
@@ -301,7 +302,7 @@ func _apply_render_cap() -> void:
 func spawn_enemy(id: String, g: Vector2, opts := {}) -> Enemy:
 	var e: Enemy
 	match id:
-		"mite": e = Mite.new()
+		"mite", "spiderling": e = Mite.new()
 		"spitter": e = Spitter.new()
 		"brute": e = Brute.new()
 		"bloater": e = Bloater.new()
@@ -401,6 +402,11 @@ func _parse_args() -> void:
 				elif pr.destructible():
 					var d := DamageInfo.make(9999.0, DamageInfo.Type.PHYSICAL, player)
 					pr.take_damage(d))
+	if opts.has("die-at"):
+		# dev: the player drops dead after N seconds, knocked back from where he aims (to
+		# look at the death animation; with --look it plays in an empty room)
+		get_tree().create_timer(float(opts["die-at"])).timeout.connect(func():
+			player.dev_kill(-player.aim_dir))
 	if opts.has("paint-guide"):
 		# dev: a clean frame of the room for an image generator to paint over (no HUD,
 		# no player), plus where the camera was, so the painting can be laid back on
@@ -421,6 +427,8 @@ func _parse_args() -> void:
 		_bench_until = Time.get_ticks_msec() / 1000.0 + float(opts["bench"])
 		_bench_start_ms = Time.get_ticks_msec()
 		_bench_start_frames = Engine.get_frames_drawn()
+	if opts.has("open-exit") and portal:
+		portal.activate()   # dev: open the descent portal now (to look at it)
 	if opts.has("dmg-mult"):
 		Game.damage_taken_mult = float(opts["dmg-mult"])
 	if opts.has("bot") or opts.has("shots") or opts.has("quit-after") or opts.has("inv-shot"):

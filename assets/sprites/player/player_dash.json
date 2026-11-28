@@ -1,0 +1,17 @@
+{
+ "name": "player_dash",
+ "frame_w": 280,
+ "frame_h": 300,
+ "origin": [
+  140,
+  240
+ ],
+ "rows": 16,
+ "cols": 3,
+ "files": {
+  "color": "player_dash_c.png",
+  "normal": "player_dash_n.png"
+ },
+ "dirs": 16,
+ "frames": 3
+}

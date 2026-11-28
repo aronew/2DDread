@@ -16,6 +16,7 @@ const CARRY_DECAY_M := 8.0        # ...and keep that momentum, bleeding it off a
 const DASH_BUFFER := 0.16         # a dash pressed this soon before one is possible still fires
 const DASH_KILL_WINDOW := 0.45    # a kill during or this soon after a dash refunds a charge
 const STEP_T := 0.26              # footstep dust while running
+const DASH_LAND := 0.07           # the dash's landing pose holds this long after it
 const AMMO_MAX := {"light": 420, "shells": 64, "cells": 30}
 const BACKPACK_SIZE := 24
 
@@ -51,6 +52,7 @@ var _since_dash := 99.0
 var _iframes := 0.0
 var _hurt_iframes := 0.0
 var _hurt_flash := 0.0
+var _last_hit_dir := Vector2.ZERO   # the push of the last hit: a killing blow knocks him over backward
 var _regen_delay := 0.0
 var _swap_t := 0.0
 var _launcher_t := 0.0
@@ -106,6 +108,16 @@ func dashing() -> bool:
 	return _dash_t > 0.0
 
 
+## Where the dash animation is: 0..1 through the dash, past 1 for a short landing after
+## it, -1 when not dashing.
+func _dash_anim() -> float:
+	if dashing():
+		return 1.0 - _dash_t / DASH_TIME
+	if _since_dash < DASH_LAND:
+		return 1.0 + _since_dash / DASH_LAND
+	return -1.0
+
+
 ## True while dashing or within `window` seconds after a dash ended.
 func dash_recent(window: float) -> bool:
 	return dashing() or _since_dash < window
@@ -144,6 +156,7 @@ func _input_state() -> Dictionary:
 
 func _process(dt: float) -> void:
 	if not alive:
+		visual.update_death(dt)
 		return
 	if get_tree().paused:
 		return
@@ -155,7 +168,7 @@ func _process(dt: float) -> void:
 	_update_weapons(s, dt)
 	_update_abilities(s, dt)
 	position = Iso.to_screen(gpos)
-	visual.update(dt, vel, aim_dir, dashing())
+	visual.update(dt, vel, aim_dir, dashing(), _dash_anim())
 	_hurt_flash = maxf(0.0, _hurt_flash - dt * 6.0)
 	visual.set_flash(_hurt_flash * 0.8, Color(1.0, 0.25, 0.2))
 	visual.modulate.a = 0.55 if _iframes > 0.0 and not dashing() and fmod(_iframes, 0.1) < 0.05 else 1.0
@@ -323,6 +336,9 @@ func _start_dash() -> void:
 	var feet := Iso.to_screen(gpos)
 	# kick-off: dust thrown back, a flattened shock ring, a streak along the path
 	VFX.emit("smoke", Iso.lift(gpos, 0.15), (-_dash_dir).angle(), Color(0.5, 0.5, 0.55, 0.55), 0.5)
+	# a burst of golden spikes and sparks thrown back off the heels
+	VFX.spikes(Iso.lift(gpos, 0.5), (-sdir).angle(), 0.9, 5, 95.0, Color(2.8, 2.1, 1.0, 0.9), 0.09)
+	VFX.emit("sparks", Iso.lift(gpos, 0.3), (-sdir).angle(), Color(2.8, 2.0, 0.9), 0.5)
 	VFX.burst_sprite(VFX.T.ring, feet, Color(1.6, 1.5, 1.4, 0.55), Vector2(0.12, 0.12 * Iso.K), Vector2(0.55, 0.55 * Iso.K), 0.2)
 	VFX.burst_sprite(VFX.T.spark, feet + sdir * Iso.m(3.0) + Vector2(0, -Iso.h(0.9)), Color(1.4, 1.3, 1.2, 0.35),
 		Vector2(1.0, 0.25), Vector2(Iso.m(6.0) / 32.0, 0.06), 0.22, true, sdir.angle())
@@ -410,6 +426,7 @@ func switch_weapon(i: int) -> void:
 
 func on_weapon_fired(w: Weapon, charge: float) -> void:
 	_last_fire_t = 0.0
+	visual.end_swing()
 	visual.muzzle_alt = not visual.muzzle_alt
 	visual.kick(w.data.recoil_kick * (0.5 + charge * 0.5), aim_dir)
 	VFX.shake(w.data.shake * (0.5 + charge * 0.5))
@@ -476,6 +493,8 @@ func take_damage(info: DamageInfo) -> void:
 	var amt := info.amount * 100.0 / (100.0 + build.stat("armor")) * Game.damage_taken_mult
 	hp -= amt
 	_hurt_flash = 1.0
+	if info.direction.length() > 0.1:
+		_last_hit_dir = info.direction
 	_regen_delay = 4.0
 	if not info.is_dot:
 		_hurt_iframes = 0.12 if amt < 20.0 else 0.35
@@ -506,17 +525,27 @@ func _die() -> void:
 	hp = 0.0
 	blade.cancel()
 	VFX.gore(gpos, Color(0.8, 0.1, 0.1), 2.0)
-	VFX.explosion(gpos, Iso.m(2.0), Color(0.4, 0.6, 1.0), false)
-	visual.visible = false
+	VFX.ring(gpos, Iso.m(2.5), Color(1.0, 0.3, 0.2), 0.4)
+	# he falls over backward, away from the killing blow, in slow motion
+	visual.play_death(-_last_hit_dir if _last_hit_dir.length() > 0.1 else aim_dir)
 	Game.hit_stop(0.25, 0.05, true)
+	Game.slowmo(0.9, 0.35)
 	Events.player_died.emit()
+
+
+## Dev (--die-at): drop dead now, knocked along `push`.
+func dev_kill(push: Vector2) -> void:
+	if alive:
+		_last_hit_dir = push
+		_die()
 
 
 func revive(g: Vector2) -> void:
 	alive = true
 	hp = max_hp
-	visual.visible = true
+	visual.revived()
 	_iframes = 2.0
+	_last_hit_dir = Vector2.ZERO
 	spawn_at(g)
 	VFX.ring(gpos, Iso.m(3.0), Color(0.5, 0.8, 1.0), 0.5)
 

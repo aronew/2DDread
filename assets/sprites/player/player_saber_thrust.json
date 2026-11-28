@@ -1,0 +1,18 @@
+{
+ "name": "player_saber_thrust",
+ "frame_w": 320,
+ "frame_h": 300,
+ "origin": [
+  160,
+  236
+ ],
+ "rows": 16,
+ "cols": 2,
+ "files": {
+  "color": "player_saber_thrust_c.png",
+  "normal": "player_saber_thrust_n.png",
+  "emit": "player_saber_thrust_e.png"
+ },
+ "dirs": 16,
+ "frames": 2
+}
