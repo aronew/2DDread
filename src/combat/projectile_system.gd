@@ -145,6 +145,8 @@ func _step(p: Projectile, dt: float) -> void:
 				Audio.play("impact_metal", wall["point"])
 			if p.kind == &"acid":
 				_acid_splat(wall["point"] + n * 20.0)
+			elif p.tags.has(&"venom_pool"):
+				_venom_pool(wall["point"] + n * 30.0, p)
 		p.dead = true
 		return
 	p.pos = to
@@ -159,6 +161,8 @@ func _step(p: Projectile, dt: float) -> void:
 			_explode(p, p.pos)
 		elif p.kind == &"acid":
 			_acid_splat(p.pos)
+		elif p.tags.has(&"venom_pool"):
+			_venom_pool(p.pos, p)
 		p.dead = true
 
 
@@ -231,6 +235,18 @@ func _acid_splat(at: Vector2) -> void:
 	h.setup(at, Iso.m(0.9), 2.2, null, "acid")
 	if Game.world:
 		Game.world.add_hazard(h)
+
+
+## The titan's venom shards that fly their full range splash into a burning magenta pool.
+func _venom_pool(at: Vector2, p: Projectile) -> void:
+	if not Game.dungeon.is_floor(Iso.cell_of(at)) or Game.world == null:
+		return
+	VFX.gore(at, Color(1.0, 0.3, 0.9), 0.7)
+	var h := GroundHazard.new()
+	h.setup(at, Iso.m(float(p.tags[&"venom_pool"])), 3.2, p.info.source if p.info else null, "acid")
+	h.color = Color(1.0, 0.3, 0.9)
+	h.type = DamageInfo.Type.VOID
+	Game.world.add_hazard(h)
 
 
 # ------------------------------------------------------------------ hitscan
@@ -347,12 +363,22 @@ func _draw() -> void:
 		var head := Iso.lift(p.pos, p.height)
 		match p.kind:
 			&"shard":
+				var k: float = p.size
 				var sd := Iso.to_screen(p.vel).normalized()
 				var sn := sd.orthogonal()
-				var pts := PackedVector2Array([head + sd * 13.0, head + sn * 5.0, head - sd * 11.0, head - sn * 5.0])
+				var pts := PackedVector2Array([head + sd * 13.0 * k, head + sn * 5.0 * k, head - sd * 11.0 * k, head - sn * 5.0 * k])
+				var g := 16.0 * k
+				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(g, g), Vector2(g, g) * 2.0), false, p.color * Color(1.4, 1.4, 1.4, 0.7))
+				draw_line(head - sd * 11.0 * k, head - sd * 34.0 * k, p.color * Color(1.2, 1.2, 1.2, 0.35), 3.0 * k, true)
+				if k > 1.5:
+					# big shots get an ink outline and a white-hot core, so they read as solid
+					pts.append(pts[0])
+					draw_polyline(pts, Color(0.08, 0.0, 0.06, 0.9), 2.5, true)
+					pts.remove_at(4)
 				draw_colored_polygon(pts, p.color * Color(2.4, 2.4, 2.4, 1))
-				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(16, 16), Vector2(32, 32)), false, p.color * Color(1.4, 1.4, 1.4, 0.7))
-				draw_line(head - sd * 11.0, head - sd * 34.0, p.color * Color(1.2, 1.2, 1.2, 0.35), 3.0, true)
+				if k > 1.5:
+					var core := PackedVector2Array([head + sd * 6.0 * k, head + sn * 2.0 * k, head - sd * 5.0 * k, head - sn * 2.0 * k])
+					draw_colored_polygon(core, Color(3.0, 2.4, 3.0))
 			&"acid":
 				var r := 9.0 + sin(p.age * 30.0) * 1.5
 				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(r, r) * 2.4, Vector2(r, r) * 4.8), false, p.color * Color(1.6, 1.6, 1.6, 0.9))
@@ -382,10 +408,11 @@ func _draw() -> void:
 					pts.append(head)
 					_ribbon(pts, c, p.width * (0.9 if ember else 1.0), 1.0 if not ember else 0.8 + 0.2 * sin(p.age * 70.0))
 				var gw: float = p.width * 6.0
-				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(gw, gw), Vector2(gw, gw) * 2.0), false, c * Color(1.7, 1.5, 1.3, 0.6))
+				draw_texture_rect(VFX.T.glow, Rect2(head - Vector2(gw, gw), Vector2(gw, gw) * 2.0), false, c * Color(1.6, 1.6, 1.6, 0.65))
 				draw_line(tail, head, c * Color(1, 1, 1, 0.4), p.width * 3.6, true)
-				draw_line(tail.lerp(head, 0.2), head, c * Color(2.6, 2.5, 2.4, 1), p.width * 1.4, true)
-				draw_circle(head, p.width * 1.0, Color(3.8, 3.6, 3.3))
+				draw_line(tail.lerp(head, 0.2), head, c * Color(1.9, 1.9, 1.9, 1), p.width * 1.4, true)
+				# a tinted hot head (not white), so each gun keeps its colour through the bloom
+				draw_circle(head, p.width * 1.0, c.lerp(Color.WHITE, 0.35) * Color(2.4, 2.4, 2.4, 1))
 	for a in afterglow:
 		_ribbon(a["pts"], a["color"], a["width"], a["t"] / AFTERGLOW_T)
 	for b in beams:
@@ -403,5 +430,5 @@ func _ribbon(pts: PackedVector2Array, c: Color, w: float, a: float) -> void:
 	for k in range(1, n):
 		var u := float(k) / (n - 1)
 		var fade := u * u * a
-		draw_line(pts[k - 1], pts[k], c * Color(1.3, 1.2, 1.1, 0.32 * fade), w * (1.2 + 3.4 * u), true)
-		draw_line(pts[k - 1], pts[k], c * Color(2.4, 2.2, 2.0, 0.95 * fade), w * (0.25 + 0.9 * u), true)
+		draw_line(pts[k - 1], pts[k], c * Color(1.3, 1.25, 1.2, 0.4 * fade), w * (1.2 + 3.4 * u), true)
+		draw_line(pts[k - 1], pts[k], c * Color(1.8, 1.75, 1.7, 0.95 * fade), w * (0.25 + 0.9 * u), true)

@@ -111,7 +111,7 @@ func _process(dt: float) -> void:
 func _inventory_test() -> void:
 	var pl = Game.player
 	for r in 6:
-		pl.inventory_add(Loot.make_weapon(WeaponDB.LOOTABLE[r % 4], r, 3))
+		pl.inventory_add(Loot.make_weapon(WeaponDB.LOOTABLE[r % WeaponDB.LOOTABLE.size()], r, 3))
 		pl.inventory_add(Loot.make_gear([&"armor", &"core", &"relic"][r % 3], r, 3))
 	pl.build.attr_points = 3
 	Game.hud.toggle_inventory()

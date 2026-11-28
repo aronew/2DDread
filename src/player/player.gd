@@ -76,6 +76,16 @@ func _ready() -> void:
 	weapons[1] = _starter(&"shotgun")
 	weapons[2] = _starter(&"arc")
 	launcher = Weapon.new(WeaponDB.get_data(&"launcher"))
+	# dev: --weapons=a,b,c sets the three slots (e.g. --weapons=repeater,lance,scatter)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--weapons="):
+			var ids := arg.get_slice("=", 1).split(",")
+			for k in mini(3, ids.size()):
+				if WeaponDB.get_data(StringName(ids[k])):
+					weapons[k] = _starter(StringName(ids[k]))
+	# the three void guns start in the backpack (Tab to swap them in), so they can be tried at once
+	for id in [&"repeater", &"lance", &"scatter"]:
+		backpack.append(Loot.make_weapon(id, Item.Rarity.COMMON, 1))
 	abilities = [ShockNova.new(), SeekerSwarm.new()]
 	blade = Blade.new()
 	build.recalc()

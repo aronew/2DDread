@@ -282,7 +282,7 @@ func _do_stomp(p) -> void:
 	if p.gpos.distance_to(_slam_center) < r + p.radius * 0.5:
 		hurt_player(data.damage * 0.8, (p.gpos - _slam_center).normalized(), 14.0)
 	_cool["stomp"] = 2.2 * _cd_k()
-	_rockfall(p, 2 + phase * 2, 0.7)
+	_rockfall(p, 4 + phase * 2, 0.7)
 
 
 func _crash() -> void:
@@ -293,7 +293,7 @@ func _crash() -> void:
 	VFX.popup(gpos, 4.2, "STUNNED", Color(1.0, 0.8, 0.3), 40)
 	var pl = player()
 	if pl:
-		_rockfall(pl, 3 + phase, 0.9)   # the crash brings the ceiling down: the opening still costs
+		_rockfall(pl, 6 + phase * 2, 0.9)   # the crash brings the ceiling down: the opening still costs
 	_cool["charge"] = 7.0 * _cd_k()
 	attack_cd = data.attack_cooldown
 	stagger_meter = 0.0
@@ -316,8 +316,11 @@ func _fire_fan(p) -> void:
 		q.vel = dir.rotated(a) * Iso.m(10.5)
 		q.info = DamageInfo.make(data.damage * dmg_mult * 0.42, DamageInfo.Type.VOID, self)
 		q.info.knockback = Iso.m(2.0)
-		q.max_range = Iso.m(18.0)
-		q.radius = Iso.m(0.24)
+		q.max_range = Iso.m(randf_range(9.0, 15.0))
+		if i % 2 == 0:
+			q.tags[&"venom_pool"] = 1.1   # every other shard falls short and splashes a pool
+		q.radius = Iso.m(0.34)
+		q.size = 2.8
 		q.kind = &"shard"
 		q.color = Color(1.0, 0.22, 0.6)
 		q.impact_style = "shard"
@@ -341,7 +344,8 @@ func _shard(at: Vector2, dir: Vector2, speed_m: float) -> void:
 	q.info = DamageInfo.make(data.damage * dmg_mult * 0.38, DamageInfo.Type.VOID, self)
 	q.info.knockback = Iso.m(1.5)
 	q.max_range = Iso.m(16.0)
-	q.radius = Iso.m(0.22)
+	q.radius = Iso.m(0.3)
+	q.size = 2.3
 	q.kind = &"shard"
 	q.color = Color(1.0, 0.22, 0.6)
 	q.impact_style = "shard"
@@ -356,24 +360,32 @@ func _rockfall(p, n: int, delay: float) -> void:
 		if i == 0:
 			at = _lead(p, delay * 0.6)
 		else:
-			at = p.gpos + Vector2.from_angle(randf() * TAU) * Iso.m(randf_range(2.0, 6.5))
+			at = p.gpos + Vector2.from_angle(randf() * TAU) * Iso.m(randf_range(1.5, 8.0))
 		if not Game.dungeon.is_floor(Iso.cell_of(at)):
 			continue
 		var r := SkyStrike.new()
-		r.setup(at, 1.35, delay + i * 0.16, data.damage * dmg_mult * 0.75, "rock", self)
+		r.setup(at, randf_range(1.1, 1.6), delay + i * 0.11, data.damage * dmg_mult * 0.75, "rock", self)
 		Game.world.add_hazard(r)
 
 
 ## Venom globs spat high, landing on and around the player and leaving burning pools.
 func _mortar(p) -> void:
-	var n := 3 + phase
+	var n := 6 + phase * 2
 	var mouth := gpos + facing * Iso.m(2.4)
+	var a0 := randf() * TAU
 	for i in n:
-		var at: Vector2 = _lead(p, 1.0) if i == 0 else p.gpos + Vector2.from_angle(i * TAU / (n - 1) + randf() * 0.5) * Iso.m(3.0)
+		# one on where they are heading, a ring close around them, the rest scattered wider
+		var at: Vector2
+		if i == 0:
+			at = _lead(p, 1.0)
+		elif i <= 4:
+			at = p.gpos + Vector2.from_angle(a0 + i * TAU / 4.0) * Iso.m(3.0)
+		else:
+			at = p.gpos + Vector2.from_angle(randf() * TAU) * Iso.m(randf_range(4.5, 8.0))
 		if not Game.dungeon.is_floor(Iso.cell_of(at)):
 			continue
 		var v := SkyStrike.new()
-		v.setup(at, 1.5, 1.05 + i * 0.1, data.damage * dmg_mult * 0.6, "venom", self, mouth)
+		v.setup(at, 1.4, 1.05 + i * 0.07, data.damage * dmg_mult * 0.6, "venom", self, mouth)
 		Game.world.add_hazard(v)
 	VFX.muzzle(Iso.lift(mouth, 1.6), facing, {"color": Color(1.0, 0.3, 0.9), "scale": 1.2, "light": 2.0, "range": 4.0})
 	Audio.play("spitter_spit", gpos, 2.0, 0.55)

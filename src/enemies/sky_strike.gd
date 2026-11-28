@@ -66,8 +66,10 @@ func _draw() -> void:
 		var g := from_g.lerp(hit_g, u)
 		var h := 1.6 + 4.5 * sin(u * PI)
 		var c := Iso.lift(g, h)
-		draw_texture_rect(VFX.T.glow, Rect2(c - Vector2(30, 30), Vector2(60, 60)), false, Color(2.2, 0.5, 2.0, 0.8))
-		draw_circle(c, 9.0, Color(3.0, 1.2, 2.8))
+		draw_texture_rect(VFX.T.glow, Rect2(c - Vector2(48, 48), Vector2(96, 96)), false, Color(2.2, 0.5, 2.0, 0.8))
+		draw_circle(c, 17.0, Color(0.08, 0.0, 0.06, 0.9))
+		draw_circle(c, 14.5, Color(2.4, 0.6, 2.2))
+		draw_circle(c - Vector2(3, 4), 6.0, Color(3.2, 2.4, 3.2))
 
 
 func _impact() -> void:
@@ -86,7 +88,7 @@ func _impact() -> void:
 			Vector2(0.4, 0.4), Vector2(1.6, 1.4), 0.14)
 		Audio.play("acid_splash", hit_g)
 		var pool := GroundHazard.new()
-		pool.setup(hit_g, radius * 0.9, 3.0, source, "acid")
+		pool.setup(hit_g, radius * 0.9, 4.5, source, "acid")
 		pool.color = Color(1.0, 0.3, 0.9)
 		pool.type = DamageInfo.Type.VOID
 		Game.world.add_hazard(pool)

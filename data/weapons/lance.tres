@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/combat/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"lance"
+display_name = "Styx Lance"
+flavor = "Drawn from the river of oaths. Each heavy blue bolt punches clean through three souls and keeps going."
+torso = "rail"
+fire_mode = "semi"
+damage = 46.0
+damage_type = 2
+crit_chance = 0.15
+crit_mult = 2.3
+knockback_m = 2.6
+stagger = 22.0
+fire_interval = 0.34
+spread_deg = 0.6
+proj_kind = "bolt"
+projectile_speed_m = 62.0
+range_m = 24.0
+pierce = 3
+proj_color = Color(0.35, 0.68, 1, 1)
+proj_width = 6.0
+proj_length_m = 1.8
+ammo_type = "cells"
+mag_size = 9
+reload_time = 1.6
+recoil_kick = 9.0
+shake = 0.2
+hitstop = 0.02
+muzzle_color = Color(0.4, 0.7, 1, 1)
+muzzle_scale = 1.15
+muzzle_light = 2.2
+muzzle_fx = "arc"
+sound_fire = "rail_fire"
+impact_style = "energy"
+icon_color = Color(0.35, 0.68, 1, 1)

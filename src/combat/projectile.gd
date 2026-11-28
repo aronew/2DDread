@@ -29,6 +29,7 @@ var kind: StringName = &"bolt"
 var color := Color.WHITE
 var width := 4.0
 var length := 60.0
+var size := 1.0               # draw scale for shard-like enemy shots (the titan's are 2.6x)
 var impact_style := "metal"
 var weapon = null
 var hit_ids := {}

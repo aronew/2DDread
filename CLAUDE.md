@@ -198,7 +198,13 @@ All of this is playable, and a bot plays the whole route without errors:
     passes visually through it and misses), or stick with aim assist.
   - Three weapon slots: Twin Hellfire Revolvers (alternating barrels), Hellmouth
     Blunderbuss, Stormcaller (heat-based chain lightning).
-  - Longshot (charge rail) as loot.
+  - Longshot (charge rail) as loot, and three void guns (2026-11-28; the owner wanted
+    magenta, blue and purple shots): **Nyx Repeater** (`repeater`, magenta, fast auto,
+    ricochet), **Styx Lance** (`lance`, blue, heavy semi-auto bolts, pierce 3) and **Erebus
+    Scattergun** (`scatter`, purple pellets, ricochet). They start in the backpack (Tab to
+    equip) and drop as loot; they reuse the rifle/rail/shotgun torsos. Bolt heads stay
+    tinted (not white) so each gun keeps its colour through the bloom. Dev flag
+    `--weapons=a,b,c` sets the three slots.
   - F Firebomb (was RMB until 2026-11-27).
   - Movement (owner: "should feel as satisfying as DreadHunter / Hades"): 7.6 m/s with
     snappy accel/stops; dash 6.1 m (bursts out, eases into the landing, exits at 1.3x run
@@ -246,8 +252,10 @@ All of this is playable, and a bot plays the whole route without errors:
     (red circle in front) that **shakes rocks loose from the ceiling** onto red circles at
     and around the player (`SkyStrike` "rock"; rocks crush spiderlings too); **charge**
     aimed where the player is heading (red lane; a wall or column in the way stuns it for a
-    long opening, but the crash brings more rocks down); **venom volleys** (fans of shards);
-    **venom mortar** (globs arc onto red circles and leave burning pools, `SkyStrike`
+    long opening, but the crash brings more rocks down); **venom volleys** (fans of big inked shards, `Projectile.size` 2.8; every other one falls
+    short and splashes a venom pool, tag `venom_pool`); stomps drop 4-10 rocks and a crash
+    6-12;
+    **venom mortar** (6-10 globs arc onto red circles around the player and leave burning pools, `SkyStrike`
     "venom"); **brood**: spiderlings (`spiderling`, a tiny copy of itself on hound
     behaviour, `data/enemies/spiderling.tres`) and from phase 2 Flaming Skulls. From phase 2
     (below 60%) also a **magenta fire nova** (`SoulRing`: dash through it or outrun it) and a

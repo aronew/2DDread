@@ -154,6 +154,9 @@ godot --path . --fixed-fps 30 -- --bot --start=altar --shots=/tmp/shots --shot-e
 # jump straight to a room / depth while playing
 godot --path . -- --start=gallery --depth=2
 
+# start with the three void guns in your slots (any weapon ids from data/weapons)
+godot --path . -- --weapons=repeater,lance,scatter
+
 # the original test level
 godot --path . -- --level=test --start=reactor
 ```

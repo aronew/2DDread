@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/combat/weapon_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"scatter"
+display_name = "Erebus Scattergun"
+flavor = "Fires a tight fan of violet void-shot that ricochets off walls. Clears corridors, punishes crowds at the door."
+torso = "shotgun"
+fire_mode = "semi"
+damage = 9.0
+damage_type = 5
+pellets = 7
+crit_chance = 0.05
+crit_mult = 1.8
+knockback_m = 1.8
+stagger = 7.0
+falloff_start_m = 6.0
+falloff_min = 0.45
+fire_interval = 0.42
+spread_deg = 8.0
+proj_kind = "pellet"
+projectile_speed_m = 44.0
+range_m = 13.0
+ricochet = 1
+proj_color = Color(0.72, 0.42, 1, 1)
+proj_width = 3.0
+proj_length_m = 0.7
+ammo_type = "shells"
+mag_size = 6
+reload_time = 0.34
+reload_per_round = true
+recoil_kick = 8.0
+shake = 0.24
+muzzle_color = Color(0.72, 0.45, 1, 1)
+muzzle_scale = 1.25
+muzzle_wide = true
+muzzle_light = 2.2
+muzzle_fx = "blast"
+sound_fire = "shotgun_fire"
+impact_style = "energy"
+icon_color = Color(0.72, 0.42, 1, 1)

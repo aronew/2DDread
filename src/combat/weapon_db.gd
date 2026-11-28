@@ -3,7 +3,7 @@ extends RefCounted
 ## Registry of WeaponData resources in res://data/weapons.
 
 const DIR := "res://data/weapons/"
-const LOOTABLE := [&"rifle", &"shotgun", &"arc", &"rail"]
+const LOOTABLE := [&"rifle", &"shotgun", &"arc", &"rail", &"repeater", &"lance", &"scatter"]
 
 static var _db := {}
 
@@ -11,7 +11,7 @@ static var _db := {}
 static func _ensure() -> void:
 	if not _db.is_empty():
 		return
-	for f in ["rifle", "shotgun", "arc", "rail", "launcher"]:
+	for f in ["rifle", "shotgun", "arc", "rail", "launcher", "repeater", "lance", "scatter"]:
 		var path: String = DIR + f + ".tres"
 		if ResourceLoader.exists(path):
 			var d: WeaponData = load(path)
