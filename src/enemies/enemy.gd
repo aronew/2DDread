@@ -333,7 +333,10 @@ func _update_visual(dt: float) -> void:
 		tint_a = 0.4
 		tint_c = Color(1.0, 0.5, 0.2)
 	if state == S.WINDUP:
-		tint_a = maxf(tint_a, 0.35 + 0.3 * sin(state_t * 40.0))
+		# (a boss is huge and its wind-ups are long: a lighter pulse, the red ground marker
+		# carries the warning)
+		var wk := 0.4 if data.boss else 1.0
+		tint_a = maxf(tint_a, (0.35 + 0.3 * sin(state_t * 40.0)) * wk)
 		tint_c = Color(1.0, 0.25, 0.2)
 	_set_param("tint_amount", snappedf(tint_a, 0.02))
 	_set_param("tint", tint_c)
@@ -412,9 +415,16 @@ func take_damage(info: DamageInfo) -> float:
 		if shield <= 0.0:
 			Elite.shield_broken(self)
 	hp -= amt
-	_flash = 1.0 if not info.is_dot else maxf(_flash, 0.35)
-	if not info.is_dot:
-		_hit_punch = minf(1.0, 0.55 + amt / maxf(1.0, max_hp) * 2.5)
+	if data.boss:
+		# a boss takes a stream of hits: a full white flash on each would keep it white
+		# the whole fight and hide its design, so it only blinks faintly, and barely squashes
+		_flash = maxf(_flash, 0.22 if not info.is_dot else 0.1)
+		if not info.is_dot:
+			_hit_punch = maxf(_hit_punch, 0.12)
+	else:
+		_flash = 1.0 if not info.is_dot else maxf(_flash, 0.35)
+		if not info.is_dot:
+			_hit_punch = minf(1.0, 0.55 + amt / maxf(1.0, max_hp) * 2.5)
 	_show_bar_t = 3.0
 	if info.knockback > 0.0 and info.direction != Vector2.ZERO:
 		var kb := info.knockback / maxf(0.3, data.mass)

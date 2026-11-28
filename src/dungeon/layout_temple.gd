@@ -202,7 +202,7 @@ const ROOMS := [
 		# the boss: Arachne rises in the middle of the arena (Titan)
 		"id": "arena", "name": "THE WEAVER'S DEEP", "rect": [128, 4, 147, 18], "lock": false,
 		"beats": [
-			{"trigger": "enter_delay", "delay": 1.4, "spawn": [["titan", 1, {"area": [134, 6, 141, 9]}]], "boss": true},
+			{"trigger": "enter_delay", "delay": 1.4, "spawn": [["titan", 1, {"area": [134, 6, 141, 9]}]]},
 		],
 		"reward": "legendary",
 		"exit": true,

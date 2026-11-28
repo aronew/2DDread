@@ -1,0 +1,18 @@
+{
+ "name": "titan_attack",
+ "frame_w": 760,
+ "frame_h": 660,
+ "origin": [
+  380,
+  450
+ ],
+ "rows": 8,
+ "cols": 6,
+ "files": {
+  "color": "titan_attack_c.png",
+  "emit": "titan_attack_e.png"
+ },
+ "dirs": 8,
+ "frames": 6,
+ "anim": "attack"
+}
