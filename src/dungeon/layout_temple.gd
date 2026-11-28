@@ -80,26 +80,34 @@ extends RefCounted
 ## Legionnaire with skulls; a volatile elite with hounds; then the chest and the portal.
 ## (The lake must stay enclosed: see CLAUDE.md, "Soul-fire lake and geysers".)
 
+## Room 7, THE WEAVER'S DEEP (columns 127-148, rows 3-18): the boss arena, the dungeon's
+## end. A corridor (rows 10-12) from the Isles of Lethe's east quay enters through the
+## left wall. A big open floor, 20 x 15 cells, for dodging: four freestanding columns
+## (cover from the venom fans, and the titan's charge stuns it if it hits one), a pair of
+## gold bands and a laurel-skull plate in the middle, a fire urn in each front corner,
+## candles along the walls. Arachne, the Titan Weaver (Titan) rises in the middle; killing
+## her drops a legendary chest and opens the exit portal between the braziers at the back.
+
 const MAP := [
 	"OPPPPMPPPOPPPPMPPPPO      OWMWOWMWOWMO    OPPPOPWPOPPPO    OPMPOPWPOWMWOPWPOMO",
 	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:    P:::::k:::::::k::::",
 	"M:::::::::::::::::::::::::P::O:  ::O::::::P::O:::::O:::::::P::::::::::::::::::",
-	"W::::::::::::::::k:::::::::::::  ::::::::::hhhh:=l::::::::::hhhhhhh:l:::::::::                          OMWMOPWMOWMWOPWMOPO",
-	"M::::::::o:::::::::p:::::::::::BB:::::::::::::::=:::::::::::::o:::::::::::n:::      OMWMOPWPOMWMOPWO    W:n::k::xxxe:::::::",
-	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b      W:k:::n:::n:::k:    M:::    x       :::",
-	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::      Mb::::::::::*:*:    W:o:   ::::    :*::",
-	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::      O::hhhhhhhhhhh:::::::::    :::Q:   :X::",
-	"M::::S::::::::::::::::      ::::::           ::::::::           _____///______      W:::W:n:::::W:::::::::::BBB:::::   :*::",
-	"Wn  B  B    ::::w:::::                                           _____///______     M:::::::::::::::::::::::   :*:::BBB::k:",
-	"M:  B  B    :::::::::                                              P:k::::k:::::    W:::::::o:::::::    W::    :Qo::   ::::",
-	"W:::::::::::::::::::k:                                             M::::::::::::    O:::::::::::::b:    M:n    :::::   :n::",
-	"M::Q::,::::::::::::::                                              P::::o:::::::    M:::::::::::::::    Wk:       B     :::",
-	"W:n:::::::::::w::::n                                               M::O:::::O:::::::W:::W:::::n:W:=:    O:k      :::    :::",
-	" :::Q:::::,:::::::::                                               W:::::=:::::::::::::hhhhhhhhhhh::    W::      :e:     ::",
-	"   ::::::::::::::::                                                Ok::::=::::::::::::::o:::o:::o:k:       ||||||||||||||",
-	"      ::::::::::                                                   W::O:::::O:::    ::::::::::::::::",
-	"                                                                   M:b:::::::k::",
-	"                                                                   P:::::::::n::",
+	"W::::::::::::::::k:::::::::::::  ::::::::::hhhh:=l::::::::::hhhhhhh:l:::::::::                          OMWMOPWMOWMWOPWMOPO    OPMPOWMWOPMWOMWOPMPWOO",
+	"M::::::::o:::::::::p:::::::::::BB:::::::::::::::=:::::::::::::o:::::::::::n:::      OMWMOPWPOMWMOPWO    W:n::k::xxxe:::::::    W:n::::::*X*:::::::n:",
+	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b      W:k:::n:::n:::k:    M:::    x       :::    M::::::::::::::::::::",
+	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::      Mb::::::::::*:*:    W:o:   ::::    :*::    O:::::O::::::::O:::::",
+	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::      O::hhhhhhhhhhh:::::::::    :::Q:   ::::    W::::::::::::::::::::",
+	"M::::S::::::::::::::::      ::::::           ::::::::           _____///______      W:::W:n:::::W:::::::::::BBB:::::   :*::    M::::::hhhhhhhh::::::",
+	"Wn  B  B    ::::w:::::                                           _____///______     M:::::::::::::::::::::::   :*:::BBB::k:    O::::::::::::::::::::",
+	"M:  B  B    :::::::::                                              P:k::::k:::::    W:::::::o:::::::    W::    :Qo::   ::::::::::::::::::o::::::::::",
+	"W:::::::::::::::::::k:                                             M::::::::::::    O:::::::::::::b:    M:n    :::::   :n:::::::::::::::::::::::::::",
+	"M::Q::,::::::::::::::                                              P::::o:::::::    M:::::::::::::::    Wk:       B     ::::::::::::::hhhhhhhh::::::",
+	"W:n:::::::::::w::::n                                               M::O:::::O:::::::W:::W:::::n:W:=:    O:k      :::    :::    O::::::::::::::::::::",
+	" :::Q:::::,:::::::::                                               W:::::=:::::::::::::hhhhhhhhhhh::    W::      :e:     ::    M:::::O::::::::O:::::",
+	"   ::::::::::::::::                                                Ok::::=::::::::::::::o:::o:::o:k:       ||||||||||||||      W::::::::::::::::::::",
+	"      ::::::::::                                                   W::O:::::O:::    ::::::::::::::::                           O:b::::::::::::::::b:",
+	"                                                                   M:b:::::::k::                                               M::::n::::::::::n::::",
+	"                                                                   P:::::::::n::                                               W::::::::::::::::::::",
 	"                                                                   O::,:::::::::",
 ]
 
@@ -189,6 +197,14 @@ const ROOMS := [
 			{"trigger": {"remaining": 2}, "spawn": [["brute", 1, {"elite": ["volatile"], "area": [119, 4, 122, 14]}], ["mite", 4], ["bloater", 2]], "far": true},
 		],
 		"reward": "chest",
+	},
+	{
+		# the boss: Arachne rises in the middle of the arena (Titan)
+		"id": "arena", "name": "THE WEAVER'S DEEP", "rect": [128, 4, 147, 18], "lock": false,
+		"beats": [
+			{"trigger": "enter_delay", "delay": 1.4, "spawn": [["titan", 1, {"area": [134, 6, 141, 9]}]], "boss": true},
+		],
+		"reward": "legendary",
 		"exit": true,
 	},
 ]

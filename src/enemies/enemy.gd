@@ -301,7 +301,7 @@ func _set_param(n: String, v) -> void:
 
 
 func _update_visual(dt: float) -> void:
-	var d := Iso.dir_index(facing, 16)
+	var d := Iso.dir_index(facing, _sheet_move.dirs)   # 16, or 8 for the huge boss
 	if _attack_frame >= 0.0:
 		_set_sheet(_sheet_attack)
 		var f: int = clampi(int(_attack_frame * _sheet_attack.cols), 0, _sheet_attack.cols - 1)

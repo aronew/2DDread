@@ -12,6 +12,7 @@ the architecture where it is.
 | `temple_02_guide.png` | **current** 1536×1024 frame of the temple room (`--level=temple`), tall back walls, no HUD, no player |
 | `temple_02_lines.png` | the same frame as line art, for generators that follow outlines more strictly |
 | `temple_02_guide.json` | where the frame looks: `world_to_image` maps game positions to image pixels |
+| `arena_01_guide.png` / `_lines.png` / `_guide.json` | **room 7, THE WEAVER'S DEEP**, the boss arena, waiting for its SOL painting (`--look=136.5,11.5 --zoom=0.46`). Prompt below |
 | `lethe_01_guide.png` / `_lines.png` / `_guide.json` | **room 6, THE ISLES OF LETHE** (`--look=112.75,8.25 --zoom=0.49`: the whole room, the corridor from room 5 and room 5's doorway walls in one frame). `lethe_01_painted_sol_jade.webp` is the owner's SOL painting, in the game as `assets/rooms/lethe_jade`. Prompt below |
 | `shades_01_guide.png` / `_lines.png` / `_guide.json` | **room 5, THE HALL OF SHADES** (`--look=90.55,9.05 --zoom=0.525`, the whole hall in one frame). `shades_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/shades_01` (everything left of column 80, i.e. the Undercroft, clipped out). Prompt below |
 | `stair_01_guide.png` / `_lines.png` / `_guide.json` | **room 4, upper half: THE GREAT STAIR** (the gallery and the stair down; `--look=65.94,2.44 --zoom=0.62`). `stair_01_painted_sol.webp` is the owner's SOL painting, in the game as `assets/rooms/stair_01` (gallery only). It stops at column 76; before import its painted right end (columns 75-76 and the edge lip) was copied one cell further along +i, so the floor reaches column 77 |
@@ -287,6 +288,43 @@ python3 tools/rooms/import_room_paint.py /tmp/under.png docs/paint_guides/underc
 few pixels were patched with the step beside them.) Both are in `LayoutTemple.PAINTS`,
 the lower one last. A repainted `stair_01` that includes the gallery's right end
 (columns 76-77: amphorae by the back wall, a fire urn near the edge) would finish the room.
+
+## Prompt for SOL: room 7, the Weaver's Deep (the boss arena)
+
+Attach `arena_01_lines.png` (image 1), the mockup (image 2), `arena_01_guide.png` (image 3)
+and one of the jade room paintings, e.g. `lethe_01_painted_sol_jade.webp` (image 4). Use the
+temple prompt above with "in the exact style of image 4 (image 2 is the overall mood)" and
+this list:
+
+> What things are:
+> - The lair of a titan: a vast, open, ancient arena deep in the underworld temple, where
+>   a giant spider-god lives. Paint the floor as one great ritual floor of huge worn
+>   stone slabs, cracked and scored by enormous claws, with faint grey cobweb strands in
+>   the corners and a few scattered bones. Keep the open floor calm and readable: the
+>   boss fight happens here.
+> - The two long walls at the back (top, and left) are towering temple walls, about three
+>   times a person's height: hooded-figure murals with gold laurel branches, arched niches
+>   with green soul-fire, gold Greek-key bands, dark stone blocks up to a heavy cornice,
+>   tall fluted columns against them. Hang thick old cobwebs between some columns.
+> - The gap in the left wall, at the far left, is a stone corridor in from the previous
+>   room; paint the floor at the top-left corner pure black.
+> - The four tall shapes standing on square bases in the open floor are massive fluted
+>   stone columns, scarred by claws.
+> - The two long gold lines are bands of gold Greek-key inlay; the round gold shape between
+>   them is a large laurel-and-skull floor plate.
+> - The two bronze tripod bowls with green flames at the back are soul braziers; keep the
+>   floor between them plain stone: a portal glows there. The lidded urns in the two front
+>   corners are sealed fire urns; the small clusters are lit candles.
+> - The tall walls along the bottom and right edges are the near walls of the arena; keep
+>   them as they are.
+>
+> Light: dim and ominous, green from the niches and braziers, warm pools at the candles,
+> darker toward the corners.
+
+Then check alignment with `arena_01_lines.png`, clip it to room 7's band with
+`tools/rooms/band_clip.py PAINTING docs/paint_guides/arena_01_guide.json OUT 125 200`, import
+it with `arena_01_guide.json` as `arena_jade` with `walls`, and add
+`"res://assets/rooms/arena_jade"` to `LayoutTemple.PAINTS`.
 
 ## Prompt for SOL: room 6, the Isles of Lethe
 

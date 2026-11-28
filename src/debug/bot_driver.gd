@@ -189,8 +189,22 @@ func state(p) -> Dictionary:
 	else:
 		_navigate(p, s, dt)
 	_avoid_geysers(p, s)
+	_dodge_rings(p, s)
 	s["melee_held"] = _hold_t > 0.0
 	return s
+
+
+## The titan's soul-fire rings: dash through one just before it arrives (i-frames).
+func _dodge_rings(p, s: Dictionary) -> void:
+	if no_dodge or p.dash_charges <= 0 or _dash_t > 0.0:
+		return
+	for ring in get_tree().get_nodes_in_group("soul_rings"):
+		var eta: float = ring.eta(p.gpos.distance_to(ring.center))
+		if eta > 0.0 and eta < 0.14:
+			s["dash"] = true
+			s["move"] = (ring.center - p.gpos).normalized()
+			_dash_t = 0.5
+			return
 
 
 ## Like a player reading the red ring: don't step into a geyser that is warning or erupting,

@@ -378,18 +378,30 @@ class HudDraw extends Control:
 	func _draw_elite(pl, vs: Vector2) -> void:
 		var best = null
 		for e in Game.enemies:
-			if e.alive and e.is_elite and e.gpos.distance_to(pl.gpos) < Iso.m(20.0):
-				best = e
+			if e.alive and e.data.boss and e.gpos.distance_to(pl.gpos) < Iso.m(30.0):
+				best = e   # a boss always takes the bar
 				break
 		if best == null:
+			for e in Game.enemies:
+				if e.alive and e.is_elite and e.gpos.distance_to(pl.gpos) < Iso.m(20.0):
+					best = e
+					break
+		if best == null:
 			return
-		var w := 620.0
+		var boss: bool = best.data.boss
+		var w := 920.0 if boss else 620.0
 		var x := (vs.x - w) * 0.5
-		var y := 60.0
-		_text(Vector2(0, y - 12), best.data.display_name, 26, GOLD, font, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
-		var pts := _plate(Rect2(x - 12, y - 4, w + 24, 24), 12)
+		var y := 66.0 if boss else 60.0
+		var bh := 18.0 if boss else 12.0
+		_text(Vector2(0, y - 12), best.data.display_name.to_upper() if boss else best.data.display_name, 32 if boss else 26,
+			GOLD, font, HORIZONTAL_ALIGNMENT_CENTER, vs.x)
+		var pts := _plate(Rect2(x - 12, y - 4, w + 24, bh + 12), 12)
 		draw_colored_polygon(pts, PANEL)
-		draw_rect(Rect2(x, y + 2, w * best.hp / best.max_hp, 12), Color(0.85, 0.25, 0.08))
+		draw_rect(Rect2(x, y + 2, w * best.hp / best.max_hp, bh), Color(0.85, 0.25, 0.08) if not boss else Color(0.75, 0.15, 0.4))
+		if boss:
+			# the phase marks (Titan.PHASE2 / PHASE3): where it changes its fight
+			for f in [Titan.PHASE2, Titan.PHASE3]:
+				draw_colored_polygon(_diamond(Vector2(x + w * f, y + 2 + bh * 0.5), 9), GOLD)
 		if best.shield_max > 0.0:
 			draw_rect(Rect2(x, y + 14, w * best.shield / best.shield_max, 4), Color(0.45, 0.8, 1.0))
 		_gold_frame(pts, 2.0)

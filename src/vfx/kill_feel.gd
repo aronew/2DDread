@@ -36,7 +36,12 @@ func _on_kill(e, _info) -> void:
 	if tier > _tier:
 		_tier = tier
 		_massacre(n, tier)
-	if e and e.is_elite:
+	if e and e.data.boss:
+		Game.slowmo(1.6, 0.18)
+		if VFX.camera:
+			VFX.camera.punch(0.1)
+		VFX.screen_flash(Color(0.6, 1.0, 0.7, 0.35), 0.4)
+	elif e and e.is_elite:
 		Game.slowmo(0.35, 0.35)
 
 
