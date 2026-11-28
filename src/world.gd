@@ -177,7 +177,7 @@ func build_level() -> void:
 		ls.name = "LavaShore"
 		level_root.add_child(ls)
 		ls.setup(dungeon)
-		dungeon.tint_kit(Color(0.86, 0.7, 0.74), Color(0.8, 0.64, 0.68))
+		dungeon.tint_kit(Color(0.62, 0.46, 0.56), Color(0.8, 0.64, 0.68))
 	var pits := [] if _lava else PitFire.find_pits(dungeon)
 	if not pits.is_empty():
 		var pf := PitFire.new()

@@ -43,6 +43,7 @@ var tall_walls := {}      # Vector2i -> true: back walls drawn 6 m tall (see _is
 var enclose := false      # set by World from the layout: wall in every open floor edge
 var fly_margin := 0       # >0 (the lava shore): flyers may cross void only this many cells off the floor
 var _fly_void := {}
+var floor_tint := Color.WHITE   # tint_kit: kept here because the floor is rebuilt when paintings land
 var auto_walls := {}      # Vector2i -> true: walls added by _enclose_floor (not in the layout)
 var pit_cells := {}       # Vector2i -> true: soul-fire pits (enclosed void), when enclosed
 var near_walls := {}      # Vector2i -> true: camera-side walls; they fade out near the player
@@ -237,6 +238,7 @@ func _near_floor(c: Vector2i) -> bool:
 
 ## Tint the kit floor and walls (the lava shore's ashen rock, until it is painted).
 func tint_kit(floor_col: Color, wall_col: Color) -> void:
+	floor_tint = floor_col
 	_floor_root.modulate = floor_col
 	for c in block_nodes:
 		var n = block_nodes[c]
@@ -603,6 +605,7 @@ func _build_floor() -> void:
 	_floor_root = Node2D.new()
 	_floor_root.name = "Floor"
 	_floor_root.z_index = -20
+	_floor_root.modulate = floor_tint
 	add_child(_floor_root)
 	var chunks := {}
 	for c in floor_kind:

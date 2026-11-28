@@ -57,9 +57,21 @@ heaps, ruined arches, braziers of coals) laid out after their room sketch
 1 `ashfall` -> 2 `ossuary` -> 3 `crossroads` (three island wings, a side branch) and
 4 `gauntlet` (a court and a long colonnade south) -> 5 `vault` (dead end, legendary chest)
 -> 6 `forgegate` -> 7 `throne` (the finale and exit portal; the shore's keeper, its boss,
-is not built yet). Sketch x is map i, sketch y is map j. The map is generated once by
-`tools/rooms/gen_phlegethon.py` (seeded ragged island edges, causeways, props) and then
-fixed in the layout; once rooms are painted, never regenerate it. How it differs from the
+is not built yet). Sketch x is map i, sketch y is map j. The map was generated once by
+`tools/rooms/gen_phlegethon.py` (seeded ragged island edges, causeways, props), then edited
+to match the paintings: never regenerate it. **Painted (2026-11-28):** the owner's nine
+SOL paintings (`assets/rooms/phl_*`, originals `docs/paint_guides/phl_*_painted_sol.webp`)
+with their own props: giant laurel skulls (rooms 1, 4's court, 7), rib cages and bone heaps,
+skull pillars (6), a three-skeleton monument (5), braziers of coals on pedestals. Each was
+clipped to the islands it owns with `tools/rooms/rect_clip.py` (cell rectangles; tall things
+keep their height; neighbouring paintings overlap across causeways), imported with
+`holes=src/dungeon/layout_phlegethon.gd` so the dark painted sinkholes show the lava, and
+the map's props, columns and sinkholes were moved onto the painted ones (read off
+`tools/rooms/grid_overlay.py`, which draws the cell grid over a painting). The crossroads'
+east painting left out the centre island and moved the causeway two rows south, so the map
+follows it there. `tools/rooms/paint_coverage.py LAYOUT` lists walkable cells no painting
+covers: only the ossuary-court causeway is left (SOL painted it off the map's line), drawn
+in kit tiles tinted to dark ash (`Dungeon.floor_tint`). How it differs from the
 temple: no `ENCLOSE` walls and no soul-fire pits; every void is the **lava sea**
 (`lava_sea.gdshader` on the background layer, anchored to the ground plane; black in paint
 guides), `LavaShore` (`src/dungeon/lava_shore.gd`) draws ragged basalt cliffs glowing

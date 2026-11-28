@@ -1,4 +1,5 @@
-# Generates the Phlegethon map (src/dungeon/layout_phlegethon.gd MAP) from the owner's layout sketch:
+# Generated the first Phlegethon map from the owner's layout sketch. The map in
+# src/dungeon/layout_phlegethon.gd has since been edited to match the paintings: do not regenerate it.
 # island rooms with ragged edges (seeded, so it is repeatable), causeways and props.
 # python3 tools/rooms/gen_phlegethon.py  -> prints the map, writes phlegethon_map.txt (paste into MAP)
 import random

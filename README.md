@@ -143,7 +143,9 @@ Reach the temple's exit portal and the ferry can take you to **the Phlegethon**,
 of fire: ashen islands in a sea of lava, joined by causeways, harder than the temple (it
 counts two depths deeper). Seven areas after the owner's sketch, with two side branches
 (the three-winged crossroads and the molten vault, which holds a legendary chest).
-`godot --path . -- --level=phlegethon` goes straight there.
+`godot --path . -- --level=phlegethon` goes straight there. All nine areas are painted
+(the owner's SOL paintings, with their own props: giant skulls, rib cages, skull pillars,
+a three-skeleton monument).
 
 ## Project layout
 

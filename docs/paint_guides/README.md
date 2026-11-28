@@ -331,6 +331,13 @@ image 2", and this list:
 >
 > Light: hot orange from below at every edge, ember glow from the braziers, dark ashen floors.
 
+**Done 2026-11-28** (all nine, see CLAUDE.md section 0). For a repaint: find the guide that
+fits with `check_paint.py`, read where its props and holes sit with
+`tools/rooms/grid_overlay.py PAINTING GUIDE_JSON src/dungeon/layout_phlegethon.gd OUT`, move
+the map's letters to match, clip with `tools/rooms/rect_clip.py PAINTING GUIDE_JSON OUT
+"i0,j0,i1,j1 ..."` to the islands it owns, import with
+`holes=src/dungeon/layout_phlegethon.gd`, and check `tools/rooms/paint_coverage.py`.
+
 Import each with its own guide (no `walls`: the shore has none), e.g.
 `python3 tools/rooms/import_room_paint.py PAINTING docs/paint_guides/phl_ossuary_guide.json phl_ossuary`,
 clip it to its own island with `tools/rooms/clip_paint.py` if it covers a neighbour, and list
