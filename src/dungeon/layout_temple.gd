@@ -85,7 +85,7 @@ const MAP := [
 	"W::::::O:::::::O:::::     Pk::k:::::::    P:::k:::::eb:    P:::::k:::::::k::::",
 	"M:::::::::::::::::::::::::P::O:  ::O::::::P::O:::::O:::::::P::::::::::::::::::",
 	"W::::::::::::::::k:::::::::::::  ::::::::::hhhh:=l::::::::::hhhhhhh:l:::::::::                          OMWMOPWMOWMWOPWMOPO",
-	"M::::::::o:::::::::p:::::::::::BB:::::::::::::::=:::::::::::::o:::::::::::n:::      OMWMOPWPOMWMOPWO    W:n::k::xxxe::::::k",
+	"M::::::::o:::::::::p:::::::::::BB:::::::::::::::=:::::::::::::o:::::::::::n:::      OMWMOPWPOMWMOPWO    W:n::k::xxxe:::::::",
 	"W:::k:::::::::::::::::    :::Q:  ::Q:o    :e,:::::::w::    :::::Q::::::::::::b      W:k:::n:::n:::k:    M:::    x       :::",
 	"O::::::::::Q::::::::*:    ::::,  :::k:    b::Q::o::Q:::    ::b:::::n////k:::::      Mb::::::::::*:*:    W:o:   ::::    :*::",
 	"W:::::::::::::::::::n:     ::::::::::      ::::e:::::::    :n:::::::_///::::::      O::hhhhhhhhhhh:::::::::    :::Q:   :X::",
@@ -93,7 +93,7 @@ const MAP := [
 	"Wn  B  B    ::::w:::::                                           _____///______     M:::::::::::::::::::::::   :*:::BBB::k:",
 	"M:  B  B    :::::::::                                              P:k::::k:::::    W:::::::o:::::::    W::    :Qo::   ::::",
 	"W:::::::::::::::::::k:                                             M::::::::::::    O:::::::::::::b:    M:n    :::::   :n::",
-	"M::Q::,::::::::::::::                                              P::::o:::::::    M:::::::::::::::    Wb:       B     ::b",
+	"M::Q::,::::::::::::::                                              P::::o:::::::    M:::::::::::::::    Wk:       B     :::",
 	"W:n:::::::::::w::::n                                               M::O:::::O:::::::W:::W:::::n:W:=:    O:k      :::    :::",
 	" :::Q:::::,:::::::::                                               W:::::=:::::::::::::hhhhhhhhhhh::    W::      :e:     ::",
 	"   ::::::::::::::::                                                Ok::::=::::::::::::::o:::o:::o:k:       ||||||||||||||",
@@ -120,7 +120,8 @@ const ENCLOSE := true
 ## Room 1's right half is listed first so the closer west painting stays on top.
 const PAINTS: Array = ["res://assets/rooms/temple_east_jade", "res://assets/rooms/temple_jade",
 	"res://assets/rooms/sanctum_jade", "res://assets/rooms/altar_jade", "res://assets/rooms/stair_jade",
-	"res://assets/rooms/undercroft_jade", "res://assets/rooms/shades_jade"]
+	"res://assets/rooms/undercroft_jade", "res://assets/rooms/shades_jade",
+	"res://assets/rooms/lethe_jade"]
 
 ## The previous set (v3 ink on green-grey stone), still selectable with --paint-set=v3.
 ## temple_east_01 (room 1's right half, painted with its new walls; listed first so the
