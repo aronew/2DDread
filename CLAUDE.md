@@ -215,7 +215,13 @@ All of this is playable, and a bot plays the whole route without errors:
     and the sword builds stagger on them at half rate. Every sword kill spills ammo and
     health (the DOOM loop: diving in is how you refill).
   - The slash cuts enemy shots out of the air. Drawn by `vfx/slash_fx.gd` (a hellfire
-    crescent swept on the ground plane).
+    crescent swept on the ground plane), and the gunslinger swings a glowing saber with
+    it: `PlayerVisual.swing()` swaps the torso for a sword sheet for the swing's length
+    (light, the light one played backwards for the return cut, heavy, thrust), timed so
+    the blade crosses while the crescent sweeps; the legs keep running.
+  - **Dash animation:** while dashing (and 0.07 s after, the landing) the whole body is
+    one sprite in a low lunge (`player_dash`: push off, flight, landing), drawn on the
+    legs sprite with the torso hidden, so the afterimages show the lunge too.
 - **Enemies** (internal ids stay `mite/spitter/brute/bloater`; names and art are themed):
   - **Hellhound** (`mite`): flanking swarmer, pounce.
   - **Hex Witch** (`spitter`): flying caster, shard fans.
@@ -433,7 +439,10 @@ models are made from primitives in code, then rendered through a custom stylizer
   - `build_player.py`: gunslinger legs, 4 torsos; ~30 min. The model follows the owner's
     design (`docs/concept/gunslinger_design_*.webp`): the long coat's skirt is six panels
     hinged at the belt on the legs layer (front ones kicked by the thighs, the rest
-    streaming behind in the run cycle). The HUD portrait is not rendered any more: it is
+    streaming behind in the run cycle). `-- swings` renders the saber sheets (light 5,
+    heavy 6, thrust 2 frames, 16 dirs; poses keyed in `SWING_KEYS`/`THRUST_KEYS`) and
+    `-- dash` the full-body dash (`DASH_POSES`), ~45 min for both in two parallel
+    processes. The HUD portrait is not rendered any more: it is
     cut from the design art with `tools/ui/portrait_from_art.py ART CX CY SIZE`
     (`-- portrait` still renders one from the model).
   - `build_enemies.py`: hound/witch/legion/skull, one sheet per animation; ~20 min per

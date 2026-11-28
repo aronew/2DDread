@@ -154,6 +154,7 @@ func _start(p) -> void:
 	Audio.play("sword_heavy" if heavy else "sword_swing", p.gpos, 0.0, randf_range(0.92, 1.08))
 	var half := deg_to_rad(_cur["arc"]) * 0.5
 	var reach: float = _cur["reach"]
+	p.visual.swing("heavy" if heavy else ("back" if _side < 0.0 else "light"), Vector2.from_angle(_aim_a), _dur)
 	SlashFX.spawn(p.gpos, 1.0, _aim_a - half * _side, _aim_a + half * _side, reach * 0.45, reach,
 		0.06 if not heavy else 0.1, 0.13 if not heavy else 0.2,
 		Color(1.9, 1.15, 0.55), Color(1.35, 0.32, 0.07) if not heavy else Color(1.6, 0.25, 0.05))
@@ -225,6 +226,7 @@ func _start_thrust(p) -> void:
 	_lunge_t = THRUST_T
 	_after_t = 0.0
 	p.grant_iframes(THRUST_T + 0.1)
+	p.visual.swing("thrust", dir, _dur)
 	Audio.play("sword_thrust", p.gpos)
 	SlashFX.spawn(p.gpos + dir * Iso.m(THRUST_M * 0.5), 1.0, _aim_a + PI * 0.18, _aim_a - PI * 0.18,
 		THRUST_M * 0.3, THRUST_M * 0.5 + 0.3, 0.05, 0.2, Color(1.9, 1.15, 0.55), Color(1.5, 0.3, 0.06))

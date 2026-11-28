@@ -84,6 +84,8 @@ that matches Godot's `Light2D.height` model:
 |---|---|---|
 | `player/player_legs` | 16 dirs × 9 cols (8 run frames + 1 idle) | meta `bob_m`: 8 pelvis offsets (m) so the torso bobs in sync |
 | `player/player_torso_<rifle\|shotgun\|arc\|rail>` | 32 dirs, grid 4 rows × 8 cols, row-major | meta `muzzle_m`: [forward, left, height] in metres; optional `muzzle2_m` = second barrel (twin revolvers alternate) |
+| `player/player_saber_<light\|heavy\|thrust>` | 16 dirs × 5 / 6 / 2 frames | torso shown while the saber swings (`PlayerVisual.SWING_SEQ` maps swing time to frames; the return cut plays `light` backwards); has an emission layer (the blade's molten edge) |
+| `player/player_dash` | 16 dirs × 3 frames (push off, flight, landing) | the whole body, shown on the legs sprite with the torso hidden while dashing |
 | `ui/portrait.png` | single image (256×256) | HUD portrait shown in the gold diamond (the inscribed diamond is visible); made from character art with `tools/ui/portrait_from_art.py` |
 | `enemies/<name>_<anim>` | 16 dirs × N frames | names come from `EnemyData.sheet_move` / `sheet_attack` (hound, witch, legion, skull) |
 | `env/floor_tiles` | 1 row × N kinds | 264×184 frames, origin (132,70); slab sides hang below the diamond so platform edges form automatically |
@@ -99,7 +101,8 @@ legend in `src/dungeon/layout_test.gd` maps characters to those indices. Floor k
 directly, they mark bridge cells `B` and the game picks the piece.
 
 The saber's slash is not a sprite: `src/vfx/slash_fx.gd` draws a hellfire crescent
-live, so each swing's arc and reach can differ.
+live, so each swing's arc and reach can differ. The gunslinger swinging the blade is
+(`player_saber_*`).
 
 The legs and torso split exists so the legs follow movement while the torso
 follows aim. Both layers share the same feet origin. If you author a single

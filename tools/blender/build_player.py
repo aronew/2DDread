@@ -5,6 +5,10 @@ Modelled after the owner's character design (docs/concept/gunslinger_design_*.we
 legs   : 16 movement directions x (8 run frames + 1 idle)  -- drawn first
 torso  : 32 aim directions per weapon (rifle=twin revolvers, shotgun=blunderbuss,
          arc=stormcaller, rail=longshot)                      -- drawn on top
+saber  : torso swapped in while the Hellfire Saber swings: light (5 frames), heavy (6),
+         thrust (2), 16 directions each              (-- swings | light heavy thrust)
+dash   : the whole body in a low lunge, 16 directions x 3 frames, shown instead of both
+         layers while dashing                        (-- dash)
 
 Both layers share the same origin (feet) so they composite exactly.
 """
@@ -38,6 +42,8 @@ def materials():
         "belt": C.mat("p_belt", (0.15, 0.065, 0.032), rough=0.55),
         "hat": C.mat("p_hat", (0.02, 0.02, 0.024), rough=0.7),
         "grip": C.mat("p_grip", (0.035, 0.03, 0.032), rough=0.5),
+        "blade": C.mat("p_blade", (0.075, 0.068, 0.072), metal=0.85, rough=0.3),
+        "hellfire": C.mat("p_hellfire", (1.0, 0.42, 0.1), emit=(1.0, 0.36, 0.07), emit_strength=5.0),
         # the other guns
         "leather": C.mat("p_leather", (0.34, 0.16, 0.07), rough=0.55),
         "gold": C.mat("p_gold", (0.84, 0.47, 0.08), metal=1.0, rough=0.3),
@@ -304,6 +310,181 @@ def _arm(M, parent, shoulder, hand, side):
     C.sphere(0.058, hand, M["glove"], parent, segs=12)
 
 
+# ---------------------------------------------------------------- sword swings + dash
+
+SWING_FRAME = (320, 300, (160, 236))
+SWING_DIRS = 16
+# Saber swings keyed in the facing frame at the waist (+X ahead, +Y his left):
+# (blade angle in degrees, 0 = ahead, + = his left; torso twist in degrees; blade tilt in
+# radians, + = up; hand distance from the body axis in m; hand height above the waist in m).
+# Both sweep from his left to his right like the slash effect of the combo's first and
+# third swings (Blade: _side = +1); the second swing plays "light" backwards.
+SWING_KEYS = {
+    "light": ((80, 40, 0.3, 0.4, 0.44), (15, 15, 0.05, 0.55, 0.38), (-65, -25, -0.05, 0.56, 0.35),
+              (-100, -40, -0.2, 0.5, 0.3), (-60, -15, -0.55, 0.42, 0.22)),
+    "heavy": ((125, 60, 0.55, 0.38, 0.52), (60, 35, 0.15, 0.55, 0.42), (-5, 5, 0.0, 0.6, 0.36),
+              (-85, -35, -0.05, 0.58, 0.34), (-130, -60, -0.2, 0.5, 0.3), (-80, -25, -0.55, 0.42, 0.22)),
+}
+# the dash-slash: (hand position in the facing frame, torso twist in degrees, blade tilt)
+THRUST_KEYS = (((0.02, -0.3, 0.32), -25, 0.08), ((0.64, -0.1, 0.4), 25, 0.0))
+
+DASH_FRAME = (280, 300, (140, 240))
+# full-body dash poses: pelvis height, torso lean (rad, forward), (hip, knee) of the
+# leading left leg, (hip, knee) of the trailing right leg
+DASH_POSES = (
+    (0.82, 0.32, (-0.55, 0.85), (0.45, 0.2)),     # push off
+    (0.79, 0.5, (-0.95, 1.05), (0.8, 0.6)),       # flight
+    (0.76, 0.28, (-0.7, 1.15), (0.35, 0.75)),     # landing
+)
+
+
+def build_saber(M, parent):
+    """The Hellfire Saber: a broad curved blade of dark steel with a molten edge, gold
+    guard and pommel. Built along +X; its origin is the grip, where the hand goes."""
+    s = C.empty("saber", (0, 0, 0), parent)
+    C.cyl(0.019, 0.12, (0, 0, 0), M["grip"], s, rot=(0, math.pi / 2, 0), verts=8, bevel=0.004)
+    C.sphere(0.026, (-0.07, 0, 0), M["trim"], s, segs=10)
+    C.box((0.022, 0.13, 0.026), (0.065, 0, 0), M["trim"], s, bevel=0.006)
+    n, L, bend = 6, 0.84, 0.1
+    pts, sides, widths = [], [], []
+    for i in range(n + 1):
+        u = i / n
+        pts.append(Vector((0.075 + L * u, bend * u * u, 0.0)))
+        sides.append(Vector((-2 * bend * u, L, 0.0)))
+        widths.append(0.075 * (1.0 - 0.3 * u) if i < n else 0.006)
+    _strip(pts, sides, widths, M["blade"], s, thick=0.008, name="blade")
+    edge = [p - sd.normalized() * w * 0.27 for p, sd, w in zip(pts, sides, widths)]
+    _strip(edge, sides, [w * 0.5 for w in widths], M["hellfire"], s, thick=0.012, name="edge")
+    return s
+
+
+def _pistol_in_hand(M, parent, hand, rot):
+    """A flintlock with its grip in `hand`, turned by `rot` (Euler)."""
+    from mathutils import Euler
+    grip = Euler(rot).to_matrix() @ Vector((-0.035, 0, -0.06))
+    g = _pistol(M, parent, Vector(hand) - grip, "gunL")
+    g.rotation_euler = rot
+    return g
+
+
+def _created_by(fn):
+    before = set(C.bpy.data.objects)
+    fn()
+    return [o for o in C.bpy.data.objects if o not in before]
+
+
+def _remove(objs):
+    for o in objs:
+        C.bpy.data.objects.remove(o, do_unlink=True)
+
+
+def _to_torso(v, twist):
+    c, s = math.cos(-twist), math.sin(-twist)
+    return Vector((v[0] * c - v[1] * s, v[0] * s + v[1] * c, v[2]))
+
+
+def _sword_pose(M, t, hand_f, blade_deg, tilt, twist):
+    """Twist the torso, put the saber in the right hand at hand_f (facing frame) pointing
+    along blade_deg; the left hand keeps a pistol low. Returns the objects it made."""
+    def make():
+        t.rotation_euler = (0, 0, twist)
+        hand = _to_torso(hand_f, twist)
+        sab = build_saber(M, t)
+        sab.location = hand
+        sab.rotation_euler = (0, -tilt, math.radians(blade_deg) - twist)
+        _arm(M, t, (0.0, -0.27, 0.54), hand, -1)
+        lh = Vector((0.14, 0.3, 0.1))
+        _pistol_in_hand(M, t, lh, (0, 0.7, 0.1))
+        _arm(M, t, (0.0, 0.27, 0.54), lh, 1)
+    return _created_by(make)
+
+
+def swing_frame(M, t, kind, key):
+    if kind == "thrust":
+        hand_f, twist_deg, tilt = key
+        return _sword_pose(M, t, Vector(hand_f), 0.0, tilt, math.radians(twist_deg))
+    blade, twist_deg, tilt, r, z = key
+    a = math.radians(blade)
+    return _sword_pose(M, t, Vector((r * math.cos(a), r * math.sin(a), z)), blade, tilt, math.radians(twist_deg))
+
+
+def pose_dash(pelvis, legs, tails, t, head, pose):
+    """A low lunge: lead leg reaching, trail leg pushing off, body leaning into the dash,
+    coat flung back."""
+    pz, lean, front, back = pose
+    pelvis.location.z = pz
+    pelvis.rotation_euler = (0, lean * 0.45, 0)
+    for side, (hip, knee, ankle) in legs.items():
+        h, k = front if side == "L" else back
+        hip.rotation_euler = (0, h - lean * 0.45, 0)
+        knee.rotation_euler = (0, k, 0)
+        ankle.rotation_euler = (0, -(h + k) * (1.0 if side == "L" else 0.4), 0)
+    swing = {1: -front[0], -1: -back[0]}
+    for i, tl in enumerate(tails):
+        sd = tl["side"]
+        sw = swing[sd]
+        if tl["kind"] == "front":
+            tl.rotation_euler = (0.14 * sd, -0.95 * max(0.0, sw) + 0.35, 0)
+        elif tl["kind"] == "side":
+            tl.rotation_euler = (0.12 * sd, 0.25 + lean * 0.3, 0)
+        else:
+            tl.rotation_euler = (0.08 * sd, 0.3 + lean * 0.4, 0)
+    t.location = (0.0, 0, pz + 0.05)
+    t.rotation_euler = (0, lean, 0)
+    head.rotation_euler = (0, -0.08 - lean * 0.6, 0)
+
+
+def _dash_arms(M, t):
+    """Arms swept back, a pistol in each hand pointing behind."""
+    for side, hand in ((-1, (-0.2, -0.37, 0.14)), (1, (-0.16, 0.37, 0.18))):
+        _pistol_in_hand(M, t, hand, (0.12 * side, 2.0, 0.0))
+        _arm(M, t, (0.0, 0.27 * side, 0.54), Vector(hand), side)
+
+
+def render_swings(kinds=("light", "heavy", "thrust")):
+    for kind in kinds:
+        C.reset_scene()
+        C.setup_lights()
+        M = materials()
+        root, t = build_torso(M)
+        fw, fh, org = SWING_FRAME
+        C.setup_camera(fw, fh, org)
+        keys = THRUST_KEYS if kind == "thrust" else SWING_KEYS[kind]
+        sw = C.SheetWriter("player", "player_saber_" + kind, fw, fh, org, SWING_DIRS, len(keys),
+                           meta={"dirs": SWING_DIRS, "frames": len(keys)})
+        for f, key in enumerate(keys):
+            objs = swing_frame(M, t, kind, key)
+            for d in range(SWING_DIRS):
+                root.rotation_euler = (0, 0, C.yaw_for_ground_angle(d * 2 * math.pi / SWING_DIRS))
+                sw.put(d, f, C.render_stylized())
+            _remove(objs)
+            print("saber", kind, "frame", f, flush=True)
+        sw.save()
+
+
+def render_dash():
+    C.reset_scene()
+    C.setup_lights()
+    M = materials()
+    lroot, pelvis, legs, tails = build_legs(M)
+    troot, t = build_torso(M)
+    head = [o for o in t.children if o.name.startswith("head")][0]
+    _dash_arms(M, t)
+    fw, fh, org = DASH_FRAME
+    C.setup_camera(fw, fh, org)
+    sw = C.SheetWriter("player", "player_dash", fw, fh, org, LEG_DIRS, len(DASH_POSES),
+                       meta={"dirs": LEG_DIRS, "frames": len(DASH_POSES)})
+    for f, pose in enumerate(DASH_POSES):
+        pose_dash(pelvis, legs, tails, t, head, pose)
+        for d in range(LEG_DIRS):
+            a = C.yaw_for_ground_angle(d * 2 * math.pi / LEG_DIRS)
+            lroot.rotation_euler = (0, 0, a)
+            troot.rotation_euler = (0, 0, a)
+            sw.put(d, f, C.render_stylized())
+        print("dash frame", f, flush=True)
+    sw.save()
+
+
 # ---------------------------------------------------------------- render
 
 def render_legs():
@@ -394,3 +575,8 @@ if __name__ == "__main__":
         render_torsos([k for k in ("rifle", "shotgun", "arc", "rail") if k in what] or ("rifle", "shotgun", "arc", "rail"))
     if "portrait" in what:
         render_portrait()
+    swings = [k for k in ("light", "heavy", "thrust") if k in what]
+    if "swings" in what or swings:
+        render_swings(swings or ("light", "heavy", "thrust"))
+    if "dash" in what:
+        render_dash()

@@ -16,6 +16,7 @@ const CARRY_DECAY_M := 8.0        # ...and keep that momentum, bleeding it off a
 const DASH_BUFFER := 0.16         # a dash pressed this soon before one is possible still fires
 const DASH_KILL_WINDOW := 0.45    # a kill during or this soon after a dash refunds a charge
 const STEP_T := 0.26              # footstep dust while running
+const DASH_LAND := 0.07           # the dash's landing pose holds this long after it
 const AMMO_MAX := {"light": 420, "shells": 64, "cells": 30}
 const BACKPACK_SIZE := 24
 
@@ -106,6 +107,16 @@ func dashing() -> bool:
 	return _dash_t > 0.0
 
 
+## Where the dash animation is: 0..1 through the dash, past 1 for a short landing after
+## it, -1 when not dashing.
+func _dash_anim() -> float:
+	if dashing():
+		return 1.0 - _dash_t / DASH_TIME
+	if _since_dash < DASH_LAND:
+		return 1.0 + _since_dash / DASH_LAND
+	return -1.0
+
+
 ## True while dashing or within `window` seconds after a dash ended.
 func dash_recent(window: float) -> bool:
 	return dashing() or _since_dash < window
@@ -155,7 +166,7 @@ func _process(dt: float) -> void:
 	_update_weapons(s, dt)
 	_update_abilities(s, dt)
 	position = Iso.to_screen(gpos)
-	visual.update(dt, vel, aim_dir, dashing())
+	visual.update(dt, vel, aim_dir, dashing(), _dash_anim())
 	_hurt_flash = maxf(0.0, _hurt_flash - dt * 6.0)
 	visual.set_flash(_hurt_flash * 0.8, Color(1.0, 0.25, 0.2))
 	visual.modulate.a = 0.55 if _iframes > 0.0 and not dashing() and fmod(_iframes, 0.1) < 0.05 else 1.0
@@ -410,6 +421,7 @@ func switch_weapon(i: int) -> void:
 
 func on_weapon_fired(w: Weapon, charge: float) -> void:
 	_last_fire_t = 0.0
+	visual.end_swing()
 	visual.muzzle_alt = not visual.muzzle_alt
 	visual.kick(w.data.recoil_kick * (0.5 + charge * 0.5), aim_dir)
 	VFX.shake(w.data.shake * (0.5 + charge * 0.5))
