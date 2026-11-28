@@ -24,6 +24,7 @@ temple), built room by room. The rooms so far, all in `src/dungeon/layout_temple
 | 4 | THE GREAT STAIR (`gallery`) + THE UNDERCROFT (`undercroft`) | 59-79, rows 0-19 | painted in two halves (`assets/rooms/stair_01` = the gallery, `undercroft_01` = everything below the terrace's top edge; each was masked to its half with `clip_paint.py` so they meet along that edge). SOL painted the gallery only to column 76; the painted right end was shifted out one cell to cover column 77 (see the paint guide README). L-shaped and on **two levels**: a long upper gallery (hounds and witches, then a Legionnaire and skulls), a grand stair cut into its front terrace, and a sunken hall 3.3 m below (Legionnaires in the hall while Hex Witches shoot down from the gallery, then a molten elite); drops a chest and opens the exit portal |
 | 5 | THE HALL OF SHADES (`shades`) | 84-99, rows 4-16 | painted (`assets/rooms/shades_01`, one painting for the whole hall, guide `--look=90.55,9.05 --zoom=0.525`; the Undercroft corner of the frame was clipped out). A big square hall after the Undercroft (bridge from its right edge at row 14, entering through a doorway in the left wall), modelled on a Hades chamber the owner shared: four hooded shrine blocks around an open central field between gold bands, emblem plates, niche-and-mural walls; three waves ending with a frenzied elite; drops a chest and holds the exit portal |
 | 6 | THE ISLES OF LETHE (`lethe`) | 100-122, rows 3-15 | painted (`assets/rooms/lethe_jade`, guide `lethe_01`, `--look=112.75,8.25 --zoom=0.49`: the whole room plus the corridor from room 5 in one frame). Clipped to columns 102+ with `band_clip.py`, plus the corridor floor and its side walls (101,6) and (101,10) copied back (`tools/rooms/restore_cells.py`), and the strip behind the corridor opening that room 5's painting lost when its wall was cut out. Props follow the painting (the west quay's fire urn became amphorae, the east quay's urn and corner amphora were dropped, so the room has no explosive urns). A new kind of room: a **soul-fire lake** (one big pit, `PitFire`) crossed by stone isles and gold bridges, joined to room 5 by a corridor (rows 7-9). West and east quays, a central isle (where the reward chest lands), a south isle with a bone nest, a back ledge with another nest (split by rubble, so the bridges are the only way across), a balustrade along the front. **Soul-fire geysers** (`SoulGeyser`, the layout's `GEYSERS`) erupt beside the three bridges in turn: red ring and hiss for 1.1 s, then a column that burns anyone on the bridge, enemies too. Hex Witches and Flaming Skulls fly over the fire; three waves end with a volatile elite; holds the exit portal |
+| 7 | THE WEAVER'S DEEP (`arena`) | 127-148, rows 3-18 | **the boss arena**, painted (`assets/rooms/arena_jade`, guide `arena_01`, `--look=136.5,11.5 --zoom=0.46`, clipped to columns 125+; it lined up as painted, props unchanged). A corridor (rows 10-12, cut through room 6's painted wall with `tools/rooms/cut_walls.py`) leads into a big open floor with four freestanding columns. The boss **Arachne, the Titan Weaver** (`Titan`, `data/enemies/titan.tres`, sheets `titan_walk`/`titan_attack`) rises in the middle; drops a legendary chest and holds the exit portal |
 
 **Jade set (2026-11-27, current):** the owner repainted every room in a jade/teal palette
 with more irregular stone; rooms 2-5 from the round-2 guides (`docs/paint_guides/*_02_*`),
@@ -32,7 +33,8 @@ the previous set is `PAINTS_V3`, shown with `--paint-set=v3`. Each painting was 
 its room's band of map columns with `tools/rooms/band_clip.py` (room 1: i < 24, room 2:
 24-40, room 3: 40-57, room 4: 57-82, room 5: 82-102 (re-cut on 2026-11-28 for room 6's
 corridor: the painted near wall over the corridor opening was cut out with its full
-upright shape, not just its ground cells), room 6: 102+ (plus the corridor it owns: see its row in the table), cut mid-corridor; walls and props on the
+upright shape, not just its ground cells), room 6: 102-125 (plus the corridor it owns: see its row in the table; its east wall has the
+doorway to room 7 cut out with `tools/rooms/cut_walls.py`), room 7: 125+, cut mid-corridor; walls and props on the
 band keep their painted height) so neighbours never paint over each other; room 4's halves
 were also split along the terrace edge as before. Room 1's west painting has no enclosing
 walls, so its camera-side walls are still kit art.
@@ -221,6 +223,21 @@ All of this is playable, and a bot plays the whole route without errors:
     back, slam + charge, stuns itself on walls.
   - **Flaming Skull** (`bloater`): flying kamikaze that hurts enemies too.
   - **Elite affix layer:** frenzied, shielded, volatile, molten.
+  - **Boss: Arachne, the Titan Weaver** (`titan`, `src/enemies/titan.gd`, room 7), after
+    **the owner's own titan design** (a mockup they made, 2026-11-28; follow it closely): a
+    colossal spider (~7 m) of purple chitin with glowing magenta cracks, a bone skull mask
+    with magenta eyes, huge ivory tusks sweeping out and up, big yellow-gold plates arching
+    along its back, and an amber heart glowing out of its rear and through its belly.
+    Its masked front is armoured (`front_armor`, breakable) and it turns slowly; the heart is
+    the weak point (`back_mult` 2.2), so the fight is about circling it. Attacks, all
+    telegraphed: **stomp** (red circle in front), **charge** (red lane; a wall or column in
+    the way stuns it for a long opening), **venom volleys** (fans of shards); from phase 2
+    (below 60%) a **magenta fire nova** (`SoulRing`, a ring racing out across the floor: dash
+    through it or outrun it) and **brood** (hounds from its abdomen); phase 3 (below 25%)
+    enrages it (faster, shorter cooldowns, double charges and rings). The HUD shows a boss
+    bar with phase marks; its death is a slow-motion chain of amber and magenta blasts. Sheets are
+    8 directions and colour + emission only (no normal map) to keep VRAM down;
+    `Enemy._update_visual` reads the direction count from the sheet.
 - **Loot:** six rarities, stat affixes, behaviour affixes and legendary/mythic perks.
   Also inventory (Tab), XP/levels and four attributes.
 - **Dungeon:** the temple dungeon (default, section 0) and the original handcrafted test
@@ -446,7 +463,7 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
 ```
 
 - **Rooms for `--start`:** temple dungeon (default) `temple sanctum altar gallery
-  undercroft shades lethe`; with `--level=test`: `landing conduit vault hatchery spine reactor`.
+  undercroft shades lethe arena`; with `--level=test`: `landing conduit vault hatchery spine reactor`.
   `--level=temple` is still accepted (it is the default).
 - **Look test:** `--level=temple` builds a single room composed like the temple mockup
   (`layout_temple.gd`), laid out the mockup's way so the path runs left to right with

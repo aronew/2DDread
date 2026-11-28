@@ -14,8 +14,8 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var e = enemy
-	if e == null or not e.alive or e.state == Enemy.S.SPAWN:
-		return
+	if e == null or not e.alive or e.state == Enemy.S.SPAWN or e.data.boss:
+		return   # (a boss's health is the HUD's big bar)
 	if not e.is_elite and e._show_bar_t <= 0.0:
 		return
 	var top: float = -Iso.h(e.hit_height * 2.0 + 0.6) * e.data.visual_scale - (34.0 if e.is_elite else 0.0)

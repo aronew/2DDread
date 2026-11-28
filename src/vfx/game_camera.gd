@@ -12,6 +12,9 @@ var _t := 0.0
 var _zoom_punch := 0.0
 var target_node: Node2D
 var lookahead := 0.18
+var _boss_pull := 0.0     # 0..1: eases the zoom out while a boss is fighting
+var _boss_t := 0.0
+var _boss_on := false
 
 
 func _ready() -> void:
@@ -61,5 +64,15 @@ func _process(dt: float) -> void:
 	offset = sh + _kick
 	rotation = _noise.get_noise_2d(_t * 40.0, 99.0) * 0.025 * s
 	_zoom_punch = move_toward(_zoom_punch, 0.0, dt * 0.25)
-	var z := BASE_ZOOM * zoom_mult * (1.0 + _zoom_punch)
+	# pull back while a boss is alive, so the arena and the titan both stay in view
+	_boss_t -= dt
+	if _boss_t <= 0.0:
+		_boss_t = 0.5
+		_boss_on = false
+		for e in Game.enemies:
+			if e.alive and e.data.boss:
+				_boss_on = true
+				break
+	_boss_pull = move_toward(_boss_pull, 1.0 if _boss_on else 0.0, dt * 0.6)
+	var z := BASE_ZOOM * zoom_mult * (1.0 + _zoom_punch) * lerpf(1.0, 0.8, smoothstep(0.0, 1.0, _boss_pull))
 	zoom = Vector2(z, z)

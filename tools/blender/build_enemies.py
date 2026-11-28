@@ -35,6 +35,13 @@ def materials():
         "ghost": C.mat("e_ghost", (0.35, 1.0, 0.6), emit=(0.4, 1.0, 0.6), emit_strength=7),
         "ghost2": C.mat("e_ghost2", (0.2, 0.85, 0.5), emit=(0.25, 0.95, 0.5), emit_strength=4),
         "dark": C.mat("e_dark", (0.04, 0.03, 0.04), rough=0.9),
+        "chitin": C.mat("e_chitin", (0.2, 0.07, 0.26), rough=0.55),
+        "chitin2": C.mat("e_chitin2", (0.36, 0.13, 0.43), rough=0.5),
+        "plate": C.mat("e_plate", (0.9, 0.64, 0.12), metal=0.35, rough=0.5),
+        "heart": C.mat("e_heart", (1.0, 0.62, 0.15), emit=(1.0, 0.58, 0.12), emit_strength=8),
+        "heart2": C.mat("e_heart2", (1.0, 0.42, 0.08), emit=(1.0, 0.4, 0.06), emit_strength=4),
+        "hex": C.mat("e_hex", (1.0, 0.25, 0.9), emit=(1.0, 0.22, 0.85), emit_strength=7),
+        "ivory": C.mat("e_ivory", (0.92, 0.86, 0.72), rough=0.45),
     }
 
 
@@ -323,27 +330,159 @@ def skull_prime(R, t):
     _skull_flames(R, t + 0.37, 1.45)
 
 
+# =================================================================== TITAN: ARACHNE (boss)
+# The owner's own design: a colossal spider (~7 m across) of purple chitin with glowing
+# magenta cracks, a bone skull mask with magenta eyes and two great ivory tusks, huge
+# yellow-gold plates arching along its back, and an amber heart glowing out of the rear
+# of the abdomen and through its belly (the weak point).
+
+TITAN_LEGS = [0.95, 0.35, -0.3, -0.95]   # spread of each leg pair from straight out (rad, + = forward)
+
+
+def titan(M):
+    root = C.empty("titan")
+    body = C.empty("body", (0, 0, 1.6), root)
+    ch, ch2 = M["chitin"], M["chitin2"]
+    C.sphere(0.95, (0.55, 0, 0.0), ch, body, scale=(1.3, 1.1, 0.62), subsurf=1)      # cephalothorax
+    C.sphere(0.68, (0.55, 0, 0.36), ch2, body, scale=(1.05, 0.82, 0.36))                # its carapace
+    C.sphere(0.42, (-0.4, 0, 0.08), ch2, body, scale=(1.0, 0.9, 0.8))                  # waist
+    for s in (-1, 1):   # glowing magenta cracks in the carapace
+        C.box((0.9, 0.035, 0.04), (0.5, 0.42 * s, 0.5), M["hex"], body, bevel=0.0, rot=(0.5 * s, 0.1, 0.25 * s))
+        C.box((0.5, 0.035, 0.04), (0.9, 0.62 * s, 0.32), M["hex"], body, bevel=0.0, rot=(0.6 * s, 0.0, -0.5 * s))
+    abd = C.empty("abdomen", (-0.55, 0, 0.2), body)
+    C.sphere(1.32, (-1.3, 0, 0.32), ch, abd, scale=(1.42, 1.12, 0.9), subsurf=1)
+    # the soul-fire heart, glowing out of the rear, and cracks of it along the flanks
+    C.sphere(0.78, (-3.15, 0, 0.24), M["heart"], abd, scale=(0.62, 1.0, 0.95))
+    C.sphere(0.98, (-2.92, 0, 0.24), M["heart2"], abd, scale=(0.4, 1.08, 1.02))
+    for s in (-1, 1):   # the heart's glow showing through the belly, between the legs
+        C.sphere(0.55, (-1.35, 0.72 * s, -0.48), M["heart2"], abd, scale=(1.4, 0.7, 0.45))
+    C.torus(0.86, 0.06, (-2.84, 0, 0.24), M["gold"], abd, rot=(0, math.pi / 2, 0), seg=32, mseg=6)
+    for s in (-1, 1):
+        for k in range(4):
+            C.box((0.6, 0.05, 0.08), (-0.6 - k * 0.55, s * (1.42 - abs(k - 1.5) * 0.1), 0.05 + 0.12 * k), M["hex"],
+                  abd, bevel=0.0, rot=(0.35 * s, 0.25, 0.12 * s))
+    # bronze shield plates standing along the back, leaning back, gold-rimmed
+    for k, (x, r) in enumerate(((-0.1, 1.08), (-0.72, 1.24), (-1.34, 1.26), (-1.96, 1.12), (-2.5, 0.9))):
+        z = 1.05 + 0.16 * math.sin((k + 0.5) / 5 * math.pi)
+        rot = (0, math.pi / 2 - 0.55, 0)
+        C.cyl(r, 0.16, (x, 0, z), M["plate"], abd, rot=rot, verts=32, bevel=0.04)
+        C.torus(r * 0.99, 0.06, (x + 0.02, 0, z + 0.02), M["bronze"], abd, rot=rot, seg=32, mseg=6)
+        for c in range(3):   # dark cracks across the plate
+            a = (c - 1) * 0.7
+            C.box((0.02, r * 0.9, 0.025), (x + 0.1, r * 0.35 * math.sin(a), z + r * 0.25 * math.cos(a)), M["chitin"],
+                  abd, bevel=0.0, rot=(a + 0.3 * c, math.pi / 2 - 0.55, 0))
+    head = C.empty("head", (1.55, 0, 0.08), body)
+    C.sphere(0.62, (0.15, 0, 0.05), M["bone"], head, scale=(1.0, 1.1, 0.8), subsurf=1)      # skull mask
+    C.box((0.36, 0.86, 0.2), (0.52, 0, -0.22), M["bone_dk"], head, bevel=0.06)              # its jaw plate
+    for s in (-1, 1):
+        C.sphere(0.17, (0.55, 0.24 * s, 0.14), M["dark"], head, segs=12, scale=(0.6, 1.0, 1.0))  # sockets
+    for (ex, ey, ez, r) in ((0.66, 0.22, 0.16, 0.09), (0.6, 0.38, 0.06, 0.075), (0.55, 0.1, 0.34, 0.065)):
+        for s in (-1, 1):
+            C.sphere(r, (ex, ey * s, ez), M["hex"], head, segs=10)
+    for s in (-1, 1):
+        C.cyl(0.14, 0.95, (-0.18, 0.36 * s, 0.5), M["bone"], head, r2=0.0, verts=8, rot=(0.5 * s, -1.05, 0))
+    tusks = []
+    for s in (-1, 1):
+        # great ivory tusks: forward and down out of the jaw, then sweeping up and in
+        t = C.empty("tusk", (0.55, 0.32 * s, -0.3), head)
+        # (the owner's design: huge tusks, longer than the head, sweeping out, down and up)
+        pts = [(0, 0, 0), (0.6, 0.38 * s, -0.62), (1.35, 0.62 * s, -1.0), (2.05, 0.6 * s, -0.82),
+               (2.55, 0.36 * s, -0.3), (2.7, 0.1 * s, 0.25)]
+        radii = [0.24, 0.22, 0.18, 0.13, 0.08, 0.025]
+        for a_, b_, r0, r1 in zip(pts[:-1], pts[1:], radii[:-1], radii[1:]):
+            C.tube_between(a_, b_, r0, M["ivory"], t, r2=r1)
+            C.sphere(r1 * 1.04, b_, M["ivory"], t, segs=8)
+        tusks.append((t, s))
+    legs = []
+    for k, spread in enumerate(TITAN_LEGS):
+        for s in (-1, 1):
+            theta = s * (math.pi / 2 - spread)
+            hip = C.empty("hip", (1.0 - k * 0.45, 0.62 * s, -0.05), body, rot=(0, 0, theta))
+            # three segments: the femur rises steeply, the knee arches high above the body,
+            # the shin reaches out and the last segment plants nearly straight down
+            knee = Vector((0.95, 0, 1.3))
+            ankle = Vector((2.0, 0, 0.6))
+            foot = Vector((2.4, 0, -1.6))
+            _limb(hip, (0, 0, 0), knee, 0.24, 0.18, ch)
+            _limb(hip, knee, ankle, 0.18, 0.13, ch2)
+            _limb(hip, ankle, foot, 0.12, 0.05, ch)
+            C.box((0.5, 0.03, 0.03), (knee + ankle) * 0.5 + Vector((0, 0, 0.14)), M["hex"], hip, bevel=0.0,
+                  rot=(0, math.atan2(-(ankle.z - knee.z), ankle.x - knee.x), 0))
+            C.cyl(0.1, 0.55, knee + Vector((0.0, 0, 0.25)), M["bone"], hip, r2=0.0, verts=8, rot=(0, -0.25, 0))
+            C.cyl(0.07, 0.38, ankle + Vector((0.1, 0, 0.15)), M["bone"], hip, r2=0.0, verts=8, rot=(0, 0.5, 0))
+            C.cyl(0.06, 0.32, foot + Vector((0.0, 0, 0.12)), M["bone"], hip, r2=0.0, verts=8, rot=(0, math.pi, 0))
+            legs.append((hip, theta, k, s))
+    return root, {"body": body, "abd": abd, "head": head, "tusks": tusks, "legs": legs}
+
+
+def _titan_legs(R, p, lift_front=0.0, swing_front=0.0):
+    for hip, theta, k, s in R["legs"]:
+        group_a = (k + (0 if s > 0 else 1)) % 2 == 0
+        q = p + (0.0 if group_a else math.pi)
+        swing = -s * 0.22 * math.sin(q)
+        lift = 0.28 * max(0.0, math.cos(q))
+        if k == 0:
+            lift += lift_front
+            swing += -s * swing_front
+        hip.rotation_euler = (0, -lift, theta + swing)
+
+
+def titan_walk(R, t):
+    p = t * 2 * math.pi
+    _titan_legs(R, p)
+    R["body"].location.z = 1.6 + 0.06 * math.cos(2 * p)
+    R["body"].rotation_euler = (0.03 * math.sin(p), 0.0, 0.0)
+    R["abd"].rotation_euler = (0.04 * math.sin(p), 0.0, 0.05 * math.sin(p))
+    for tk, s in R["tusks"]:
+        tk.rotation_euler = (0, 0, s * 0.06 * math.sin(2 * p))
+
+
+def titan_slam(R, t):
+    # rears up, front legs and tusks raised (telegraph) -> slams down -> settles
+    if t < 0.55:
+        k = math.sin(t / 0.55 * math.pi / 2)
+        pitch, z, lf, sf, tusk = -0.42 * k, 1.6 + 0.45 * k, 1.0 * k, 0.35 * k, 0.32 * k
+    elif t < 0.72:
+        k = (t - 0.55) / 0.17
+        pitch, z, lf, sf, tusk = -0.42 + 0.6 * k, 2.05 - 0.7 * k, 1.0 - 1.2 * k, 0.35 - 0.2 * k, 0.32 - 0.4 * k
+    else:
+        k = (t - 0.72) / 0.28
+        pitch, z, lf, sf, tusk = 0.18 * (1 - k), 1.35 + 0.25 * k, -0.2 * (1 - k), 0.15 * (1 - k), -0.08 * (1 - k)
+    _titan_legs(R, 0.0, lf, sf)
+    R["body"].rotation_euler = (0, pitch, 0)
+    R["body"].location.z = z
+    R["abd"].rotation_euler = (0, -pitch * 0.5, 0)
+    for tk, s in R["tusks"]:
+        tk.rotation_euler = (0, 0, s * tusk)
+
+
 ENEMIES = {
     # name: (builder, frame (w,h,origin), {anim: (frames, pose_fn)})
     "hound": (hound, (200, 184, (100, 126)), {"run": (8, hound_run), "attack": (6, hound_bite)}),
     "witch": (witch, (200, 264, (100, 224)), {"float": (6, witch_float), "attack": (6, witch_cast)}),
     "legion": (legion, (272, 360, (136, 274)), {"walk": (8, legion_walk), "attack": (7, legion_slam)}),
     "skull": (skull, (176, 216, (88, 184)), {"fly": (6, skull_fly), "attack": (4, skull_prime)}),
+    # the boss is huge: 8 directions and no normal map keep its sheets' VRAM in check
+    "titan": (titan, (760, 660, (380, 450)), {"walk": (6, titan_walk), "attack": (6, titan_slam)},
+              {"dirs": 8, "passes": ("color", "emit")}),
 }
 
 
 def render_enemy(name):
-    build, (fw, fh, org), anims = ENEMIES[name]
+    build, (fw, fh, org), anims = ENEMIES[name][:3]
+    opts = ENEMIES[name][3] if len(ENEMIES[name]) > 3 else {}
+    dirs = opts.get("dirs", DIRS)
     for anim, (nf, pose) in anims.items():
         C.reset_scene()
         C.setup_lights()
         M = materials()
         root, R = build(M)
         C.setup_camera(fw, fh, org)
-        sw = C.SheetWriter("enemies", "%s_%s" % (name, anim), fw, fh, org, DIRS, nf,
-                           meta={"dirs": DIRS, "frames": nf, "anim": anim})
-        for d in range(DIRS):
-            root.rotation_euler = (0, 0, C.yaw_for_ground_angle(d * 2 * math.pi / DIRS))
+        sw = C.SheetWriter("enemies", "%s_%s" % (name, anim), fw, fh, org, dirs, nf,
+                           passes=opts.get("passes", ("color", "normal", "emit")),
+                           meta={"dirs": dirs, "frames": nf, "anim": anim})
+        for d in range(dirs):
+            root.rotation_euler = (0, 0, C.yaw_for_ground_angle(d * 2 * math.pi / dirs))
             for f in range(nf):
                 pose(R, f / nf)
                 sw.put(d, f, C.render_stylized())

@@ -305,6 +305,7 @@ func spawn_enemy(id: String, g: Vector2, opts := {}) -> Enemy:
 		"spitter": e = Spitter.new()
 		"brute": e = Brute.new()
 		"bloater": e = Bloater.new()
+		"titan": e = Titan.new()
 		_:
 			push_warning("unknown enemy " + id)
 			return null
