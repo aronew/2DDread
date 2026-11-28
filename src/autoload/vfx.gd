@@ -131,7 +131,7 @@ func setup(fx_: Node2D, lit_: Node2D, decals_: Node2D, overlay_: Node2D) -> void
 		overlay.add_child(lb)
 		_numbers.append(lb)
 	# pooled, animated flash layers (muzzle flashes fire ~11 times a second: no new nodes)
-	for i in 48:
+	for i in 96:   # muzzle flashes and impacts each use several layers, at ~11 shots a second
 		var s := Sprite2D.new()
 		s.texture = T.flash
 		s.material = add_mat
@@ -392,7 +392,7 @@ func flash_layer(tex: Texture2D, screen_pos: Vector2, rot: float, color: Color, 
 ## Big and layered on purpose (the owner wants gunfire to feel epic): a forward cone of
 ## fire, a white-hot cross flare, a bloom, a burst of light and a wisp of smoke. It lasts
 ## only ~4 frames, so it never hides the fight.
-const MUZZLE_BOOST := 1.75
+const MUZZLE_BOOST := 2.3
 
 func muzzle(screen_pos: Vector2, gdir: Vector2, style: Dictionary) -> void:
 	var sdir := Iso.to_screen(gdir).normalized()
@@ -411,6 +411,8 @@ func muzzle(screen_pos: Vector2, gdir: Vector2, style: Dictionary) -> void:
 	# white-hot cross flare at the barrel
 	flash_layer(T.star, screen_pos, ang + PI * 0.25 + randf_range(-0.3, 0.3), Color(3.0, 2.7, 2.3, 1.0),
 		Vector2(0.25, 0.25) * gk, Vector2(0.75, 0.75) * gk, dur * 0.8)
+	# spikes of light shooting out of the barrel, fanned forward (wider for the blunderbuss)
+	spikes(screen_pos, ang, 0.75 if wide else 0.42, 6 if wide else 4, 85.0 * gk, Color(3.0, 2.6, 1.9, 0.95))
 	# bloom
 	flash_layer(T.glow, screen_pos + sdir * 14.0 * gk, 0.0, col * Color(1.9, 1.6, 1.3, 0.85),
 		Vector2(0.3, 0.26) * gk, Vector2(1.0, 0.85) * gk, dur * 1.7)
@@ -503,6 +505,17 @@ func casing(screen_pos: Vector2, gdir: Vector2, shell := false) -> void:
 	emit("casings", screen_pos, ang, Color(0.85, 0.2, 0.15) if shell else Color(1.0, 0.78, 0.35))
 
 
+## A burst of n thin spikes of light from screen point p, fanned around angle ang (+/- spread
+## radians), each up to `length` px: the starburst of a muzzle flash or an impact.
+func spikes(p: Vector2, ang: float, spread: float, n: int, length: float, col: Color, dur := 0.06) -> void:
+	for i in n:
+		var a := ang + randf_range(-spread, spread)
+		var l := length * randf_range(0.55, 1.15)
+		# T.spark is 12 px wide: stretched along x it becomes a streak bright in the middle,
+		# offset so it starts at p
+		flash_layer(T.spark, p, a, col, Vector2(l * 0.35 / 12.0, 0.13), Vector2(l / 12.0, 0.05), dur, Vector2(6, 0))
+
+
 ## Bullet/beam impact at ground point g and visual height h_m. Exaggerated: a hit should
 ## pop even in a crowd (a star flash, a burst of sparks or blood, a short flare of light).
 func impact(g: Vector2, h_m: float, normal_g: Vector2, style := "metal", color := Color.WHITE) -> void:
@@ -511,11 +524,13 @@ func impact(g: Vector2, h_m: float, normal_g: Vector2, style := "metal", color :
 	var rot := randf() * TAU
 	match style:
 		"flesh":
+			spikes(sp, ang, 1.1, 3, 46.0, Color(3.0, 2.4, 1.7, 0.9), 0.05)
 			emit("blood", sp, ang, color, 0.6)
 			emit("sparks", sp, ang, Color(3.0, 2.2, 1.4), 0.18)
 			flash_layer(T.glow, sp, 0.0, color * Color(2.2, 2.2, 2.2, 0.9), Vector2(0.3, 0.3), Vector2(1.1, 1.0), 0.1)
 			flash_layer(T.star, sp, rot, Color(2.8, 2.4, 1.9, 1.0), Vector2(0.3, 0.3), Vector2(0.85, 0.85), 0.07)
 		"armor":
+			spikes(sp, ang, 1.4, 5, 60.0, Color(3.2, 2.8, 2.0, 1.0), 0.06)
 			emit("sparks", sp, ang, Color(3.0, 2.5, 1.6), 0.9)
 			flash_layer(T.star6, sp, rot, Color(3.2, 2.8, 2.2, 1.0), Vector2(0.35, 0.35), Vector2(1.1, 1.1), 0.08)
 			flash_layer(T.glow, sp, 0.0, Color(2.4, 2.0, 1.4, 0.8), Vector2(0.3, 0.3), Vector2(1.0, 1.0), 0.1)
@@ -531,6 +546,7 @@ func impact(g: Vector2, h_m: float, normal_g: Vector2, style := "metal", color :
 			emit("blood", sp, -PI / 2, Color(0.5, 1.0, 0.25), 0.5)
 			flash_layer(T.glow, sp, 0.0, Color(1.0, 2.6, 0.6, 0.9), Vector2(0.25, 0.25), Vector2(1.0, 1.0), 0.15)
 		_:
+			spikes(sp, ang, 1.3, 4, 52.0, Color(3.0, 2.5, 1.7, 0.95), 0.05)
 			emit("sparks", sp, ang, color * Color(3.0, 2.2, 1.2), 0.6)
 			flash_layer(T.star, sp, rot, Color(3.0, 2.6, 1.9, 1.0), Vector2(0.25, 0.25), Vector2(0.8, 0.8), 0.07)
 			flash_layer(T.glow, sp, 0.0, Color(2.4, 2.0, 1.4, 0.8), Vector2(0.2, 0.2), Vector2(0.8, 0.75), 0.09)

@@ -323,6 +323,9 @@ func _start_dash() -> void:
 	var feet := Iso.to_screen(gpos)
 	# kick-off: dust thrown back, a flattened shock ring, a streak along the path
 	VFX.emit("smoke", Iso.lift(gpos, 0.15), (-_dash_dir).angle(), Color(0.5, 0.5, 0.55, 0.55), 0.5)
+	# a burst of golden spikes and sparks thrown back off the heels
+	VFX.spikes(Iso.lift(gpos, 0.5), (-sdir).angle(), 0.9, 5, 95.0, Color(2.8, 2.1, 1.0, 0.9), 0.09)
+	VFX.emit("sparks", Iso.lift(gpos, 0.3), (-sdir).angle(), Color(2.8, 2.0, 0.9), 0.5)
 	VFX.burst_sprite(VFX.T.ring, feet, Color(1.6, 1.5, 1.4, 0.55), Vector2(0.12, 0.12 * Iso.K), Vector2(0.55, 0.55 * Iso.K), 0.2)
 	VFX.burst_sprite(VFX.T.spark, feet + sdir * Iso.m(3.0) + Vector2(0, -Iso.h(0.9)), Color(1.4, 1.3, 1.2, 0.35),
 		Vector2(1.0, 0.25), Vector2(Iso.m(6.0) / 32.0, 0.06), 0.22, true, sdir.angle())

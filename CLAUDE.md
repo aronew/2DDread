@@ -229,12 +229,21 @@ All of this is playable, and a bot plays the whole route without errors:
     with magenta eyes, huge ivory tusks sweeping out and up, big yellow-gold plates arching
     along its back, and an amber heart glowing out of its rear and through its belly.
     Its masked front is armoured (`front_armor`, breakable) and it turns slowly; the heart is
-    the weak point (`back_mult` 2.2), so the fight is about circling it. Attacks, all
-    telegraphed: **stomp** (red circle in front), **charge** (red lane; a wall or column in
-    the way stuns it for a long opening), **venom volleys** (fans of shards); from phase 2
-    (below 60%) a **magenta fire nova** (`SoulRing`, a ring racing out across the floor: dash
-    through it or outrun it) and **brood** (hounds from its abdomen); phase 3 (below 25%)
-    enrages it (faster, shorter cooldowns, double charges and rings). The HUD shows a boss
+    the weak point (`back_mult` 2.2), so the fight is about circling it. 9000 HP (the owner
+    found the first version far too easy, 2026-11-28). Attacks, all telegraphed: **stomp**
+    (red circle in front) that **shakes rocks loose from the ceiling** onto red circles at
+    and around the player (`SkyStrike` "rock"; rocks crush spiderlings too); **charge**
+    aimed where the player is heading (red lane; a wall or column in the way stuns it for a
+    long opening, but the crash brings more rocks down); **venom volleys** (fans of shards);
+    **venom mortar** (globs arc onto red circles and leave burning pools, `SkyStrike`
+    "venom"); **brood**: spiderlings (`spiderling`, a tiny copy of itself on hound
+    behaviour, `data/enemies/spiderling.tres`) and from phase 2 Flaming Skulls. From phase 2
+    (below 60%) also a **magenta fire nova** (`SoulRing`: dash through it or outrun it) and a
+    **spiral** bullet storm (rotating arms of shards). Phase 3 (below 25%) enrages it
+    (faster, shorter cooldowns, double charges and rings, more rocks). The bot dodges the
+    red circles through the `ground_danger` group. Bosses blink faintly when hit and keep
+    their colours (status and wind-up tints are scaled down): a full white flash per bullet
+    hid the design. The HUD shows a boss
     bar with phase marks; its death is a slow-motion chain of amber and magenta blasts. Sheets are
     8 directions and colour + emission only (no normal map) to keep VRAM down;
     `Enemy._update_visual` reads the direction count from the sheet.
@@ -274,6 +283,15 @@ All of this is playable, and a bot plays the whole route without errors:
       slow-motion that eases back to full speed; hit-stops still freeze on top of it).
     - The gunslinger leans into runs and stretches into dashes (`PlayerVisual`), a dash
       leaves a golden light streak (`DashStreak`), and the camera leads along the run.
+    - Second pass (owner: "a lot more", after a DreadHunter-style shooter reference):
+      every muzzle flash, impact and dash also throws a starburst of long thin spikes of
+      light (`VFX.spikes`, `MUZZLE_BOOST` 2.3, a 96-layer flash pool).
+  - **Mood:** a drifting ground fog over the floor (`GroundFog`, a noise shader quad that
+    follows the camera, z -13; off on the Low preset), denser ambient embers and green
+    soul-motes (`AmbientMotes`).
+  - **Exit portal** (`ExitPortal`): hidden until the last fight is won, then it tears open
+    as an upright black-and-purple vortex on a rune circle (y-sorted with walls and actors,
+    so it stands in front of the back wall). `--open-exit` opens it at once, to look at it.
   - Hit-stop, trauma shake, HDR glow, post FX.
   - Normal-mapped dynamic 2D lights.
   - Green soul-fire abyss shader.

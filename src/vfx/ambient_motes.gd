@@ -9,7 +9,7 @@ const AREA := Vector2(2600, 1600)   # spawn box around the camera, screen px
 
 
 func _ready() -> void:
-	amount = 90
+	amount = 170
 	lifetime = 7.0
 	preprocess = 7.0
 	explosiveness = 0.0
@@ -30,8 +30,8 @@ func _ready() -> void:
 	m.turbulence_enabled = true
 	m.turbulence_noise_strength = 0.6
 	m.turbulence_noise_scale = 6.0
-	m.scale_min = 0.03
-	m.scale_max = 0.09
+	m.scale_min = 0.05
+	m.scale_max = 0.15
 	var g := Gradient.new()
 	g.offsets = PackedFloat32Array([0.0, 0.2, 0.75, 1.0])
 	g.colors = PackedColorArray([Color(1, 1, 1, 0), Color(1, 1, 1, 0.8), Color(1, 1, 1, 0.6), Color(1, 1, 1, 0)])
@@ -40,12 +40,12 @@ func _ready() -> void:
 	m.color_ramp = gt
 	# mostly warm embers, a few cold green soul-motes
 	var cg := Gradient.new()
-	cg.offsets = PackedFloat32Array([0.0, 0.7, 0.72, 1.0])
+	cg.offsets = PackedFloat32Array([0.0, 0.55, 0.57, 1.0])
 	cg.colors = PackedColorArray([Color(1.6, 0.8, 0.35), Color(1.4, 0.95, 0.55), Color(0.5, 1.6, 0.8), Color(0.45, 1.4, 0.75)])
 	var cgt := GradientTexture1D.new()
 	cgt.gradient = cg
 	m.color_initial_ramp = cgt
 	process_material = m
-	modulate = Color(1, 1, 1, 0.55)
+	modulate = Color(1, 1, 1, 0.8)
 	amount_ratio = clampf(VFX.particle_scale, 0.2, 1.0)
 	emitting = true

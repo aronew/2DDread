@@ -335,9 +335,11 @@ func _update_visual(dt: float) -> void:
 	if state == S.WINDUP:
 		# (a boss is huge and its wind-ups are long: a lighter pulse, the red ground marker
 		# carries the warning)
-		var wk := 0.4 if data.boss else 1.0
+		var wk := 0.15 if data.boss else 1.0
 		tint_a = maxf(tint_a, (0.35 + 0.3 * sin(state_t * 40.0)) * wk)
 		tint_c = Color(1.0, 0.25, 0.2)
+	if data.boss:
+		tint_a *= 0.45   # a boss stays in its own colours; its telegraphs carry the warnings
 	_set_param("tint_amount", snappedf(tint_a, 0.02))
 	_set_param("tint", tint_c)
 	_show_bar_t -= dt

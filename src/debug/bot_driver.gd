@@ -211,6 +211,16 @@ func _dodge_rings(p, s: Dictionary) -> void:
 ## and get out of one (dash if it is about to blow) when standing in it.
 func _avoid_geysers(p, s: Dictionary) -> void:
 	var mv: Vector2 = s["move"]
+	# falling rocks and venom globs (SkyStrike): step out of their red circle
+	for z in get_tree().get_nodes_in_group("ground_danger"):
+		var d: float = p.gpos.distance_to(z.hit_g)
+		if d < z.radius + p.radius + Iso.m(0.2):
+			var away: Vector2 = (p.gpos - z.hit_g).normalized() if d > 1.0 else Vector2.RIGHT
+			s["move"] = away
+			if not no_dodge and p.dash_charges > 0 and _dash_t <= 0.0 and z.delay - z._t < 0.3:
+				s["dash"] = true
+				_dash_t = 0.5
+			return
 	var here := SoulGeyser.danger_at(get_tree(), p.gpos, p.radius + Iso.m(0.3))
 	if here:
 		var away: Vector2 = (p.gpos - here.hit_g).normalized()
