@@ -134,7 +134,16 @@ are holstered there; walk up to things and press **E**:
 - **The ferry** at the end of the pier: back to the temple at any depth up to one past your
   deepest.
 
-Souls, forge levels, the drink and your deepest depth are saved in `user://progress.cfg`.
+Souls, forge levels, the drink, the shores you have reached and your deepest depth are saved
+in `user://progress.cfg`.
+
+## The second shore: the Phlegethon
+
+Reach the temple's exit portal and the ferry can take you to **the Phlegethon**, the river
+of fire: ashen islands in a sea of lava, joined by causeways, harder than the temple (it
+counts two depths deeper). Seven areas after the owner's sketch, with two side branches
+(the three-winged crossroads and the molten vault, which holds a legendary chest).
+`godot --path . -- --level=phlegethon` goes straight there.
 
 ## Project layout
 

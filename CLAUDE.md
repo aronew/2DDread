@@ -46,8 +46,33 @@ and Charon; `HubProp`: anvil, bar bottles, the moored ferry), and hidden in pain
 per kill (1, heavies 3, elites +8, a boss 120, +25% per depth), plus a few per cleared room;
 the HUD shows them over the health bar. `Build.recalc` adds `Meta.stat_bonus()`. Bot runs,
 `--look`/`--shots` stills and paint guides never load or save progress; `--fresh` starts a
-blank save. Dev: `--souls=N`, `--hub-menu=forge|bar|ferry`. The bot tours the hub (forge,
+blank save. Dev: `--souls=N`, `--hub-menu=forge|bar|ferry`, `--all-shores`. The bot tours the hub (forge,
 bar, a soul, ferry) and sails one depth deeper.
+
+**The second shore, THE PHLEGETHON (2026-11-28, `src/dungeon/layout_phlegethon.gd`,
+`--level=phlegethon`):** the owner's lava biome (`docs/concept/mockup_03_phlegethon_lava.webp`:
+ashen purple rock islands in a sea of lava, a giant half-buried skull with a laurel, bone
+heaps, ruined arches, braziers of coals) laid out after their room sketch
+(`docs/concept/layout_sketch_phlegethon.webp`), keeping its numbers as the order of play:
+1 `ashfall` -> 2 `ossuary` -> 3 `crossroads` (three island wings, a side branch) and
+4 `gauntlet` (a court and a long colonnade south) -> 5 `vault` (dead end, legendary chest)
+-> 6 `forgegate` -> 7 `throne` (the finale and exit portal; the shore's keeper, its boss,
+is not built yet). Sketch x is map i, sketch y is map j. The map is generated once by
+`tools/rooms/gen_phlegethon.py` (seeded ragged island edges, causeways, props) and then
+fixed in the layout; once rooms are painted, never regenerate it. How it differs from the
+temple: no `ENCLOSE` walls and no soul-fire pits; every void is the **lava sea**
+(`lava_sea.gdshader` on the background layer, anchored to the ground plane; black in paint
+guides), `LavaShore` (`src/dungeon/lava_shore.gd`) draws ragged basalt cliffs glowing
+orange where the floor drops into it, a hot seam on every shore, warm lights and embers,
+lone spaces inside a room are sinkholes onto the lava, causeways are plain floor with
+cliffs on both sides, `Dungeon.fly_margin` (3) keeps flyers within reach of the shore, and
+the kit is tinted to ashen rock (`Dungeon.tint_kit`) until it is painted. Shores are listed
+in `World.SHORES` (name, `tier` = extra depths of difficulty, `after` = the shore whose exit
+portal unlocks it); the Phlegethon is tier 2 (`Game.shore_tier`), unlocked by reaching the
+temple's portal (`Meta.shores`), and the ferry lists it. Nine paint guides
+(`docs/paint_guides/phl_*`), prompt in the paint guide README: SOL paints the lava pure
+black so the game's moving lava shows. The bot clears the whole shore (about 5 minutes at
+level 1).
 
 **The story so far (owner approved 2026-11-28):** the gunslinger sold his soul for the
 blessed Hellfire revolvers, then walked into the underworld, guns drawn, to take it back.
@@ -370,7 +395,7 @@ All of this is playable, and a bot plays the whole route without errors:
   foreground, a large laurel-skull floor plate, candles on ledges, skeleton sword-and-shield
   warriors with green-flame heads, and moodier lighting (darker edges, pools of light).
 - A full dungeon built from the temple pieces (the owner's next step after the room).
-- Forge/lava biome (mockup 02).
+- The Phlegethon's keeper (its boss, room 7) and its paintings; a forge biome (mockup 02).
 - Basic skeleton swordsman enemy.
 - A boss with phases.
 - Skill tree (reuse `Build.stat()` and perk hooks).
@@ -549,6 +574,8 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
 ```
 
 - **The hub:** `--level=hub` starts at The Last Obol (section 0).
+- **The second shore:** `--level=phlegethon` (rooms for `--start`: `ashfall ossuary
+  crossroads gauntlet vault forgegate throne`).
 - **Rooms for `--start`:** temple dungeon (default) `temple sanctum altar gallery
   undercroft shades lethe arena`; with `--level=test`: `landing conduit vault hatchery spine reactor`.
   `--level=temple` is still accepted (it is the default).

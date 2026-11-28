@@ -24,6 +24,7 @@ var enemies: Array = []
 var grid := CombatGrid.new()
 var rng := RandomNumberGenerator.new()
 var depth := 1
+var shore_tier := 0   # extra depths of difficulty for the current shore (World.SHORES)
 var in_hub := false   # at The Last Obol (the hub): weapons and abilities are holstered
 var debug := false
 var bot_mode := false  # automated playtest driver active
@@ -112,15 +113,17 @@ func living_enemies() -> int:
 
 ## Difficulty scaling for deeper dungeon runs.
 func depth_hp_mult() -> float:
-	return depth_hp_mult_at(depth)
+	return depth_hp_mult_at(depth, shore_tier)
 
 
-func depth_hp_mult_at(d: int) -> float:
-	return 1.0 + 0.45 * (d - 1)
+## A shore further from the hub is harder at the same depth (the Phlegethon counts as two
+## depths deeper than the temple).
+func depth_hp_mult_at(d: int, tier := 0) -> float:
+	return 1.0 + 0.45 * (d + tier - 1)
 
 
 func depth_dmg_mult() -> float:
-	return 1.0 + 0.25 * (depth - 1)
+	return 1.0 + 0.25 * (depth + shore_tier - 1)
 
 
 # ------------------------------------------------------------------ graphics settings

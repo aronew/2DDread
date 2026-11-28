@@ -35,6 +35,7 @@ static var souls := 0
 static var forge := {}          # id -> level
 static var drink := ""          # the drink poured for the current crossing
 static var best_depth := 1
+static var shores := {}         # shore id -> true once reached by the ferry (the temple always is)
 static var crossings := 0       # how many times the gunslinger has come back to the hub
 static var lines_heard := {}    # npc id -> index of the next line
 static var _loaded := false
@@ -58,6 +59,7 @@ static func load_save() -> void:
 	forge = cf.get_value("meta", "forge", {})
 	drink = str(cf.get_value("meta", "drink", ""))
 	best_depth = int(cf.get_value("meta", "best_depth", 1))
+	shores = cf.get_value("meta", "shores", {})
 	crossings = int(cf.get_value("meta", "crossings", 0))
 	lines_heard = cf.get_value("meta", "lines_heard", {})
 
@@ -70,6 +72,7 @@ static func save() -> void:
 	cf.set_value("meta", "forge", forge)
 	cf.set_value("meta", "drink", drink)
 	cf.set_value("meta", "best_depth", best_depth)
+	cf.set_value("meta", "shores", shores)
 	cf.set_value("meta", "crossings", crossings)
 	cf.set_value("meta", "lines_heard", lines_heard)
 	cf.save(PATH)

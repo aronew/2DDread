@@ -121,10 +121,15 @@ func refresh() -> void:
 			_title.text = "THE FERRY"
 			_box.add_child(_label("The boat still knows the way, if you feed it souls. Where to?", 17, Color(0.8, 0.78, 0.72)))
 			var deepest := Meta.best_depth + 1
-			for dp in range(maxi(1, deepest - 3), deepest + 1):
+			for dp in range(maxi(1, deepest - 2), deepest + 1):
 				var note := "deeper than you have ever been" if dp == deepest and dp > 1 else ("enemies +%d%% health" % int((Game.depth_hp_mult_at(dp) - 1.0) * 100.0) if dp > 1 else "where it began")
-				_row("The Soul-Fire Temple   ·   depth %d" % dp, note, "CROSS", true, func(): _sail(dp))
-			_row("The Second Shore", "Not yet charted.", "LOCKED", false, func(): pass)
+				_row("The Soul-Fire Temple   ·   depth %d" % dp, note, "CROSS", true, func(): _sail(dp, "temple"))
+			if Meta.shores.has("phlegethon"):
+				for dp in range(maxi(1, deepest - 2), deepest + 1):
+					var hp := int((Game.depth_hp_mult_at(dp, 2) - 1.0) * 100.0)
+					_row("The Phlegethon, river of fire   ·   depth %d" % dp, "the second shore: islands in a sea of lava, enemies +%d%% health" % hp, "CROSS", true, func(): _sail(dp, "phlegethon"))
+			else:
+				_row("The Second Shore", "Beyond the Weaver. Reach the temple's portal to chart it.", "LOCKED", false, func(): pass)
 
 
 func _row(name: String, desc: String, right: String, enabled: bool, cb: Callable) -> void:
@@ -189,7 +194,7 @@ func _pour(id: String) -> void:
 	refresh()
 
 
-func _sail(dp: int) -> void:
+func _sail(dp: int, shore: String) -> void:
 	close()
 	if Game.world.hub:
-		Game.world.hub.sail(dp)
+		Game.world.hub.sail(dp, shore)

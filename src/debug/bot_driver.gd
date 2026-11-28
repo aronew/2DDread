@@ -415,7 +415,7 @@ func _hub_tour(p, s: Dictionary, dt: float) -> void:
 			"ferry":
 				p.build.recalc()
 				p.on_stats_changed()
-				hub.sail(maxi(Game.depth + 1, 1))
+				hub.sail(maxi(Game.depth + 1, 1), "phlegethon" if Meta.shores.has("phlegethon") else "temple")
 		_hub_i += 1
 		return
 	_walk_to(p, s, dt, Iso.cell_of(goal), goal)

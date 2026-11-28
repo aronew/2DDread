@@ -112,10 +112,10 @@ func interact(f) -> void:
 		f.say(Meta.next_line(f.npc_id, f.lines))
 
 
-## Leave for the temple at a depth (the ferry menu, or the bot).
-func sail(depth: int) -> void:
+## Leave for a shore at a depth (the ferry menu, or the bot).
+func sail(depth: int, shore := "temple") -> void:
 	Events.message.emit("THE FERRY PUSHES OFF", Color(0.55, 1.0, 0.8))
-	Game.world.sail(depth)
+	Game.world.sail(depth, shore)
 
 
 ## "E  NAME" floating over whatever is in reach.

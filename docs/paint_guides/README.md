@@ -289,6 +289,54 @@ few pixels were patched with the step beside them.) Both are in `LayoutTemple.PA
 the lower one last. A repainted `stair_01` that includes the gallery's right end
 (columns 76-77: amphorae by the back wall, a fire urn near the edge) would finish the room.
 
+## Prompt for SOL: the second shore, the Phlegethon (river of fire)
+
+Nine guides, one painting each (rooms 3 and 4 of the owner's sketch are too wide for one
+frame, so they have two):
+
+| Guide | Room | `--look` | `--zoom` |
+|---|---|---|---|
+| `phl_ashfall` | 1 the Ashfall Landing | 60,7.5 | 0.6 |
+| `phl_ossuary` | 2 the Giant's Ossuary | 60,22.5 | 0.5 |
+| `phl_crossroads_west` | 3 the Burning Crossroads, west wing and centre | 52,39.5 | 0.52 |
+| `phl_crossroads_east` | 3 the Burning Crossroads, east wing | 72,39.5 | 0.55 |
+| `phl_gauntlet_court` | 4 the Cinder Gauntlet, the court | 36.5,21.5 | 0.58 |
+| `phl_gauntlet_hall` | 4 the Cinder Gauntlet, the colonnade | 36.5,40 | 0.52 |
+| `phl_vault` | 5 the Molten Vault | 36.5,57.5 | 0.6 |
+| `phl_forgegate` | 6 the Forge Gate | 23,37.5 | 0.6 |
+| `phl_throne` | 7 the Throne of Cinders | 8,37.5 | 0.56 |
+
+Attach the room's `phl_*_lines.png` (image 1), the owner's lava mockup
+`docs/concept/mockup_03_phlegethon_lava.webp` (image 2, the style AND the content) and the
+room's `phl_*_guide.png` (image 3). Use the temple prompt above, with "in the exact style of
+image 2", and this list:
+
+> What things are:
+> - Islands of ashen purple-grey rock floating in a sea of lava, deep in the underworld.
+>   The flat grey areas are the islands' floors: big worn cobbles and old paving, ash and
+>   cinders in the cracks, a few cracked slabs. Keep the open floor calm and readable.
+> - The orange-lit edges dropping off the islands are ragged black basalt cliffs, glowing
+>   orange at the bottom. Paint them like the mockup's island edges, with small black spikes
+>   of rock along the rims.
+> - Everything that is pure black in image 3 is lava: paint it **pure black** (the game draws
+>   the moving lava there itself). Do not paint lava.
+> - The narrow strips joining islands are paved stone causeways with low broken posts.
+> - Small orange squares inside a floor are sinkholes down to the lava: keep them black.
+> - The round gold shape is a large laurel wreath worked into the floor, like the mockup.
+> - The bronze tripod bowls are braziers full of glowing coals; the lidded urns are amphorae
+>   (keep them where they are); the cluster of pale candles is a heap of skulls and bones;
+>   the tall dark columns are ruined Greek columns, the short broken ones broken columns.
+> - (Room 2 only) The broken columns at the back stand around a GIANT half-buried skull with
+>   a gold laurel, like the mockup: paint it there, among bone heaps and huge ribs.
+>
+> Light: hot orange from below at every edge, ember glow from the braziers, dark ashen floors.
+
+Import each with its own guide (no `walls`: the shore has none), e.g.
+`python3 tools/rooms/import_room_paint.py PAINTING docs/paint_guides/phl_ossuary_guide.json phl_ossuary`,
+clip it to its own island with `tools/rooms/clip_paint.py` if it covers a neighbour, and list
+it in `LayoutPhlegethon.PAINTS`. The map comes from `tools/rooms/gen_phlegethon.py`: once a
+room is painted, never regenerate the map.
+
 ## Prompt for SOL: the hub, The Last Obol (Charon's tavern on the Styx)
 
 Attach `hub_lines.png` (image 1), the mockup (image 2), `hub_guide.png` (image 3) and one of

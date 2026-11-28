@@ -41,6 +41,8 @@ var drops := {}           # Vector2i -> true: `_` cells, the face of a drop to a
 var stairs := {}          # Vector2i -> true: `/` cells, walkable stairs drawn by Terrace (no tile)
 var tall_walls := {}      # Vector2i -> true: back walls drawn 6 m tall (see _is_back_wall)
 var enclose := false      # set by World from the layout: wall in every open floor edge
+var fly_margin := 0       # >0 (the lava shore): flyers may cross void only this many cells off the floor
+var _fly_void := {}
 var auto_walls := {}      # Vector2i -> true: walls added by _enclose_floor (not in the layout)
 var pit_cells := {}       # Vector2i -> true: soul-fire pits (enclosed void), when enclosed
 var near_walls := {}      # Vector2i -> true: camera-side walls; they fade out near the player
@@ -222,12 +224,34 @@ func is_floor(c: Vector2i) -> bool:
 	return floor_kind.has(c) and block.get(c, Block.NONE) == Block.NONE
 
 
+func _near_floor(c: Vector2i) -> bool:
+	if not _fly_void.has(c):
+		var near := false
+		for dy in range(-fly_margin, fly_margin + 1):
+			for dx in range(-fly_margin, fly_margin + 1):
+				if floor_kind.has(c + Vector2i(dx, dy)):
+					near = true
+		_fly_void[c] = near
+	return _fly_void[c]
+
+
+## Tint the kit floor and walls (the lava shore's ashen rock, until it is painted).
+func tint_kit(floor_col: Color, wall_col: Color) -> void:
+	_floor_root.modulate = floor_col
+	for c in block_nodes:
+		var n = block_nodes[c]
+		if is_instance_valid(n):
+			n.modulate = wall_col
+
+
 func walk_blocked(c: Vector2i, flying := false) -> bool:
 	if not floor_kind.has(c):
 		# flyers cross the level's own void (pits, the lake, terrace drops), but in an enclosed
 		# level not the void outside it, or a witch could drift out where nobody can reach her
 		if not flying:
 			return true
+		if fly_margin > 0:
+			return not _near_floor(c)
 		return not auto_walls.is_empty() and not pit_cells.has(c) and not drops.has(c)
 	var b: int = block.get(c, Block.NONE)
 	if b == Block.NONE:

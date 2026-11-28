@@ -19,7 +19,16 @@ var hud: HUD
 var post: PostFX
 var portal: ExitPortal
 var hub: Hub                 # the hub's stations and figures, when the level is the hub
-var level_kind := "temple"   # "temple" (the dungeon), "hub" (The Last Obol) or "test"
+var level_kind := "temple"   # a shore ("temple", "phlegethon"), "hub" (The Last Obol) or "test"
+var _lava_mat: ShaderMaterial
+var _lava := false
+
+## The shores the ferry sails to: title, the extra depths of difficulty, and what unlocks
+## them (the shore before it, once its exit portal has been reached).
+const SHORES := {
+	"temple": {"name": "The Soul-Fire Temple", "tier": 0, "after": ""},
+	"phlegethon": {"name": "The Phlegethon", "tier": 2, "after": "temple"},
+}
 var bot: BotDriver
 var _bg_mat: ShaderMaterial
 var _bg_rect: ColorRect
@@ -43,6 +52,9 @@ func _ready() -> void:
 		level_kind = "test"
 	elif args.has("--level=hub"):
 		level_kind = "hub"
+	elif args.has("--level=phlegethon"):
+		level_kind = "phlegethon"
+	Game.shore_tier = int(SHORES[level_kind]["tier"]) if SHORES.has(level_kind) else 0
 	Game.in_hub = level_kind == "hub"
 	_setup_environment()
 	_setup_background()
@@ -86,6 +98,8 @@ func _ready() -> void:
 	apply_graphics()
 	if Game.in_hub:
 		Events.message.emit("THE LAST OBOL", Color(0.55, 1.0, 0.8))
+	elif SHORES.has(level_kind) and level_kind != "temple":
+		Events.message.emit("%s · DEPTH %d" % [String(SHORES[level_kind]["name"]).to_upper(), Game.depth], Color(1.0, 0.6, 0.3))
 	else:
 		Events.message.emit("DEPTH %d" % Game.depth, Color(0.85, 0.9, 1.0))
 
@@ -123,6 +137,9 @@ func _setup_background() -> void:
 	_bg_mat.set_shader_parameter("noise_tex", preload("res://src/vfx/fog_noise.tres"))
 	layer.add_child(rect)
 	_bg_rect = rect
+	_lava_mat = ShaderMaterial.new()
+	_lava_mat.shader = preload("res://src/vfx/shaders/lava_sea.gdshader")
+	_lava_mat.set_shader_parameter("noise_tex", preload("res://src/vfx/fog_noise.tres"))
 
 
 func build_level() -> void:
@@ -148,8 +165,20 @@ func build_level() -> void:
 	Game.enemies.clear()
 	var layout := _layout()
 	dungeon.enclose = layout.get("enclose", false)
+	_lava = layout.get("lava", false)
+	dungeon.fly_margin = 3 if _lava else 0
 	dungeon.build(layout["map"], entities, decals)
-	var pits := PitFire.find_pits(dungeon)
+	if _bg_rect:
+		_bg_rect.material = _lava_mat if _lava and not OS.get_cmdline_user_args().has("--paint-guide") else null
+	if _lava:
+		# the lava shore: every void is the lava sea (no soul-fire pits), island cliffs glow,
+		# and the temple kit is tinted to ashen rock until the shore is painted
+		var ls := LavaShore.new()
+		ls.name = "LavaShore"
+		level_root.add_child(ls)
+		ls.setup(dungeon)
+		dungeon.tint_kit(Color(0.86, 0.7, 0.74), Color(0.8, 0.64, 0.68))
+	var pits := [] if _lava else PitFire.find_pits(dungeon)
 	if not pits.is_empty():
 		var pf := PitFire.new()
 		pf.name = "PitFire"
@@ -214,6 +243,8 @@ func build_level() -> void:
 func _layout() -> Dictionary:
 	if level_kind == "hub":
 		return {"map": LayoutHub.MAP, "rooms": [], "enclose": LayoutHub.ENCLOSE, "paints": LayoutHub.PAINTS}
+	if level_kind == "phlegethon":
+		return {"map": LayoutPhlegethon.MAP, "rooms": LayoutPhlegethon.ROOMS, "paints": LayoutPhlegethon.PAINTS, "lava": true}
 	if level_kind == "test":
 		return {"map": LayoutTest.MAP, "rooms": LayoutTest.ROOMS}
 	var paints: Array = LayoutTemple.PAINTS_V3 if OS.get_cmdline_user_args().has("--paint-set=v3") else LayoutTemple.PAINTS
@@ -240,10 +271,11 @@ func _process(dt: float) -> void:
 			Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0])
 		get_tree().quit()
 	_auto_quality(dt)
-	if _bg_mat and camera and _bg_rect.material != null:
-		_bg_mat.set_shader_parameter("cam", camera.global_position)
-		_bg_mat.set_shader_parameter("zoom", camera.zoom.x)
-		_bg_mat.set_shader_parameter("time_s", _t)
+	if camera and _bg_rect.material != null:
+		var m: ShaderMaterial = _bg_rect.material
+		m.set_shader_parameter("cam", camera.global_position)
+		m.set_shader_parameter("zoom", camera.zoom.x)
+		m.set_shader_parameter("time_s", _t)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -304,8 +336,10 @@ func apply_graphics() -> void:
 	_env.glow_intensity = 0.7 if full else 0.85
 	_env.glow_bloom = 0.02 if full else 0.0
 	var bg: int = g["bg"]
-	_bg_rect.material = null   # black beyond the walls (void_bg is kept for a later biome)
+	# black beyond the temple's walls; the lava sea under the Phlegethon's islands
+	_bg_rect.material = _lava_mat if _lava and not OS.get_cmdline_user_args().has("--paint-guide") else null
 	_bg_mat.set_shader_parameter("quality", bg)
+	_lava_mat.set_shader_parameter("quality", bg)
 	if post:
 		post.set_full(g["post"])
 	var lv: int = g["lights"]
@@ -374,8 +408,12 @@ func _on_player_died() -> void:
 func descend() -> void:
 	VFX.screen_flash(Color(0.6, 0.85, 1.0, 0.9), 0.6)
 	Audio.play("level_up")
-	if level_kind == "temple":
+	if SHORES.has(level_kind):
 		Meta.best_depth = maxi(Meta.best_depth, Game.depth)
+		for s in SHORES:
+			if SHORES[s]["after"] == level_kind and not Meta.shores.has(s):
+				Meta.shores[s] = true   # the ferry can go one shore further now
+				Events.message.emit("A NEW SHORE: %s" % String(SHORES[s]["name"]).to_upper(), Color(1.0, 0.6, 0.25))
 		Meta.crossings += 1
 		Meta.drink = ""          # the drink wears off: pour another before the next crossing
 		Meta.save()
@@ -385,17 +423,18 @@ func descend() -> void:
 	call_deferred("_rebuild")
 
 
-## Leave the hub on the ferry for the temple at a depth.
-func sail(depth: int) -> void:
+## Leave the hub on the ferry for a shore at a depth.
+func sail(depth: int, shore := "temple") -> void:
 	VFX.screen_flash(Color(0.45, 1.0, 0.75, 0.9), 0.6)
 	Audio.play("level_up")
 	Meta.save()
-	_go("temple", depth)
+	_go(shore, depth)
 
 
 func _go(kind: String, depth: int) -> void:
 	level_kind = kind
 	Game.in_hub = kind == "hub"
+	Game.shore_tier = int(SHORES[kind]["tier"]) if SHORES.has(kind) else 0
 	Game.depth = depth
 	call_deferred("_rebuild")
 
@@ -417,7 +456,7 @@ func _rebuild() -> void:
 	if Game.in_hub:
 		Events.message.emit("THE LAST OBOL", Color(0.55, 1.0, 0.8))
 	else:
-		Events.message.emit("DEPTH %d — THE UNDERWORLD STIRS" % Game.depth, Color(1.0, 0.6, 0.3))
+		Events.message.emit("%s · DEPTH %d" % [String(SHORES.get(level_kind, {"name": "the underworld"})["name"]).to_upper(), Game.depth], Color(1.0, 0.6, 0.3))
 
 
 func _parse_args() -> void:
@@ -507,6 +546,9 @@ func _parse_args() -> void:
 	if opts.has("hub-menu") and hub:
 		# dev: open a hub station's screen after a second (forge, bar or ferry), for screenshots
 		get_tree().create_timer(1.0).timeout.connect(func(): hud.open_hub_menu(opts["hub-menu"]))
+	if opts.has("all-shores"):
+		for sh in SHORES:
+			Meta.shores[sh] = true   # dev: the ferry lists every shore
 	if opts.has("souls"):
 		Meta.souls = int(opts["souls"])   # dev: start with this many souls (not saved by itself)
 	if opts.has("open-exit") and portal:
