@@ -222,6 +222,12 @@ All of this is playable, and a bot plays the whole route without errors:
   - **Dash animation:** while dashing (and 0.07 s after, the landing) the whole body is
     one sprite in a low lunge (`player_dash`: push off, flight, landing), drawn on the
     legs sprite with the torso hidden, so the afterimages show the lunge too.
+  - **Death animation:** the killing blow knocks him over backward (`player_death`, 16
+    dirs × 5 frames: hit, knees buckle, falling, hits the ground, lying still; hat and
+    pistols fall away), in a moment of slow motion; he lies still, then burns away in
+    green soul-fire with souls rising (`PlayerVisual.play_death` / `update_death`, the
+    entity shader's dissolve) before the respawn. `--die-at=S` drops him dead S seconds in
+    (with `--look` it plays in an empty room); `--dmg-mult=N` forces deaths in a fight.
 - **Enemies** (internal ids stay `mite/spitter/brute/bloater`; names and art are themed):
   - **Hellhound** (`mite`): flanking swarmer, pounce.
   - **Hex Witch** (`spitter`): flying caster, shard fans.
@@ -460,7 +466,7 @@ models are made from primitives in code, then rendered through a custom stylizer
     streaming behind in the run cycle). `-- swings` renders the saber sheets (light 5,
     heavy 6, thrust 2 frames, 16 dirs; poses keyed in `SWING_KEYS`/`THRUST_KEYS`) and
     `-- dash` the full-body dash (`DASH_POSES`), ~45 min for both in two parallel
-    processes. The HUD portrait is not rendered any more: it is
+    processes; `-- death` the full-body death (`DEATH_POSES`), ~15 min. The HUD portrait is not rendered any more: it is
     cut from the design art with `tools/ui/portrait_from_art.py ART CX CY SIZE`
     (`-- portrait` still renders one from the model).
   - `build_enemies.py`: hound/witch/legion/skull, one sheet per animation; ~20 min per
@@ -599,7 +605,7 @@ godot --path . -- --start=gallery --depth=2 --gfx=low                 # jump to 
   enclosed by towering walls like the mockup's. Interior walls stay 3 m and near walls
   are cut low, so walls never hide the fight.
 - **Other dev flags:** `--shots=DIR --shot-every=S` (screenshots), `--inv-shot`
-  (inventory test), `--dmg-mult=N` (forced deaths), `--bench=S` (avg FPS),
+  (inventory test), `--dmg-mult=N` (forced deaths), `--die-at=S` (the player dies at S s), `--bench=S` (avg FPS),
   `--g-<setting>=v` (per-setting overrides).
 - **Headless cloud containers:** run rendered screenshots with
   `VK_ICD_FILENAMES=/opt/lavapipe/lvp_icd.json xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --resolution 1920x1080 --fixed-fps 30 --audio-driver Dummy -- --bot --start=hatchery --shots=/tmp/s --shot-every=2 --quit-after=8`.

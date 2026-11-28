@@ -402,6 +402,11 @@ func _parse_args() -> void:
 				elif pr.destructible():
 					var d := DamageInfo.make(9999.0, DamageInfo.Type.PHYSICAL, player)
 					pr.take_damage(d))
+	if opts.has("die-at"):
+		# dev: the player drops dead after N seconds, knocked back from where he aims (to
+		# look at the death animation; with --look it plays in an empty room)
+		get_tree().create_timer(float(opts["die-at"])).timeout.connect(func():
+			player.dev_kill(-player.aim_dir))
 	if opts.has("paint-guide"):
 		# dev: a clean frame of the room for an image generator to paint over (no HUD,
 		# no player), plus where the camera was, so the painting can be laid back on

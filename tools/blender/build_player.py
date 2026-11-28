@@ -9,6 +9,7 @@ saber  : torso swapped in while the Hellfire Saber swings: light (5 frames), hea
          thrust (2), 16 directions each              (-- swings | light heavy thrust)
 dash   : the whole body in a low lunge, 16 directions x 3 frames, shown instead of both
          layers while dashing                        (-- dash)
+death  : the whole body falling onto its back, 16 directions x 5 frames (-- death)
 
 Both layers share the same origin (feet) so they composite exactly.
 """
@@ -202,13 +203,14 @@ def build_torso(M):
            [(0, 1, 0.3), (0, 1, 0.1), (0, 1, 0)], [0.1, 0.11, 0.06], M["scarf"], t, thick=0.025)
     # two tails falling down the back and fluttering out to one side, wide cloth with a
     # twist, cut to a point
-    _strip([(-0.09, -0.03, 0.66), (-0.17, -0.09, 0.57), (-0.25, -0.15, 0.46), (-0.31, -0.19, 0.35),
-            (-0.37, -0.24, 0.24)],
-           [(0.15, 1, 0.35), (0.3, 1, 0.8), (0.2, 0.6, 1), (0.3, 1, 0.7), (0.2, 0.7, 1)],
-           [0.12, 0.16, 0.16, 0.13, 0.02], M["scarf"], t, thick=0.024)
-    _strip([(-0.08, 0.05, 0.64), (-0.16, 0.06, 0.55), (-0.22, 0.04, 0.45), (-0.27, 0.0, 0.36)],
-           [(0.2, 1, 0.5), (0.3, 1, 1), (0.2, 1, 0.5), (0.3, 1, 1)],
-           [0.1, 0.13, 0.11, 0.02], M["scarf"], t, thick=0.024)
+    st1 = _strip([(-0.09, -0.03, 0.66), (-0.17, -0.09, 0.57), (-0.25, -0.15, 0.46), (-0.31, -0.19, 0.35),
+                  (-0.37, -0.24, 0.24)],
+                 [(0.15, 1, 0.35), (0.3, 1, 0.8), (0.2, 0.6, 1), (0.3, 1, 0.7), (0.2, 0.7, 1)],
+                 [0.12, 0.16, 0.16, 0.13, 0.02], M["scarf"], t, thick=0.024)
+    st2 = _strip([(-0.08, 0.05, 0.64), (-0.16, 0.06, 0.55), (-0.22, 0.04, 0.45), (-0.27, 0.0, 0.36)],
+                 [(0.2, 1, 0.5), (0.3, 1, 1), (0.2, 1, 0.5), (0.3, 1, 1)],
+                 [0.1, 0.13, 0.11, 0.02], M["scarf"], t, thick=0.024)
+    st1["scarf_tail"] = st2["scarf_tail"] = 1   # the death pose lays them on the ground instead
     # head: tanned face under the hat's shadow, dark spiky hair at the sides
     h = C.empty("head", (0.045, 0, 0.82), t, rot=(0, -0.08, 0))
     C.cyl(0.045, 0.1, (0, 0, -0.08), M["skin"], h, verts=10)
@@ -441,6 +443,109 @@ def _dash_arms(M, t):
         _arm(M, t, (0.0, 0.27 * side, 0.54), Vector(hand), side)
 
 
+DEATH_FRAME = (360, 300, (180, 214))
+# The death, full body, falling backward (away from the killing blow) onto his back. Per
+# frame: fwd = the body's shift along his facing (the feet slide forward as he goes down),
+# pz / pitch = pelvis height and backward tilt, lean = torso tilt (- = back), head = head
+# tilt (- = back), L / R = (hip, knee, foot angle: 0 flat, -1.57 toes up) relative to the
+# pelvis, hands in the torso's frame, guns = still in his hands, hat = None (on his head)
+# or (x, y, z, rx, ry, rz) on the ground plane, relative to the feet.
+DEATH_POSES = (
+    dict(fwd=-0.06, pz=0.93, pitch=0.12, lean=-0.32, head=-0.4, L=(-0.18, 0.3, 0.0), R=(0.22, 0.12, 0.0),
+         hands=((-0.04, -0.6, 0.4), (-0.06, 0.6, 0.44)), guns=True, hat=None),           # hit, arched back
+    dict(fwd=0.0, pz=0.64, pitch=0.25, lean=-0.55, head=-0.3, L=(-0.9, 1.6, 0.0), R=(-0.62, 1.4, 0.0),
+         hands=((-0.08, -0.6, 0.36), (-0.05, 0.6, 0.4)), guns=True,
+         hat=(-0.45, 0.06, 1.62, 0.3, -0.5, 0.0)),                                         # knees buckle, hat flies
+    dict(fwd=0.14, pz=0.36, pitch=0.62, lean=-1.0, head=-0.15, L=(-0.95, 1.5, 0.0), R=(-0.75, 1.15, -0.4),
+         hands=((-0.06, -0.63, 0.4), (-0.06, 0.63, 0.44)), guns=True,
+         hat=(-0.95, 0.12, 0.95, 0.7, -1.2, 0.4)),                                         # falling
+    dict(fwd=0.28, pz=0.15, pitch=1.15, lean=-1.45, head=-0.05, L=(-0.6, 1.05, 0.0), R=(-0.3, 0.25, -1.2),
+         hands=((-0.06, -0.64, 0.4), (-0.06, 0.64, 0.44)), guns=False,
+         hat=(-1.3, 0.22, 0.14, 0.9, -0.3, 0.6)),                                          # hits the ground
+    dict(fwd=0.3, pz=0.12, pitch=1.3, lean=-1.55, head=0.0, L=(-0.55, 1.0, 0.0), R=(-0.22, 0.05, -1.5),
+         hands=((-0.08, -0.66, 0.36), (-0.08, 0.62, 0.42)), guns=False,
+         hat=(-1.38, 0.32, 0.012, 0.0, 0.0, 0.6)),                                         # lying still
+)
+
+
+def pose_death(M, pelvis, legs, tails, troot, t, head, hat, scarf_tails, pose):
+    """Pose the whole body for one death frame; returns the objects it made (arms,
+    pistols, the scarf spread on the ground)."""
+    fwd, pz, pitch, lean = pose["fwd"], pose["pz"], pose["pitch"], pose["lean"]
+    pelvis.location = (fwd, 0, pz)
+    pelvis.rotation_euler = (0, -pitch, 0)
+    for side, (hip, knee, ankle) in legs.items():
+        h, k, foot = pose["L"] if side == "L" else pose["R"]
+        hip.rotation_euler = (0, h, 0)
+        knee.rotation_euler = (0, k, 0)
+        ankle.rotation_euler = (0, foot - (-pitch + h + k), 0)
+    lying = pitch > 0.9
+    for tl in tails:
+        sd = tl["side"]
+        if tl["kind"] == "front":
+            hp = (pose["L"] if sd > 0 else pose["R"])[0]
+            tl.rotation_euler = (0.12 * sd, min(0.2, hp * 0.8 + 0.2), 0)
+        else:   # lifted toward the ground plane once he's down, so they spread under him
+            tl.rotation_euler = (0.25 * sd, -0.45 if lying else 0.2, 0)
+    # the torso pivots at the top of the tilted pelvis
+    t.location = (fwd - 0.06 * math.sin(pitch), 0, pz + 0.06 * math.cos(pitch))
+    t.rotation_euler = (0, lean, 0)
+    head.rotation_euler = (0.35 if lying else 0.0, -0.08 + pose["head"], 0)
+    for st in scarf_tails:
+        st.hide_render = pitch > 0.5
+    if pose["hat"] is None:
+        hat.parent = head
+        hat.location = (-0.01, 0, 0.095)
+        hat.rotation_euler = (0, -0.14, 0)
+    else:
+        x, y, z, rx, ry, rz = pose["hat"]
+        hat.parent = troot
+        hat.location = (fwd + x, y, z)
+        hat.rotation_euler = (rx, ry, rz)
+
+    def make():
+        for side, hand in ((-1, pose["hands"][0]), (1, pose["hands"][1])):
+            _arm(M, t, (0.0, 0.27 * side, 0.54), Vector(hand), side)
+            if pose["guns"]:
+                _pistol_in_hand(M, t, hand, (0.3 * side, 0.7, 1.3 * side))   # flung out, pointing down
+            else:   # dropped beside him, lying on their sides
+                g = _pistol(M, troot, Vector((fwd - 0.45, 0.82 * side, 0.03)), "gun_dropped")
+                g.rotation_euler = (math.pi / 2, 0, 0.9 * side + 0.3)
+        if pitch > 0.5:   # the scarf's tails spill out on the ground by his neck
+            nx = fwd - 0.62 if lying else fwd - 0.45
+            nz = 0.03 if lying else 0.3
+            _strip([(nx, -0.05, nz + 0.06), (nx - 0.12, -0.3, nz), (nx - 0.05, -0.55, nz), (nx - 0.16, -0.75, nz)],
+                   [(1, 0, 0.1)] * 4, [0.16, 0.19, 0.17, 0.09], M["scarf"], troot, thick=0.024)
+            _strip([(nx, 0.05, nz + 0.06), (nx - 0.2, 0.18, nz), (nx - 0.3, 0.36, nz)],
+                   [(1, 0.3, 0.1)] * 3, [0.14, 0.16, 0.08], M["scarf"], troot, thick=0.024)
+    return _created_by(make)
+
+
+def render_death():
+    C.reset_scene()
+    C.setup_lights()
+    M = materials()
+    lroot, pelvis, legs, tails = build_legs(M)
+    troot, t = build_torso(M)
+    head = [o for o in t.children if o.name.startswith("head")][0]
+    hat = [o for o in head.children if o.name.startswith("hat")][0]
+    scarf_tails = [o for o in t.children if o.get("scarf_tail")]
+    fw, fh, org = DEATH_FRAME
+    C.setup_camera(fw, fh, org)
+    sw = C.SheetWriter("player", "player_death", fw, fh, org, LEG_DIRS, len(DEATH_POSES),
+                       meta={"dirs": LEG_DIRS, "frames": len(DEATH_POSES)})
+    for f, pose in enumerate(DEATH_POSES):
+        objs = pose_death(M, pelvis, legs, tails, troot, t, head, hat, scarf_tails, pose)
+        for d in range(LEG_DIRS):
+            a = C.yaw_for_ground_angle(d * 2 * math.pi / LEG_DIRS)
+            lroot.rotation_euler = (0, 0, a)
+            troot.rotation_euler = (0, 0, a)
+            sw.put(d, f, C.render_stylized())
+        _remove(objs)
+        print("death frame", f, flush=True)
+    sw.save()
+
+
 def render_swings(kinds=("light", "heavy", "thrust")):
     for kind in kinds:
         C.reset_scene()
@@ -580,3 +685,5 @@ if __name__ == "__main__":
         render_swings(swings or ("light", "heavy", "thrust"))
     if "dash" in what:
         render_dash()
+    if "death" in what:
+        render_death()

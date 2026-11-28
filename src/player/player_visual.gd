@@ -7,6 +7,8 @@ extends Node2D
 ##            swing's direction while the legs keep running;
 ##   dash     the whole body in a low lunge (one sheet, 16 dirs x 3 frames) drawn on the
 ##            legs sprite with the torso hidden, while update()'s dash_k >= 0.
+## And play_death(): the whole body falls on its back (16 dirs x 5 frames, the same way),
+## lies still a moment, then burns away in green soul-fire; revived() puts it back.
 
 const SHEET_DIR := "res://assets/sprites/player/"
 const STRIDE_M := 2.3
@@ -21,6 +23,13 @@ const SWING_SEQ := {
 	"thrust": [[0.25, 0], [1.0, 1]],
 }
 const DASH_SEQ := [[0.2, 0], [0.78, 1], [9.0, 2]]   # push off, flight, landing (k past 1 = landing hold)
+## The death, in game seconds (the fall starts in slow motion): hit, knees buckle, falling,
+## hits the ground, lying still; then the body burns away from DEATH_BURN for DEATH_BURN_T.
+const DEATH_SEQ := [[0.1, 0], [0.24, 1], [0.38, 2], [0.5, 3], [99.0, 4]]
+const DEATH_BURN := 1.0
+const DEATH_BURN_T := 0.7
+const SOUL_FIRE := Color(0.04, 0.55, 0.16)   # x7 in the shader: HDR green, not white
+const NOISE := preload("res://src/vfx/noise_tex.tres")
 
 var legs_sheet
 var torso_sheets := {}
@@ -43,6 +52,10 @@ var saber_sheets := {}
 var dash_sheet
 var _act := {}            # the saber swing being shown: kind, sheet, dir, t, dur
 var _dash_shown := false
+var death_sheet
+var _death_t := -1.0      # game seconds since death, or < 0 while alive
+var _death_dir := Vector2.RIGHT
+var _souls_t := 0.0
 
 
 func _ready() -> void:
@@ -55,8 +68,12 @@ func _ready() -> void:
 			saber_sheets[k] = SheetDB.get_sheet(SHEET_DIR + "player_saber_" + k)
 	if FileAccess.file_exists(SHEET_DIR + "player_dash.json"):
 		dash_sheet = SheetDB.get_sheet(SHEET_DIR + "player_dash")
+	if FileAccess.file_exists(SHEET_DIR + "player_death.json"):
+		death_sheet = SheetDB.get_sheet(SHEET_DIR + "player_death")
 	mat = ShaderMaterial.new()
 	mat.shader = preload("res://src/vfx/shaders/entity.gdshader")
+	mat.set_shader_parameter("noise_tex", NOISE)
+	mat.set_shader_parameter("dissolve_color", SOUL_FIRE)
 	shadow = VFX.make_shadow(Iso.m(0.5))
 	add_child(shadow)
 	legs = _sprite(legs_sheet.tex, legs_sheet)
@@ -193,6 +210,68 @@ func update(dt: float, vel: Vector2, aim_dir: Vector2, dashing: bool, dash_k := 
 	# a stretch along the dash, settling back after it
 	var want := Vector2(1.07, 0.94) if dashing else Vector2.ONE
 	scale = scale.lerp(want, 1.0 - exp(-20.0 * dt))
+
+
+## Fall dead, facing `face` (toward the killing blow), so he goes over backward.
+func play_death(face: Vector2) -> void:
+	end_swing()
+	if death_sheet == null:
+		visible = false
+		return
+	_death_t = 0.0
+	_souls_t = 0.0
+	_death_dir = face if face.length() > 0.1 else leg_dir
+	_dash_shown = false
+	_show_sheet(legs, legs_glow, death_sheet)
+	torso.visible = false
+	torso_glow.visible = false
+	legs.skew = 0.0
+	torso.skew = 0.0
+	scale = Vector2.ONE
+	modulate.a = 1.0
+	_set_death_frame()
+
+
+## Runs instead of update() while dead (the player's own update stops).
+func update_death(dt: float) -> void:
+	if _death_t < 0.0 or not visible:
+		return
+	_death_t += dt
+	_set_death_frame()
+	set_flash(maxf(0.0, 0.8 - _death_t * 5.0), Color(1.0, 0.25, 0.2))
+	var k := clampf((_death_t - DEATH_BURN) / DEATH_BURN_T, 0.0, 1.0)
+	mat.set_shader_parameter("dissolve", k)
+	legs_glow.modulate.a = maxf(0.0, 1.0 - k * 3.0)
+	shadow.modulate.a = 0.75 * (1.0 - k)
+	if k > 0.0:
+		# souls rise from the body as it burns away
+		_souls_t -= dt
+		if _souls_t <= 0.0:
+			_souls_t = 0.09
+			var g: Vector2 = get_parent().gpos - _death_dir * Iso.m(randf_range(0.0, 0.9))
+			VFX.souls(g, 0.2, 0.5)
+	if k >= 1.0:
+		visible = false
+
+
+func _set_death_frame() -> void:
+	var fr := _key_frame(DEATH_SEQ, _death_t)
+	legs.region_rect = death_sheet.region(Iso.dir_index(_death_dir, death_sheet.dirs), fr)
+	legs_glow.region_rect = legs.region_rect
+
+
+## Back on his feet after a respawn.
+func revived() -> void:
+	_death_t = -1.0
+	mat.set_shader_parameter("dissolve", 0.0)
+	set_flash(0.0)
+	_show_sheet(legs, legs_glow, legs_sheet)
+	legs_glow.modulate.a = 1.0
+	shadow.modulate.a = 0.75
+	torso.visible = true
+	torso_glow.visible = true
+	_dash_shown = false
+	visible = true
 
 
 func set_flash(v: float, color := Color(1, 1, 1)) -> void:

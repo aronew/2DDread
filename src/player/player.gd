@@ -52,6 +52,7 @@ var _since_dash := 99.0
 var _iframes := 0.0
 var _hurt_iframes := 0.0
 var _hurt_flash := 0.0
+var _last_hit_dir := Vector2.ZERO   # the push of the last hit: a killing blow knocks him over backward
 var _regen_delay := 0.0
 var _swap_t := 0.0
 var _launcher_t := 0.0
@@ -155,6 +156,7 @@ func _input_state() -> Dictionary:
 
 func _process(dt: float) -> void:
 	if not alive:
+		visual.update_death(dt)
 		return
 	if get_tree().paused:
 		return
@@ -491,6 +493,8 @@ func take_damage(info: DamageInfo) -> void:
 	var amt := info.amount * 100.0 / (100.0 + build.stat("armor")) * Game.damage_taken_mult
 	hp -= amt
 	_hurt_flash = 1.0
+	if info.direction.length() > 0.1:
+		_last_hit_dir = info.direction
 	_regen_delay = 4.0
 	if not info.is_dot:
 		_hurt_iframes = 0.12 if amt < 20.0 else 0.35
@@ -521,17 +525,27 @@ func _die() -> void:
 	hp = 0.0
 	blade.cancel()
 	VFX.gore(gpos, Color(0.8, 0.1, 0.1), 2.0)
-	VFX.explosion(gpos, Iso.m(2.0), Color(0.4, 0.6, 1.0), false)
-	visual.visible = false
+	VFX.ring(gpos, Iso.m(2.5), Color(1.0, 0.3, 0.2), 0.4)
+	# he falls over backward, away from the killing blow, in slow motion
+	visual.play_death(-_last_hit_dir if _last_hit_dir.length() > 0.1 else aim_dir)
 	Game.hit_stop(0.25, 0.05, true)
+	Game.slowmo(0.9, 0.35)
 	Events.player_died.emit()
+
+
+## Dev (--die-at): drop dead now, knocked along `push`.
+func dev_kill(push: Vector2) -> void:
+	if alive:
+		_last_hit_dir = push
+		_die()
 
 
 func revive(g: Vector2) -> void:
 	alive = true
 	hp = max_hp
-	visual.visible = true
+	visual.revived()
 	_iframes = 2.0
+	_last_hit_dir = Vector2.ZERO
 	spawn_at(g)
 	VFX.ring(gpos, Iso.m(3.0), Color(0.5, 0.8, 1.0), 0.5)
 
