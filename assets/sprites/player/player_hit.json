@@ -1,0 +1,17 @@
+{
+ "name": "player_hit",
+ "frame_w": 260,
+ "frame_h": 290,
+ "origin": [
+  130,
+  240
+ ],
+ "rows": 16,
+ "cols": 3,
+ "files": {
+  "color": "player_hit_c.png",
+  "normal": "player_hit_n.png"
+ },
+ "dirs": 16,
+ "frames": 3
+}

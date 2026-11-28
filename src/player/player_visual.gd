@@ -7,8 +7,13 @@ extends Node2D
 ##            swing's direction while the legs keep running;
 ##   dash     the whole body in a low lunge (one sheet, 16 dirs x 3 frames) drawn on the
 ##            legs sprite with the torso hidden, while update()'s dash_k >= 0.
+##   hit()    a flinch toward the attacker (whole body, 16 dirs x 3 frames), at most every
+##            HIT_EVERY s and only when not running flat out; every hit also jolts him;
+##   idle     standing still without firing (twin pistols out): the whole body at rest,
+##            pistols lowered like the design, breathing, coat and scarf stirring (a loop).
 ## And play_death(): the whole body falls on its back (16 dirs x 5 frames, the same way),
 ## lies still a moment, then burns away in green soul-fire; revived() puts it back.
+## The whole-body sheets are drawn on the legs sprite with the torso hidden (_set_body).
 
 const SHEET_DIR := "res://assets/sprites/player/"
 const STRIDE_M := 2.3
@@ -30,6 +35,13 @@ const DEATH_BURN := 1.0
 const DEATH_BURN_T := 0.7
 const SOUL_FIRE := Color(0.04, 0.55, 0.16)   # x7 in the shader: HDR green, not white
 const NOISE := preload("res://src/vfx/noise_tex.tres")
+const HIT_SEQ := [[0.07, 0], [0.16, 1], [9.0, 2]]   # the blow lands, stagger, recover
+const HIT_T := 0.26
+const HIT_EVERY := 0.5        # a full flinch at most this often; a stream of shots only jolts
+const HIT_MAX_SPEED_M := 4.5  # running faster than this, a hit only jolts (no skating flinch)
+const IDLE_AFTER := 0.6       # standing still this long without firing: the idle loop
+const IDLE_LOOP := 2.0        # seconds per breath
+const IDLE_WEAPON := "rifle"  # the idle sheet holds the twin pistols
 
 var legs_sheet
 var torso_sheets := {}
@@ -51,7 +63,15 @@ var _lean := 0.0
 var saber_sheets := {}
 var dash_sheet
 var _act := {}            # the saber swing being shown: kind, sheet, dir, t, dur
-var _dash_shown := false
+var _body = null          # the whole-body sheet shown instead of both layers, or null
+var hit_sheet
+var idle_sheet
+var _hit_t := -1.0        # seconds into a flinch, or < 0
+var _hit_dir := Vector2.RIGHT
+var _last_flinch := -99.0
+var _still_t := 0.0       # standing still without firing for this long
+var _idle_t := 0.0        # phase of the idle loop
+var _jolt := Vector2.ZERO # screen px the last hits knocked the sprite by
 var death_sheet
 var _death_t := -1.0      # game seconds since death, or < 0 while alive
 var _death_dir := Vector2.RIGHT
@@ -70,6 +90,11 @@ func _ready() -> void:
 		dash_sheet = SheetDB.get_sheet(SHEET_DIR + "player_dash")
 	if FileAccess.file_exists(SHEET_DIR + "player_death.json"):
 		death_sheet = SheetDB.get_sheet(SHEET_DIR + "player_death")
+	if FileAccess.file_exists(SHEET_DIR + "player_hit.json"):
+		hit_sheet = SheetDB.get_sheet(SHEET_DIR + "player_hit")
+	if FileAccess.file_exists(SHEET_DIR + "player_idle.json"):
+		idle_sheet = SheetDB.get_sheet(SHEET_DIR + "player_idle")
+	Events.ability_used.connect(func(_slot): _still_t = 0.0)
 	mat = ShaderMaterial.new()
 	mat.shader = preload("res://src/vfx/shaders/entity.gdshader")
 	mat.set_shader_parameter("noise_tex", NOISE)
@@ -139,6 +164,36 @@ func end_swing() -> void:
 	_show_sheet(torso, torso_glow, torso_sheets[_cur_torso])
 
 
+## A shot: back to the aiming stance at once (ends a swing's tail and the idle).
+func fired() -> void:
+	_still_t = 0.0
+	end_swing()
+
+
+## A hit landed, pushing him along ground direction `push`: a jolt every time, and a
+## flinch facing the attacker at most every HIT_EVERY seconds.
+func hit(push: Vector2, amount: float) -> void:
+	_still_t = 0.0
+	if push.length() < 0.01:
+		return
+	_jolt += Iso.to_screen(push).normalized() * clampf(3.0 + amount * 0.25, 3.0, 9.0)
+	var now := Time.get_ticks_msec() / 1000.0
+	if hit_sheet != null and now - _last_flinch >= HIT_EVERY:
+		_last_flinch = now
+		_hit_t = 0.0
+		_hit_dir = -push
+
+
+## Show a whole-body sheet on the legs sprite with the torso hidden (null: both layers).
+func _set_body(sh) -> void:
+	if sh == _body:
+		return
+	_body = sh
+	_show_sheet(legs, legs_glow, sh if sh != null else legs_sheet)
+	torso.visible = sh == null
+	torso_glow.visible = sh == null
+
+
 static func _key_frame(seq: Array, f: float) -> int:
 	for k in seq:
 		if f < k[0]:
@@ -163,14 +218,16 @@ func update(dt: float, vel: Vector2, aim_dir: Vector2, dashing: bool, dash_k := 
 		_act["t"] += dt
 		if _act["t"] >= _act["dur"]:
 			end_swing()
-	var dash_on := dash_k >= 0.0 and dash_sheet != null and _act.is_empty()
-	if dash_on != _dash_shown:
-		_dash_shown = dash_on
-		_show_sheet(legs, legs_glow, dash_sheet if dash_on else legs_sheet)
-		torso.visible = not dash_on
-		torso_glow.visible = not dash_on
+	if _hit_t >= 0.0:
+		_hit_t += dt
+		if _hit_t >= HIT_T:
+			_hit_t = -1.0
 	var speed_m := vel.length() / Iso.PX_PER_M
 	var moving := speed_m > 0.6
+	if moving or dash_k >= 0.0 or not _act.is_empty():
+		_still_t = 0.0
+	else:
+		_still_t += dt
 	var col := 8
 	var bob := 0.0
 	if moving:
@@ -183,10 +240,30 @@ func update(dt: float, vel: Vector2, aim_dir: Vector2, dashing: bool, dash_k := 
 			bob = _bob[col]
 	else:
 		leg_dir = leg_dir.slerp(aim_dir, minf(1.0, dt * 10.0)).normalized()
-	if dash_on:
-		if speed_m > 0.6:
-			leg_dir = vel.normalized()
-		legs.region_rect = dash_sheet.region(Iso.dir_index(leg_dir, dash_sheet.dirs), _key_frame(DASH_SEQ, dash_k))
+	# whole-body animations take over both layers (a saber swing keeps the torso layer):
+	# dash, then a flinch, then the idle loop
+	var body = null
+	var bdir := leg_dir
+	var bf := 0
+	if _act.is_empty():
+		if dash_k >= 0.0 and dash_sheet != null:
+			if moving:
+				leg_dir = vel.normalized()
+			body = dash_sheet
+			bdir = leg_dir
+			bf = _key_frame(DASH_SEQ, dash_k)
+		elif _hit_t >= 0.0 and speed_m < HIT_MAX_SPEED_M:
+			body = hit_sheet
+			bdir = _hit_dir
+			bf = _key_frame(HIT_SEQ, _hit_t)
+		elif _still_t >= IDLE_AFTER and idle_sheet != null and _cur_torso == IDLE_WEAPON:
+			_idle_t = fposmod(_idle_t + dt / IDLE_LOOP, 1.0)
+			body = idle_sheet
+			bdir = aim_dir
+			bf = int(_idle_t * idle_sheet.cols) % idle_sheet.cols
+	_set_body(body)
+	if body != null:
+		legs.region_rect = body.region(Iso.dir_index(bdir, body.dirs), bf)
 	else:
 		legs.region_rect = legs_sheet.region(Iso.dir_index(leg_dir, legs_sheet.dirs), col)
 	legs_glow.region_rect = legs.region_rect
@@ -210,6 +287,9 @@ func update(dt: float, vel: Vector2, aim_dir: Vector2, dashing: bool, dash_k := 
 	# a stretch along the dash, settling back after it
 	var want := Vector2(1.07, 0.94) if dashing else Vector2.ONE
 	scale = scale.lerp(want, 1.0 - exp(-20.0 * dt))
+	# hits knock the whole sprite a few px along the blow, springing back
+	_jolt = _jolt.lerp(Vector2.ZERO, 1.0 - exp(-22.0 * dt))
+	position = _jolt
 
 
 ## Fall dead, facing `face` (toward the killing blow), so he goes over backward.
@@ -221,10 +301,10 @@ func play_death(face: Vector2) -> void:
 	_death_t = 0.0
 	_souls_t = 0.0
 	_death_dir = face if face.length() > 0.1 else leg_dir
-	_dash_shown = false
-	_show_sheet(legs, legs_glow, death_sheet)
-	torso.visible = false
-	torso_glow.visible = false
+	_hit_t = -1.0
+	_set_body(death_sheet)
+	_jolt = Vector2.ZERO
+	position = Vector2.ZERO
 	legs.skew = 0.0
 	torso.skew = 0.0
 	scale = Vector2.ONE
@@ -265,12 +345,10 @@ func revived() -> void:
 	_death_t = -1.0
 	mat.set_shader_parameter("dissolve", 0.0)
 	set_flash(0.0)
-	_show_sheet(legs, legs_glow, legs_sheet)
+	_set_body(null)
+	_still_t = 0.0
 	legs_glow.modulate.a = 1.0
 	shadow.modulate.a = 0.75
-	torso.visible = true
-	torso_glow.visible = true
-	_dash_shown = false
 	visible = true
 
 
