@@ -129,7 +129,7 @@ const ENCLOSE := true
 const PAINTS: Array = ["res://assets/rooms/temple_east_jade", "res://assets/rooms/temple_jade",
 	"res://assets/rooms/sanctum_jade", "res://assets/rooms/altar_jade", "res://assets/rooms/stair_jade",
 	"res://assets/rooms/undercroft_jade", "res://assets/rooms/shades_jade",
-	"res://assets/rooms/lethe_jade"]
+	"res://assets/rooms/lethe_jade", "res://assets/rooms/arena_jade"]
 
 ## The previous set (v3 ink on green-grey stone), still selectable with --paint-set=v3.
 ## temple_east_01 (room 1's right half, painted with its new walls; listed first so the
