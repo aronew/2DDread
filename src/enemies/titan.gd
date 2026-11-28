@@ -14,9 +14,16 @@ extends Enemy
 ##   Volley  range: fans of magenta venom shards, three to five in a row.
 ##   Nova    phase 2+: a red circle under it and a roar, then a ring of magenta fire races
 ##           out across the arena (SoulRing): dash through it (i-frames) or outrun it.
-##   Brood   phase 2+: rears up and births hellhounds from its abdomen.
-## Phases: 1 above 60% health, 2 below (nova and brood join in, a little faster), 3 below
-## 25% (enraged: faster, shorter cooldowns, double charges and double rings).
+##   Brood   rears up and births spiderlings (tiny copies of itself), and from phase 2
+##           Flaming Skulls, out of its abdomen.
+##   Mortar  spits venom globs that arc onto red circles at and around the player and
+##           leave burning venom pools.
+##   Spiral  phase 2+: spins in place spraying shards in rotating arms (bullet storm).
+## Stomps and crashes shake rocks loose from the ceiling: red circles at and around the
+## player, then falling stone (SkyStrike; rocks crush spiderlings too). Charges aim where
+## the player is heading, not where they are.
+## Phases: 1 above 60% health, 2 below (nova, spiral and skulls join in, a little faster),
+## 3 below 25% (enraged: faster, shorter cooldowns, double charges and rings, more rocks).
 
 const PHASE2 := 0.6
 const PHASE3 := 0.25
@@ -28,7 +35,9 @@ const RAGE_TINT := Color(1.0, 0.35, 0.45)
 
 var phase := 1
 var _mode := ""
-var _cool := {"stomp": 0.0, "charge": 3.0, "volley": 1.5, "nova": 4.0, "brood": 6.0}
+var _cool := {"stomp": 0.0, "charge": 3.0, "volley": 1.5, "nova": 4.0, "brood": 9.0, "mortar": 5.0, "spiral": 3.0}
+var _spiral_a := 0.0
+var _spiral_t := 0.0
 var _slam_center := Vector2.ZERO
 var _charge_dir := Vector2.ZERO
 var _charge_hit := false
@@ -109,14 +118,24 @@ func _choose(p, to: Vector2, dist: float) -> void:
 		enter(S.WINDUP)
 		telegraph = VFX.telegraph_circle(gpos, Iso.m(3.4), 1.0)
 		Audio.play("brute_roar", gpos, 0.0, 0.5)
-	elif phase >= 2 and _cool["brood"] <= 0.0 and Game.living_enemies() < 10:
+	elif phase >= 2 and _cool["spiral"] <= 0.0 and dist < Iso.m(12.0):
+		_mode = "spiral"
+		_spiral_a = randf() * TAU
+		enter(S.WINDUP)
+		telegraph = VFX.telegraph_circle(gpos, Iso.m(2.6), 0.8)
+		Audio.play("spitter_charge", gpos, 2.0, 0.5)
+	elif _cool["brood"] <= 0.0 and Game.living_enemies() < 12:
 		_mode = "brood"
 		enter(S.WINDUP)
 		Audio.play("brute_roar", gpos, -2.0, 0.8)
-	elif dist > Iso.m(6.0) and dist < Iso.m(20.0) and _cool["charge"] <= 0.0 and absf(facing.angle_to(to)) < 0.5:
+	elif dist > Iso.m(6.0) and dist < Iso.m(20.0) and _cool["charge"] <= 0.0 and absf(facing.angle_to(to)) < 0.6:
 		_mode = "charge"
 		_charges_left = 2 if phase >= 3 else 1
-		_begin_charge(to)
+		_begin_charge(_lead(p, 0.45) - gpos)
+	elif dist > Iso.m(5.0) and _cool["mortar"] <= 0.0:
+		_mode = "mortar"
+		enter(S.WINDUP)
+		Audio.play("spitter_charge", gpos, 0.0, 0.45)
 	elif dist > Iso.m(4.0) and _cool["volley"] <= 0.0:
 		_mode = "volley"
 		_volleys_left = 3 + phase - 1
@@ -171,6 +190,18 @@ func _windup(p, dt: float) -> void:
 			if state_t >= 0.8:
 				_brood()
 				enter(S.RECOVER)
+		"mortar":
+			set_attack_frame(0.3 * minf(1.0, state_t / 0.5))
+			turn_toward(p.gpos - gpos, dt, 3.0)
+			if state_t >= 0.5:
+				_mortar(p)
+				enter(S.RECOVER)
+		"spiral":
+			set_attack_frame(0.4 * minf(1.0, state_t / 0.8))
+			if state_t >= 0.8:
+				clear_telegraph()
+				_spiral_t = 0.0
+				enter(S.ATTACK)
 
 
 func _attack(p, to: Vector2, dist: float, dt: float) -> void:
@@ -206,6 +237,23 @@ func _attack(p, to: Vector2, dist: float, dt: float) -> void:
 				if _volleys_left <= 0:
 					_cool["volley"] = 4.5 * _cd_k()
 					enter(S.RECOVER)
+		"spiral":
+			# a bullet storm: shards spray in rotating arms while it turns in place
+			desire(Vector2.ZERO, dt)
+			set_attack_frame(0.4)
+			var arms := 3 if phase >= 3 else 2
+			_spiral_a += dt * 2.4
+			facing = Vector2.from_angle(_spiral_a)
+			_spiral_t -= dt
+			if _spiral_t <= 0.0:
+				_spiral_t = 0.11
+				for k in arms:
+					var dir := Vector2.from_angle(_spiral_a + k * TAU / arms)
+					_shard(gpos + dir * Iso.m(1.8), dir, 9.0)
+				Audio.play("spitter_spit", gpos, -8.0, 1.3)
+			if state_t >= 2.6:
+				_cool["spiral"] = 11.0 * _cd_k()
+				enter(S.RECOVER)
 		"nova":
 			desire(Vector2.ZERO, dt)
 			set_attack_frame(0.62 + 0.37 * minf(1.0, state_t / 0.5))
@@ -234,6 +282,7 @@ func _do_stomp(p) -> void:
 	if p.gpos.distance_to(_slam_center) < r + p.radius * 0.5:
 		hurt_player(data.damage * 0.8, (p.gpos - _slam_center).normalized(), 14.0)
 	_cool["stomp"] = 2.2 * _cd_k()
+	_rockfall(p, 2 + phase * 2, 0.7)
 
 
 func _crash() -> void:
@@ -242,6 +291,9 @@ func _crash() -> void:
 	VFX.debris(gpos + _charge_dir * radius, 3.0, 30)
 	Audio.play("brute_slam", gpos, 2.0, 0.6)
 	VFX.popup(gpos, 4.2, "STUNNED", Color(1.0, 0.8, 0.3), 40)
+	var pl = player()
+	if pl:
+		_rockfall(pl, 3 + phase, 0.9)   # the crash brings the ceiling down: the opening still costs
 	_cool["charge"] = 7.0 * _cd_k()
 	attack_cd = data.attack_cooldown
 	stagger_meter = 0.0
@@ -250,7 +302,7 @@ func _crash() -> void:
 
 
 func _fire_fan(p) -> void:
-	var lead: Vector2 = p.gpos + p.vel * 0.25
+	var lead: Vector2 = _lead(p, 0.25)
 	var dir := (lead - gpos).normalized().rotated(0.12 * _volley_side)
 	_volley_side = -_volley_side
 	var mouth := gpos + facing * Iso.m(2.4)
@@ -274,6 +326,60 @@ func _fire_fan(p) -> void:
 	Audio.play("spitter_spit", gpos, 0.0, 0.7)
 
 
+## Where the player will be in t seconds if they keep running (clamped to the arena).
+func _lead(p, t: float) -> Vector2:
+	var g: Vector2 = p.gpos + p.vel * t
+	return g if Game.dungeon.is_floor(Iso.cell_of(g)) else p.gpos
+
+
+func _shard(at: Vector2, dir: Vector2, speed_m: float) -> void:
+	var q := Projectile.new()
+	q.team = 1
+	q.pos = at
+	q.height = 1.3
+	q.vel = dir * Iso.m(speed_m)
+	q.info = DamageInfo.make(data.damage * dmg_mult * 0.38, DamageInfo.Type.VOID, self)
+	q.info.knockback = Iso.m(1.5)
+	q.max_range = Iso.m(16.0)
+	q.radius = Iso.m(0.22)
+	q.kind = &"shard"
+	q.color = Color(1.0, 0.22, 0.6)
+	q.impact_style = "shard"
+	Game.projectiles.spawn(q)
+
+
+## Rocks shaken loose from the ceiling: one on where the player is heading, the rest
+## scattered around them, landing one after another.
+func _rockfall(p, n: int, delay: float) -> void:
+	for i in n:
+		var at: Vector2
+		if i == 0:
+			at = _lead(p, delay * 0.6)
+		else:
+			at = p.gpos + Vector2.from_angle(randf() * TAU) * Iso.m(randf_range(2.0, 6.5))
+		if not Game.dungeon.is_floor(Iso.cell_of(at)):
+			continue
+		var r := SkyStrike.new()
+		r.setup(at, 1.35, delay + i * 0.16, data.damage * dmg_mult * 0.75, "rock", self)
+		Game.world.add_hazard(r)
+
+
+## Venom globs spat high, landing on and around the player and leaving burning pools.
+func _mortar(p) -> void:
+	var n := 3 + phase
+	var mouth := gpos + facing * Iso.m(2.4)
+	for i in n:
+		var at: Vector2 = _lead(p, 1.0) if i == 0 else p.gpos + Vector2.from_angle(i * TAU / (n - 1) + randf() * 0.5) * Iso.m(3.0)
+		if not Game.dungeon.is_floor(Iso.cell_of(at)):
+			continue
+		var v := SkyStrike.new()
+		v.setup(at, 1.5, 1.05 + i * 0.1, data.damage * dmg_mult * 0.6, "venom", self, mouth)
+		Game.world.add_hazard(v)
+	VFX.muzzle(Iso.lift(mouth, 1.6), facing, {"color": Color(1.0, 0.3, 0.9), "scale": 1.2, "light": 2.0, "range": 4.0})
+	Audio.play("spitter_spit", gpos, 2.0, 0.55)
+	_cool["mortar"] = 6.5 * _cd_k()
+
+
 func _nova() -> void:
 	_rings_left -= 1
 	var ring := SoulRing.new()
@@ -287,19 +393,25 @@ func _nova() -> void:
 
 
 func _brood() -> void:
-	var n := 3 if phase < 3 else 4
+	# spiderlings, tiny copies of itself, pour out of its abdomen; from phase 2 skulls too
+	var kids: Array = []
+	for i in 3 + phase:
+		kids.append("spiderling")
+	for i in phase - 1:
+		kids.append("bloater")
+	var n := kids.size()
 	for i in n:
-		var a := facing.angle() + PI + (i - (n - 1) * 0.5) * 0.55
+		var a := facing.angle() + PI + (i - (n - 1) * 0.5) * 0.45
 		var at := gpos + Vector2.from_angle(a) * (radius + Iso.m(1.2))
 		if not Game.dungeon.is_floor(Iso.cell_of(at)):
 			at = gpos + Vector2.from_angle(a) * radius * 0.6
-		var e = Game.world.spawn_enemy("mite", at, {"from_nest": true})
+		var e = Game.world.spawn_enemy(kids[i], at, {"from_nest": true})
 		if e and room:
 			e.room = room
 			room.enemies.append(e)
 	VFX.gore(gpos - facing * radius, Color(0.9, 0.35, 1.0), 2.2)
 	VFX.popup(gpos, 4.0, "THE BROOD WAKES", Color(1.0, 0.5, 0.9), 30)
-	_cool["brood"] = 13.0 * _cd_k()
+	_cool["brood"] = 15.0 * _cd_k()
 
 
 func _check_phase() -> void:
@@ -309,6 +421,7 @@ func _check_phase() -> void:
 		return
 	phase = want
 	_cool["nova"] = 0.0
+	_cool["spiral"] = 1.0
 	_cool["brood"] = 0.5 if phase == 2 else _cool["brood"]
 	attack_cd = 0.0
 	Events.message.emit("ARACHNE RAGES" if phase == 3 else "THE WEAVER STIRS", Color(1.0, 0.4, 0.6))
